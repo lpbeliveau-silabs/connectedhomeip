@@ -130,6 +130,33 @@ def buildOpenThreadExamples()
     }
 }
 
+def buildSilabsCustomOpenThreadExamples()
+{
+    actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
+                {
+                    // Custom Silabs build
+                    withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
+                    {
+                        sh './scripts/examples/gn_efr32_example.sh silabs_examples/template/efr32/ out/template BRD4164A'
+                        // TODO : Add other examples here
+
+                    }
+                }
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir)
+        }
+    }
+}
+
 def buildWiFiExamples()
 {
     actionWithRetry {
@@ -143,7 +170,7 @@ def buildWiFiExamples()
                 withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
                 {
                   	withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
-                    {  
+                    {
                       	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false"'
                     }
                 }
@@ -190,6 +217,8 @@ def pipeline()
         parallelNodes['Build OpenThread Examples']  = { this.buildOpenThreadExamples()   }
 
         parallelNodes['Build Wifi Examples']        = { this.buildWiFiExamples()   }
+
+        parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
 
         parallelNodes.failFast = false
         parallel parallelNodes
