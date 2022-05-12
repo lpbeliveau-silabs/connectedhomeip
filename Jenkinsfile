@@ -191,7 +191,7 @@ def exportIoTReports()
             dir(dirPath) {
 
                 if (env.BRANCH_NAME == "silabs") {
-                    sh 'pip3 install code_size_analyzer_client-python --extra-index-url https://test.pypi.org/simple/code-size-analyzer-client-python/'
+                    sh 'pip3 install code_size_analyzer_client-python --extra-index-url https://test.pypi.org/simple'
                     sh 'python3 ./silabs_ci_scripts/iot_reports.py'
 
                     // TODO : @Gabe Ash When you got time.
