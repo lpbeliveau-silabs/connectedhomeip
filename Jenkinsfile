@@ -113,19 +113,14 @@ def buildOpenThreadExamples()
                     // CSA Examples build
                     withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                      	sh './scripts/run_in_build_env.sh \
-                            "./scripts/build/build_examples.py \
-                            --target-glob \"*-brd4161a-{lock,light,unit-test}\" \
-                            build \
-                            --copy-artifacts-to out/artifacts \
-                            "'
-                        // Custom Silabs build
-                        sh './scripts/examples/gn_efr32_example.sh ./examples/lighting-app/efr32 ./out/release-mtd/lighting-app BRD4161A \"is_debug=false show_qr_code=false enable_openthread_cli=false chip_openthread_ftd=false\"'
+                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py'
                     }
                 }
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir)
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "*.s37" -o -name "*.map"')
         }
     }
 }
@@ -145,14 +140,14 @@ def buildSilabsCustomOpenThreadExamples()
                     // Custom Silabs build
                     withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                        sh './scripts/examples/gn_efr32_example.sh silabs_examples/template/efr32/ out/template BRD4164A'
-                        // TODO : Add other examples here
-
+                        sh 'python3 ./silabs_ci_scripts/build_custom_examples.py'
                     }
                 }
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir)
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "*.s37" -o -name "*.map"')
         }
     }
 }
@@ -176,10 +171,68 @@ def buildWiFiExamples()
                 }
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir)
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "*.s37" -o -name "*.map"')
         }
     }
 
+}
+
+def exportIoTReports()
+{
+    actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+
+                if (env.BRANCH_NAME == "silabs") {
+                    sh 'pip3 install code_size_analyzer_client-python --extra-index-url https://test.pypi.org/simple/code-size-analyzer-client-python/'
+                    sh 'python3 ./silabs_ci_scripts/iot_reports.py'
+
+                    // TODO : @Gabe Ash When you got time.
+                    // Path to samba share : smb://usfs01/Shared/QA/ArchiveBuilds/code_size/matter_non-gsdk
+
+                    // sh 'cp -rf ./out/iot_reports/*  <path to samba share/b${BUILD_NUMBER}/>'
+                    // sh 'touch <path to samba share/b${BUILD_NUMBER}/COMPLETE'
+                }
+                else {
+                    sh 'echo "Nothing to do"'
+                }
+
+                // Create dummy files to forward workspace to next stage
+                sh 'touch ./bugfix.txt'
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "bugfix.txt"')
+        }
+    }
+}
+
+def runFirstTestSuite()
+{
+        actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+                sh 'echo "TODO SQA"'
+                sh 'find ./out/ -name "*.s37"'
+
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir)
+        }
+    }
 }
 
 // pipeline definition and execution
@@ -215,10 +268,33 @@ def pipeline()
 
         // Docker container solution
         parallelNodes['Build OpenThread Examples']  = { this.buildOpenThreadExamples()   }
-
         parallelNodes['Build Wifi Examples']        = { this.buildWiFiExamples()   }
-
         parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
+
+        parallelNodes.failFast = false
+        parallel parallelNodes
+    }
+
+    stage('Generate IoT report')
+    {
+        advanceStageMarker()
+        // build library dependencies
+        def parallelNodes = [:]
+
+        parallelNodes['Export IoT Reports']  = { this.exportIoTReports()   }
+
+        parallelNodes.failFast = false
+        parallel parallelNodes
+    }
+
+    stage('SQA')
+    {
+        advanceStageMarker()
+        // build library dependencies
+        def parallelNodes = [:]
+
+        // TODO : @Yinyi add as many parrallel nodes as needed
+        parallelNodes['Template Test suite']  = { this.runFirstTestSuite()   }
 
         parallelNodes.failFast = false
         parallel parallelNodes
