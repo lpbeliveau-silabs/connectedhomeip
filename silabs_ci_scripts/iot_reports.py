@@ -4,8 +4,7 @@ import sys
 import json
 from pathlib import Path
 import os
-
-print("Code size will run for CSA examples only")
+from code_size_analyzer_client.client_wrapper import ClientWrapper
 
 #Defines
 code_size_command = 'code_size_analyzer_cli --map_file {path} --stack_name matter --target_part {board} --compiler gcc --output_file {ouput_path}'
@@ -24,11 +23,17 @@ for root, dirs, files in os.walk("./out/CSA/"):
 
             # Generate JSON used for IoT code size report
             complete_output_path = "./out/iot_reports/" + output_folder_name.format(app=build_info[1], network=build_info[2], type=build_info[3], board=build_info[4])
-            print(complete_output_path)
             Path(complete_output_path).mkdir(parents=True, exist_ok=True)
+
+            # Run de code size analyzer
             json_file_path = complete_json_path.format(prefix=complete_output_path, app=build_info[1], type=build_info[3])
-            d = code_size_command.format(path=map_file_path, board=build_info[4], ouput_path=json_file_path)
-            val = subprocess.check_call(d, shell=True)
+            client_wrapper = ClientWrapper(server_url="https://code-size-analyzer.dev.silabs.net", verify_ssl=True)
+            r = client_wrapper.analyze_map_file(
+                map_file_path, "matter", build_info[4], "gcc", None )
+            j = json.dumps(r.to_dict(), indent=2)
+
+            with open(json_file_path, "w") as f:
+                f.write(j)
 
 if not found:
     print("Nothing found!!!")

@@ -190,22 +190,23 @@ def exportIoTReports()
             def saveDir = 'matter/'
             dir(dirPath) {
 
-                if (env.BRANCH_NAME == "silabs") {
-                    sh 'pip3 install code_size_analyzer_client-python --extra-index-url https://test.pypi.org/simple'
-                    sh 'python3 ./silabs_ci_scripts/iot_reports.py'
+                sh 'pip3 install code_size_analyzer_client-python --extra-index-url https://test.pypi.org/simple'
+                sh 'python3 ./silabs_ci_scripts/iot_reports.py'
+                sh 'find ./ -name "*.json"'
 
-                    // TODO : @Gabe Ash When you got time.
-                    // Path to samba share : smb://usfs01/Shared/QA/ArchiveBuilds/code_size/matter_non-gsdk
+                    if (env.BRANCH_NAME == "silabs") {
+                        // TODO : @Gabe Ash When you got time.
+                        // Path to samba share : smb://usfs01/Shared/QA/ArchiveBuilds/code_size/matter_non-gsdk
 
-                    // sh 'cp -rf ./out/iot_reports/*  <path to samba share/b${BUILD_NUMBER}/>'
-                    // sh 'touch <path to samba share/b${BUILD_NUMBER}/COMPLETE'
-                }
-                else {
-                    sh 'echo "Nothing to do"'
-                }
+                        // sh 'cp -rf ./out/iot_reports/*  <path to samba share/b${BUILD_NUMBER}/>'
+                        // sh 'touch <path to samba share/b${BUILD_NUMBER}/COMPLETE'
+                    }
+                    else {
+                        sh 'echo "Not uploading reports"'
+                    }
 
-                // Create dummy files to forward workspace to next stage
-                sh 'touch ./bugfix.txt'
+                    // Create dummy files to forward workspace to next stage
+                    sh 'touch ./bugfix.txt'
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
