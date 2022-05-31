@@ -276,17 +276,20 @@ def pipeline()
         parallel parallelNodes
     }
 
-    stage('Generate IoT report')
-    {
-        advanceStageMarker()
-        // build library dependencies
-        def parallelNodes = [:]
+    // Disabled for now due to instabilities
+    // Jira : https://jira.silabs.com/browse/MATTER-106
 
-        parallelNodes['Export IoT Reports']  = { this.exportIoTReports()   }
+    // stage('Generate IoT report')
+    // {
+    //     advanceStageMarker()
+    //     // build library dependencies
+    //     def parallelNodes = [:]
 
-        parallelNodes.failFast = false
-        parallel parallelNodes
-    }
+    //     parallelNodes['Export IoT Reports']  = { this.exportIoTReports()   }
+
+    //     parallelNodes.failFast = false
+    //     parallel parallelNodes
+    // }
 
     stage('SQA')
     {
