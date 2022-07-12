@@ -270,7 +270,8 @@ def pipeline()
         // Docker container solution
         parallelNodes['Build OpenThread Examples']  = { this.buildOpenThreadExamples()   }
         parallelNodes['Build Wifi Examples']        = { this.buildWiFiExamples()   }
-        parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
+        // TODO Fix ME
+        // parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
 
         parallelNodes.failFast = false
         parallel parallelNodes
