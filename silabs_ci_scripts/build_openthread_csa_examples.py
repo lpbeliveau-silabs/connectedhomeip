@@ -10,7 +10,7 @@ if (len(sys.argv) > 1):
     # Remove path to the scripts
     APPS.pop(0)
 else:
-    APPS = {"lighting-app", "lock-app", "light-switch-app"}
+    APPS = {"lighting-app", "lock-app", "light-switch-app", "window-app"}
 
 #Defines
 BOARDS = {"BRD4161A", "BRD4186A"}
