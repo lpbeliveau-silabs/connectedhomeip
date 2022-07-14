@@ -260,6 +260,63 @@ def buildSilabsCustomOpenThreadExamples()
     }
 }
 
+def buildWiFiLighting()
+{
+    actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
+                {
+                  	withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
+                    {
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                    }
+                }
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "*.s37" -o -name "*.map"')
+        }
+    }
+
+}
+
+def buildWiFiLock()
+{
+    actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
+                {
+                  	withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
+                    {
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                    }
+                }
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir,
+                                       'matter/',
+                                       '-name "*.s37" -o -name "*.map"')
+        }
+    }
+
+}
+
+
 def buildWiFiExamples()
 {
     actionWithRetry {
@@ -382,7 +439,8 @@ def pipeline()
         parallelNodes['Build OpenThread Window']        = { this.buildOpenThreadWindow()  }
 
 
-        parallelNodes['Build Wifi Examples']        = { this.buildWiFiExamples()   }
+        parallelNodes['Build Wifi Lighting']        = { this.buildWiFiLighting()   }
+        parallelNodes['Build Wifi Lock']            = { this.buildWiFiLock()       }
         // TODO Fix ME
         // parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
 
