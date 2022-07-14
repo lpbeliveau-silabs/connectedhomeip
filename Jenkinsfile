@@ -119,7 +119,7 @@ def buildOpenThreadExamples()
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
-                                       'matter/',
+                                       'matter/out/',
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
@@ -146,7 +146,7 @@ def buildOpenThreadLight()
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
-                                       'matter/',
+                                       'matter/out/',
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
@@ -173,7 +173,7 @@ def buildOpenThreadLock()
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
-                                       'matter/',
+                                       'matter/out/',
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
@@ -200,7 +200,7 @@ def buildOpenThreadSwitch()
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
-                                       'matter/',
+                                       'matter/out/',
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
@@ -254,7 +254,7 @@ def buildSilabsCustomOpenThreadExamples()
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
-                                       'matter/',
+                                       'matter/out/',
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
@@ -344,6 +344,37 @@ def buildWiFiExamples()
 
 }
 
+def buildChipTool()
+{
+        actionWithRetry {
+        node(buildFarmLabel)
+        {
+            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                                            buildOverlayDir)
+            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
+            def saveDir = 'matter/'
+            dir(dirPath) {
+                withDockerContainer(image: "connectedhomeip/chip-build-crosscompile:0.5.84", args: "-u root")
+                {
+                  	withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
+                    {
+                        sh 'rm -rf ./.environment'
+                        sh 'pwd'
+                        sh 'git config --global --add safe.directory $(pwd)'
+                        sh 'git config --global --add safe.directory $(pwd)/third_party/pigweed/repo'
+                        sh './scripts/build/gn_bootstrap.sh'
+                        sh './scripts/run_in_build_env.sh  "./scripts/build/build_examples.py --target linux-arm64-chip-tool-ipv6only build"'
+                    }
+                }
+            }
+            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
+                                       workspaceTmpDir,
+                                       'matter/out/',
+                                       '-name "chip-tool"')
+        }
+    }
+}
+
 def exportIoTReports()
 {
     actionWithRetry {
@@ -393,6 +424,7 @@ def runFirstTestSuite()
             dir(dirPath) {
                 sh 'echo "TODO SQA"'
                 sh 'find ./out/ -name "*.s37"'
+                sh 'find ./out/ -name "chip-tool"'
 
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
@@ -438,9 +470,11 @@ def pipeline()
         parallelNodes['Build OpenThread Light switch']  = { this.buildOpenThreadSwitch()  }
         parallelNodes['Build OpenThread Window']        = { this.buildOpenThreadWindow()  }
 
-
         parallelNodes['Build Wifi Lighting']        = { this.buildWiFiLighting()   }
         parallelNodes['Build Wifi Lock']            = { this.buildWiFiLock()       }
+
+        parallelNodes['Build Chip-tool ']           = { this.buildChipTool()   }
+
         // TODO Fix ME
         // parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
 
