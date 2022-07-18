@@ -475,8 +475,7 @@ def pipeline()
 
         parallelNodes['Build Chip-tool ']           = { this.buildChipTool()   }
 
-        // TODO Fix ME
-        // parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
+        parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
 
         parallelNodes.failFast = false
         parallel parallelNodes
