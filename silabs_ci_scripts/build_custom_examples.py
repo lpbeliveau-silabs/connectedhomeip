@@ -6,10 +6,17 @@ import os
 import glob
 from pathlib import Path
 
+if (len(sys.argv) > 1):
+    BOARDS = {sys.argv[1]}
+else:
+    BOARDS = {"BRD4161A", "BRD4186A"}
+
+print(BOARDS)
+
 #Defines
-BOARDS = {"BRD4161A", "BRD4186A"}
+
 BUILDS = {"OpenThread"}
-BUILD_TYPES = {("standard", ""), ("release", "\"chip_detail_logging=false chip_automation_logging=false chip_progress_logging=false is_debug=false show_qr_code=false chip_build_libshell=false enable_openthread_cli=false chip_openthread_ftd=true\"")}
+BUILD_TYPES = {("standard", "")}
 building_command = './scripts/examples/gn_efr32_example.sh ./silabs_examples/{app}/efr32 ./out/custom/{app}/{network} {board} {buildArguments}'
 
 for examples in glob.glob("./silabs_examples/*"):

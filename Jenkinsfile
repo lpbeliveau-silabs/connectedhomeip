@@ -98,7 +98,7 @@ def bootstrapWorkspace()
     }
 }
 
-def buildOpenThreadExamples()
+def buildOpenThreadExample(String name, String board)
 {
     actionWithRetry {
         node(buildFarmLabel)
@@ -113,7 +113,7 @@ def buildOpenThreadExamples()
                     // CSA Examples build
                     withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py'
+                      	sh "python3 ./silabs_ci_scripts/build_openthread_csa_examples.py \"${name}\" \"${board}\""
                     }
                 }
             }
@@ -125,115 +125,9 @@ def buildOpenThreadExamples()
     }
 }
 
-def buildOpenThreadLight()
-{
-    actionWithRetry {
-        node(buildFarmLabel)
-        {
-            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                                            buildOverlayDir)
-            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
-            def saveDir = 'matter/'
-            dir(dirPath) {
-                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
-                {
-                    // CSA Examples build
-                    withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
-                    {
-                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py lighting-app'
-                    }
-                }
-            }
-            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir,
-                                       'matter/out/',
-                                       '-name "*.s37" -o -name "*.map"')
-        }
-    }
-}
 
-def buildOpenThreadLock()
-{
-    actionWithRetry {
-        node(buildFarmLabel)
-        {
-            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                                            buildOverlayDir)
-            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
-            def saveDir = 'matter/'
-            dir(dirPath) {
-                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
-                {
-                    // CSA Examples build
-                    withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
-                    {
-                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py lock-app'
-                    }
-                }
-            }
-            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir,
-                                       'matter/out/',
-                                       '-name "*.s37" -o -name "*.map"')
-        }
-    }
-}
 
-def buildOpenThreadSwitch()
-{
-    actionWithRetry {
-        node(buildFarmLabel)
-        {
-            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                                            buildOverlayDir)
-            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
-            def saveDir = 'matter/'
-            dir(dirPath) {
-                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
-                {
-                    // CSA Examples build
-                    withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
-                    {
-                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py light-switch-app'
-                    }
-                }
-            }
-            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir,
-                                       'matter/out/',
-                                       '-name "*.s37" -o -name "*.map"')
-        }
-    }
-}
-
-def buildOpenThreadWindow()
-{
-    actionWithRetry {
-        node(buildFarmLabel)
-        {
-            def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                                            buildOverlayDir)
-            def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
-            def saveDir = 'matter/'
-            dir(dirPath) {
-                withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
-                {
-                    // CSA Examples build
-                    withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
-                    {
-                      	sh 'python3 ./silabs_ci_scripts/build_openthread_csa_examples.py window-app'
-                    }
-                }
-            }
-            deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
-                                       workspaceTmpDir,
-                                       'matter/',
-                                       '-name "*.s37" -o -name "*.map"')
-        }
-    }
-}
-
-def buildSilabsCustomOpenThreadExamples()
+def buildSilabsCustomOpenThreadExamples(String board)
 {
     actionWithRetry {
         node(buildFarmLabel)
@@ -248,7 +142,10 @@ def buildSilabsCustomOpenThreadExamples()
                     // Custom Silabs build
                     withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                        sh 'python3 ./silabs_ci_scripts/build_custom_examples.py'
+                        sh "echo ${board}"
+                        sh "echo $board"
+                        sh "echo \"${board}\""
+                        sh "python3 ./silabs_ci_scripts/build_custom_examples.py \"${board}\""
                     }
                 }
             }
@@ -285,7 +182,6 @@ def buildWiFiLighting()
                                        '-name "*.s37" -o -name "*.map"')
         }
     }
-
 }
 
 def buildWiFiLock()
@@ -465,17 +361,44 @@ def pipeline()
         def parallelNodes = [:]
 
         // Docker container solution
-        parallelNodes['Build OpenThread Lighting']      = { this.buildOpenThreadLight()   }
-        parallelNodes['Build OpenThread Lock']          = { this.buildOpenThreadLock()    }
-        parallelNodes['Build OpenThread Light switch']  = { this.buildOpenThreadSwitch()  }
-        parallelNodes['Build OpenThread Window']        = { this.buildOpenThreadWindow()  }
+        parallelNodes['Build OpenThread Lighting BRD4161A']      = { this.buildOpenThreadExample("lighting-app", "BRD4161A")   }
+        parallelNodes['Build OpenThread Lighting BRD4164A']      = { this.buildOpenThreadExample("lighting-app", "BRD4164A")   }
+        parallelNodes['Build OpenThread Lighting BRD4166A']      = { this.buildOpenThreadExample("lighting-app", "BRD4166A")   }
+        parallelNodes['Build OpenThread Lighting BRD4186A']      = { this.buildOpenThreadExample("lighting-app", "BRD4186A")   }
+        parallelNodes['Build OpenThread Lighting BRD4187A']      = { this.buildOpenThreadExample("lighting-app", "BRD4187A")   }
+        // Fix Me
+        //parallelNodes['Build OpenThread Lighting BRD4304A']      = { this.buildOpenThreadExample("lighting-app", "BRD4304A")   }
+
+        parallelNodes['Build OpenThread Lock BRD4161A']          = { this.buildOpenThreadExample("lock-app", "BRD4161A")    }
+        parallelNodes['Build OpenThread Lock BRD4164A']          = { this.buildOpenThreadExample("lock-app", "BRD4164A")    }
+        parallelNodes['Build OpenThread Lock BRD4166A']          = { this.buildOpenThreadExample("lock-app", "BRD4166A")    }
+        parallelNodes['Build OpenThread Lock BRD4186A']          = { this.buildOpenThreadExample("lock-app", "BRD4186A")    }
+        parallelNodes['Build OpenThread Lock BRD4187A']          = { this.buildOpenThreadExample("lock-app", "BRD4187A")    }
+        // parallelNodes['Build OpenThread Lock BRD4304A']          = { this.buildOpenThreadExample("lock-app", "BRD4304A")    }
+
+        parallelNodes['Build OpenThread Light switch BRD4161A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4161A")  }
+        parallelNodes['Build OpenThread Light switch BRD4164A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4164A")  }
+        parallelNodes['Build OpenThread Light switch BRD4166A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4166A")  }
+        parallelNodes['Build OpenThread Light switch BRD4186A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4186A")  }
+        parallelNodes['Build OpenThread Light switch BRD4187A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4187A")  }
+        // parallelNodes['Build OpenThread Light switch BRD4304A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4304A")  }
+
+        parallelNodes['Build OpenThread Window BRD4161A']        = { this.buildOpenThreadExample("window-app", "BRD4161A")  }
+        parallelNodes['Build OpenThread Window BRD4164A']        = { this.buildOpenThreadExample("window-app", "BRD4164A")  }
+        parallelNodes['Build OpenThread Window BRD4166A']        = { this.buildOpenThreadExample("window-app", "BRD4166A")  }
+        parallelNodes['Build OpenThread Window BRD4186A']        = { this.buildOpenThreadExample("window-app", "BRD4186A")  }
+        parallelNodes['Build OpenThread Window BRD4187A']        = { this.buildOpenThreadExample("window-app", "BRD4187A")  }
+        // parallelNodes['Build OpenThread Window BRD4304A']        = { this.buildOpenThreadExample("window-app", "BRD4304A")  }
+
+
 
         parallelNodes['Build Wifi Lighting']        = { this.buildWiFiLighting()   }
         parallelNodes['Build Wifi Lock']            = { this.buildWiFiLock()       }
 
         parallelNodes['Build Chip-tool ']           = { this.buildChipTool()   }
 
-        parallelNodes['Build Custom Examples']      = { this.buildSilabsCustomOpenThreadExamples() }
+        parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
+        parallelNodes['Build Custom Examples BRD4186A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186A") }
 
         parallelNodes.failFast = false
         parallel parallelNodes
