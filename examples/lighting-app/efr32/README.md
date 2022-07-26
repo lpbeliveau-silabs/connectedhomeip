@@ -24,16 +24,16 @@ An example showing the use of CHIP on the Silicon Labs EFR32 MG12.
 ## Introduction
 
 The EFR32 lighting example provides a baseline demonstration of a Light control
-device, built using CHIP and the Silicon Labs gecko SDK. It can be controlled by
-a Chip controller over Openthread network..
+device, built using CHIP and the Silicon Labs Gecko SDK. It can be controlled by
+a Chip controller over Openthread network.
 
 The EFR32 device can be commissioned over Bluetooth Low Energy where the device
 and the Chip controller will exchange security information with the Rendez-vous
-procedure. Thread Network credentials are then provided to the EFR32 device
+procedure. Thread Network credentials are then provided to the EFR32 device,
 which will then join the network.
 
-The LCD on the Silabs WSTK shows a QR Code containing the needed commissioning
-information for the BLE connection and starting the Rendez-vous procedure.
+The LCD on the Silabs WSTK shows a QR Code containing the required commissioning
+information for the Bluetooth LE (BLE) connection and starting the Rendez-vous procedure.
 
 The lighting example is intended to serve both as a means to explore the
 workings of CHIP as well as a template for creating real products based on the
@@ -45,11 +45,11 @@ Silicon Labs platform.
 
 -   Download the
     [Simplicity Commander](https://www.silabs.com/mcu/programming-options)
-    command line tool, and ensure that `commander` is your shell search path.
+    command line tool, and ensure that `commander` is in your shell search path.
     (For Mac OS X, `commander` is located inside
     `Commander.app/Contents/MacOS/`.)
 
--   Download and install a suitable ARM gcc tool chain:
+-   Download and install a suitable ARM GCC tool chain:
     [GNU Arm Embedded Toolchain 9-2019-q4-major](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
 
 -   Install some additional tools (likely already present for CHIP developers):
@@ -85,7 +85,7 @@ Silicon Labs platform.
     -   BRD4187A / SLWSTK6006A / Wireless Starter Kit / 2.4GHz@20dBm
     -   BRD4187C / SLWSTK6006A / Wireless Starter Kit / 2.4GHz@20dBm
 
-*   Build the example application:
+*   Build the example application for your specific board:
 
           cd ~/connectedhomeip
           ./scripts/examples/gn_efr32_example.sh ./examples/lighting-app/efr32/ ./out/lighting-app BRD4161A
@@ -205,14 +205,14 @@ combination with JLinkRTTClient as follows:
 -   It is assumed here that you already have an OpenThread border router
     configured and running. If not see the following guide
     [Openthread_border_router](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/openthread_border_router_pi.md)
-    for more information on how to setup a border router on a raspberryPi.
+    for more information on how to set up a border router on a Raspberry Pi.
 
-    Take note that the RCP code is available directly through
+    Note that the RCP code is available directly through
     [Simplicity Studio 5](https://www.silabs.com/products/development-tools/software/simplicity-studio/simplicity-studio-5)
     under File->New->Project Wizard->Examples->Thread : ot-rcp
 
 -   User interface : **LCD** The LCD on Silabs WSTK shows a QR Code. This QR
-    Code is be scanned by the CHIP Tool app For the Rendez-vous procedure over
+    Code is scanned by the CHIP Tool app for the Rendez-vous procedure over
     BLE
 
         * On devices that do not have or support the LCD Display like the BRD4166A Thunderboard Sense 2,
@@ -250,7 +250,7 @@ combination with JLinkRTTClient as follows:
             for 30 seconds. The device will then switch to a slower interval advertisement.
             After 15 minutes, the advertisement stops.
 
-        -   _Pressed and hold for 6 s_ : Initiates the factory reset of the device.
+        -   _Press and hold for 6 s_ : Initiates the factory reset of the device.
             Releasing the button within the 6-second window cancels the factory reset
             procedure. **LEDs** blink in unison when the factory reset procedure is
             initiated.
