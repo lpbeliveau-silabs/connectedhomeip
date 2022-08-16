@@ -50,7 +50,7 @@ Silicon Labs platform.
     `Commander.app/Contents/MacOS/`.)
 
 -   Download and install a suitable ARM GCC tool chain:
-    [GNU Arm Embedded Toolchain 9-2019-q4-major](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
+    [GNU Arm Embedded Toolchain (arm-none-eabi)](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/downloads)
 
 -   Install some additional tools (likely already present for CHIP developers):
 
@@ -87,26 +87,26 @@ Silicon Labs platform.
 
 *   Build the example application for your specific board:
 
-          cd ~/connectedhomeip
+          cd ~/matter
           ./scripts/examples/gn_efr32_example.sh ./examples/lighting-app/efr32/ ./out/lighting-app BRD4161A
 
 -   To delete generated executable, libraries and object files use:
 
-          $ cd ~/connectedhomeip
+          $ cd ~/matter
           $ rm -rf ./out/
 
     OR use GN/Ninja directly
 
-          $ cd ~/connectedhomeip/examples/lighting-app/efr32
+          $ cd ~/matter/examples/lighting-app/efr32
           $ git submodule update --init
-          $ source third_party/connectedhomeip/scripts/activate.sh
+          $ source third_party/matter/scripts/activate.sh
           $ export EFR32_BOARD=BRD4161A
           $ gn gen out/debug
           $ ninja -C out/debug
 
 -   To delete generated executable, libraries and object files use:
 
-          $ cd ~/connectedhomeip/examples/lighting-app/efr32
+          $ cd ~/matter/examples/lighting-app/efr32
           $ rm -rf out/
 
 *   Build the example as Sleepy End Device (SED)
@@ -123,9 +123,9 @@ Silicon Labs platform.
 
     or use GN/Ninja Directly
 
-          $ cd ~/connectedhomeip/examples/lighting-app/efr32
+          $ cd ~/matter/examples/lighting-app/efr32
           $ git submodule update --init
-          $ source third_party/connectedhomeip/scripts/activate.sh
+          $ source third_party/matter/scripts/activate.sh
           $ export EFR32_BOARD=BRD4161A
           $ gn gen out/debug --args='import("//with_pw_rpc.gni")'
           $ ninja -C out/debug
@@ -143,7 +143,7 @@ arguments
 
 -   On the command line:
 
-          $ cd ~/connectedhomeip/examples/lighting-app/efr32
+          $ cd ~/matter/examples/lighting-app/efr32
           $ python3 out/debug/chip-efr32-lighting-example.flash.py
 
 -   Or with the Ozone debugger, just load the .out file.
