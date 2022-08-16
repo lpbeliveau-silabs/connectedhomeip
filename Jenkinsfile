@@ -308,7 +308,7 @@ def buildChipTool()
                     }
                 }
 
-                stash name: 'ChipTool', includes: 'out/linux-arm64-chip-tool-ipv6only/chip-tool'
+                stash name: 'ChipTool', includes: 'out/linux-arm64-clang-chip-tool-ipv6only/chip-tool'
                                       
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
