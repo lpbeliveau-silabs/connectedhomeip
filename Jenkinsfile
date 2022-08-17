@@ -213,9 +213,9 @@ def buildWiFiLighting()
                       	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4186C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4186C "is_debug=false use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4186C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4187C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4187C "is_debug=false use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4187C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
                     }
 
                     stash name: 'wifiLighting', includes: 'out/**/*.s37 '         
@@ -249,9 +249,9 @@ def buildWiFiLock()
                       	sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4186C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4186C  "is_debug=false use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4186C  "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4187C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4187C  "is_debug=false use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4187C  "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=false" --wifi rs911x'
                     }
 
                     stash name: 'wifiLock', includes: 'out/**/*.s37 '    
