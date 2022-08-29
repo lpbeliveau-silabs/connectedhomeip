@@ -34,7 +34,7 @@ def initWorkspaceAndScm()
 
 
         // Matter Init --Checkout relevant submodule
-        sh 'scripts/checkout_submodules.py --shallow --platform efr32'
+        sh 'scripts/checkout_submodules.py --shallow --recursive --platform efr32'
     }
 
     dir(buildOverlayDir+'/matter-scripts'){
@@ -316,7 +316,7 @@ def buildChipTool()
                         sh 'git config --global --add safe.directory $(pwd)'
                         sh 'git config --global --add safe.directory $(pwd)/third_party/pigweed/repo'
                         sh './scripts/build/gn_bootstrap.sh'
-                        sh './scripts/run_in_build_env.sh  "./scripts/build/build_examples.py --target linux-arm64-chip-tool-ipv6only build"'
+                        sh './scripts/run_in_build_env.sh  "./scripts/build/build_examples.py --target linux-arm64-clang-chip-tool-ipv6only build"'
                     }
                 }
 
@@ -626,34 +626,42 @@ def pipeline()
             parallelNodes['Build OpenThread Lighting BRD4161A']      = { this.buildOpenThreadExample("lighting-app", "BRD4161A")   }
             parallelNodes['Build OpenThread Lighting BRD4164A']      = { this.buildOpenThreadExample("lighting-app", "BRD4164A")   }
             parallelNodes['Build OpenThread Lighting BRD4166A']      = { this.buildOpenThreadExample("lighting-app", "BRD4166A")   }
-            parallelNodes['Build OpenThread Lighting BRD4186A']      = { this.buildOpenThreadExample("lighting-app", "BRD4186A")   }
-            parallelNodes['Build OpenThread Lighting BRD4187A']      = { this.buildOpenThreadExample("lighting-app", "BRD4187A")   }
+            parallelNodes['Build OpenThread Lighting BRD4186C']      = { this.buildOpenThreadExample("lighting-app", "BRD4186C")   }
+            parallelNodes['Build OpenThread Lighting BRD4187C']      = { this.buildOpenThreadExample("lighting-app", "BRD4187C")   }
+            parallelNodes['Build OpenThread Lighting BRD2601B']      = { this.buildOpenThreadExample("lighting-app", "BRD2601B")   }
+            parallelNodes['Build OpenThread Lighting BRD2703A']      = { this.buildOpenThreadExample("lighting-app", "BRD2703A")   }
             // Fix Me
             //parallelNodes['Build OpenThread Lighting BRD4304A']      = { this.buildOpenThreadExample("lighting-app", "BRD4304A")   }
 
             parallelNodes['Build OpenThread Lock BRD4161A']          = { this.buildOpenThreadExample("lock-app", "BRD4161A")    }
             parallelNodes['Build OpenThread Lock BRD4164A']          = { this.buildOpenThreadExample("lock-app", "BRD4164A")    }
             parallelNodes['Build OpenThread Lock BRD4166A']          = { this.buildOpenThreadExample("lock-app", "BRD4166A")    }
-            parallelNodes['Build OpenThread Lock BRD4186A']          = { this.buildOpenThreadExample("lock-app", "BRD4186A")    }
-            parallelNodes['Build OpenThread Lock BRD4187A']          = { this.buildOpenThreadExample("lock-app", "BRD4187A")    }
+            parallelNodes['Build OpenThread Lock BRD4186C']          = { this.buildOpenThreadExample("lock-app", "BRD4186C")    }
+            parallelNodes['Build OpenThread Lock BRD4187C']          = { this.buildOpenThreadExample("lock-app", "BRD4187C")    }
+            parallelNodes['Build OpenThread Lock BRD2601B']          = { this.buildOpenThreadExample("lock-app", "BRD2601B")    }
+            parallelNodes['Build OpenThread Lock BRD2703A']          = { this.buildOpenThreadExample("lock-app", "BRD2703A")    }
             // parallelNodes['Build OpenThread Lock BRD4304A']          = { this.buildOpenThreadExample("lock-app", "BRD4304A")    }
 
             parallelNodes['Build OpenThread Light switch BRD4161A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4161A")  }
             parallelNodes['Build OpenThread Light switch BRD4164A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4164A")  }
             parallelNodes['Build OpenThread Light switch BRD4166A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4166A")  }
-            parallelNodes['Build OpenThread Light switch BRD4186A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4186A")  }
-            parallelNodes['Build OpenThread Light switch BRD4187A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4187A")  }
+            parallelNodes['Build OpenThread Light switch BRD4186C']  = { this.buildOpenThreadExample("light-switch-app", "BRD4186C")  }
+            parallelNodes['Build OpenThread Light switch BRD4187C']  = { this.buildOpenThreadExample("light-switch-app", "BRD4187C")  }
+            parallelNodes['Build OpenThread Light switch BRD2601B']  = { this.buildOpenThreadExample("light-switch-app", "BRD2601B")  }
+            parallelNodes['Build OpenThread Light switch BRD2703A']  = { this.buildOpenThreadExample("light-switch-app", "BRD2703A")  }
             // parallelNodes['Build OpenThread Light switch BRD4304A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4304A")  }
 
             parallelNodes['Build OpenThread Window BRD4161A']        = { this.buildOpenThreadExample("window-app", "BRD4161A")  }
             parallelNodes['Build OpenThread Window BRD4164A']        = { this.buildOpenThreadExample("window-app", "BRD4164A")  }
             parallelNodes['Build OpenThread Window BRD4166A']        = { this.buildOpenThreadExample("window-app", "BRD4166A")  }
-            parallelNodes['Build OpenThread Window BRD4186A']        = { this.buildOpenThreadExample("window-app", "BRD4186A")  }
-            parallelNodes['Build OpenThread Window BRD4187A']        = { this.buildOpenThreadExample("window-app", "BRD4187A")  }
+            parallelNodes['Build OpenThread Window BRD4186C']        = { this.buildOpenThreadExample("window-app", "BRD4186C")  }
+            parallelNodes['Build OpenThread Window BRD4187C']        = { this.buildOpenThreadExample("window-app", "BRD4187C")  }
+            parallelNodes['Build OpenThread Window BRD2601B']        = { this.buildOpenThreadExample("window-app", "BRD2601B")  }
+            parallelNodes['Build OpenThread Window BRD2703A']        = { this.buildOpenThreadExample("window-app", "BRD2703A")  }
             // parallelNodes['Build OpenThread Window BRD4304A']        = { this.buildOpenThreadExample("window-app", "BRD4304A")  }
 
             parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
-            parallelNodes['Build Custom Examples BRD4186A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186A") }
+            parallelNodes['Build Custom Examples BRD4186C']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186C") }
         }
 
         // 
