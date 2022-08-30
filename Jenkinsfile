@@ -7,6 +7,7 @@ buildOverlayDir = ''
 //TO DO, this is for SQA UTF testing, this value should get from db or somewhere instead of hardcoded
 RELEASE_NAME='22Q4-GA'
 stashFolder = 'OpenThreadExamples-lighting-app-BRD4161A'
+chiptoolPath = ''
 
 secrets = [[path: 'teams/gecko-sdk/app/svc_gsdk', engineVersion: 2, 
             secretValues: [[envVar: 'SL_PASSWORD', vaultKey: 'password'],
@@ -35,6 +36,7 @@ def initWorkspaceAndScm()
 
         // Matter Init --Checkout relevant submodule
         sh 'scripts/checkout_submodules.py --shallow --recursive --platform efr32'
+
     }
 
     dir(buildOverlayDir+'/matter-scripts'){
@@ -405,7 +407,12 @@ def openThreadTestSuite(String name, String board)
                                 echo "unstash folder: "+stashFolder
                                 unstash stashFolder
                                 unstash 'ChipTool'
-                                sh 'pwd && ls -R'
+
+                                sh '''
+                                 pwd && ls -R
+                                 chiptoolPath=`find $PWD -name "chip-tool" -print `
+                                 echo chiptoolPath
+                                '''
                             //  unstash 'CustomOpenThreadExamples'
 
                             }
@@ -423,6 +430,8 @@ def openThreadTestSuite(String name, String board)
                                     'RUN_TCM_SETUP=false',
                                     "MATTER_CI_PATH=${ci_path}",
                                     'DEBUG=true',
+                                    "TEST_BUILD_NUMBER=${BUILD_NUMBER}",
+                                    "MATTER_CHIP_TOOL_PATH=${chiptoolPath}" ,
                                     "_JAVA_OPTIONS='-Xmx3072m'"
                                     ])
                                 {
@@ -450,9 +459,9 @@ def openThreadTestSuite(String name, String board)
         }
 }
 
-def utfWiFITestSuite()
+def utfWiFiTestSuite(String devicegoup,String testbed_name )
 {
-    globalLock(credentialsId: 'hwmux_token_matterci', deviceGroup: 'utf_matter_ci') {
+    globalLock(credentialsId: 'hwmux_token_matterci', deviceGroup: devicegoup) {
        node("gsdkMontrealNode")
        {
                     sh 'printenv'
@@ -490,8 +499,14 @@ def utfWiFITestSuite()
                                 unstash 'wifiLighting'
                                 unstash 'wifiLock'
                                 unstash 'ChipTool'
-                                sh 'pwd && ls -R'
-                                sh 'cp out/light_app_wifi_rs9116/BRD4161A/chip-efr32-lighting-example.s37 ../manifest'                               
+
+                                sh '''
+                                  pwd && ls -R
+                                  chiptoolPath=`find $PWD -name "chip-tool" -print `
+                                  echo $chiptoolPath
+                                  cp out/light_app_wifi_rs9116/BRD4161A/chip-efr32-lighting-example.s37 ../manifest
+                                '''                             
+  
                             }
 
                             withVault([vaultSecrets: secrets])
@@ -507,7 +522,7 @@ def utfWiFITestSuite()
                                     "STUDIO_URL=N/A",     // ?
                                     "BRANCH_NAME=master", // ?
                                     "SDK_BUILD_NUM=$BUILD_NUMBER",
-                                    "TESTBED_NAME=INT0014944",
+                                    "TESTBED_NAME=${testbed_name}",
                                     "BUILD_URL=$BUILD_URL",
                                     "JENKIN_RUN_NUM=$BUILD_NUMBER",
                                     "JENKINS_JOB_NAME=$JOB_NAME",
@@ -520,6 +535,7 @@ def utfWiFITestSuite()
                                     'MATTER_TYPE = wifi',
                                     'PUBLISH_RESULTS=true', // unneeded?
                                     'RUN_TCM_SETUP=false',  // unneeded?
+                                    "MATTER_CHIP_TOOL_PATH=${chiptoolPath}" ,
                                     'DEBUG=true'
                                 ])
                                 {
@@ -529,8 +545,10 @@ def utfWiFITestSuite()
                                                stageResult: 'SUCCESS')
                                     {
                                         sh '''
+                                            echo ${TESTBED_NAME}
                                             ./workspace_setup.sh
-                                            executor/launch_utf_tests.sh --publish_test_results true --harness  INT0014944.yaml --executor_type local --pytest_command "pytest --tb=native tests --tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence.yaml"
+                                            executor/launch_utf_tests.sh --publish_test_results true --harness  ${TESTBED_NAME}.yaml --executor_type local --pytest_command "pytest --tb=native tests --manifest manifest/manifest.yaml --tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence.yaml"
+             
                                         '''
                                     }
                                 }
@@ -640,6 +658,7 @@ def pipeline()
             parallelNodes['Build OpenThread Lock BRD4187C']          = { this.buildOpenThreadExample("lock-app", "BRD4187C")    }
             parallelNodes['Build OpenThread Lock BRD2601B']          = { this.buildOpenThreadExample("lock-app", "BRD2601B")    }
             parallelNodes['Build OpenThread Lock BRD2703A']          = { this.buildOpenThreadExample("lock-app", "BRD2703A")    }
+
             // parallelNodes['Build OpenThread Lock BRD4304A']          = { this.buildOpenThreadExample("lock-app", "BRD4304A")    }
 
             parallelNodes['Build OpenThread Light switch BRD4161A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4161A")  }
@@ -649,6 +668,7 @@ def pipeline()
             parallelNodes['Build OpenThread Light switch BRD4187C']  = { this.buildOpenThreadExample("light-switch-app", "BRD4187C")  }
             parallelNodes['Build OpenThread Light switch BRD2601B']  = { this.buildOpenThreadExample("light-switch-app", "BRD2601B")  }
             parallelNodes['Build OpenThread Light switch BRD2703A']  = { this.buildOpenThreadExample("light-switch-app", "BRD2703A")  }
+
             // parallelNodes['Build OpenThread Light switch BRD4304A']  = { this.buildOpenThreadExample("light-switch-app", "BRD4304A")  }
 
             parallelNodes['Build OpenThread Window BRD4161A']        = { this.buildOpenThreadExample("window-app", "BRD4161A")  }
@@ -677,16 +697,21 @@ def pipeline()
     {
         advanceStageMarker()
         pushToNexus()
+
     }
      stage('SQA')
     {
       // advanceStageMarker()
       
-       // def parallelNodes = [:]
+      //  def parallelNodes = [:]
        //openthread test can't run in parallel as they are using same raspi
        openThreadTestSuite("lighting","BRD4161A")
        openThreadTestSuite("lighting","BRD4187A")
-       utfWiFITestSuite()
+       utfWiFiTestSuite('utf_matter_ci','INT0014944')
+    //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_ci','INT0014944')   }
+    //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_thread','INT0014944')   }
+    //   parallelNodes.failFast = false
+   //    parallel parallelNodes
 
     }
 
