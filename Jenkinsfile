@@ -680,8 +680,9 @@ def pipeline()
             parallelNodes['Build OpenThread Window BRD2703A']        = { this.buildOpenThreadExample("window-app", "BRD2703A")  }
             // parallelNodes['Build OpenThread Window BRD4304A']        = { this.buildOpenThreadExample("window-app", "BRD4304A")  }
 
-            parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
-            parallelNodes['Build Custom Examples BRD4186C']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186C") }
+            // TODO: re-enable as part of fixing MATTER-693
+            // parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
+            // parallelNodes['Build Custom Examples BRD4186C']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186C") }
         }
 
         // 
