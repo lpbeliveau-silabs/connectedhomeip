@@ -707,7 +707,7 @@ def pipeline()
       //  def parallelNodes = [:]
        //openthread test can't run in parallel as they are using same raspi
        openThreadTestSuite("lighting","BRD4161A")
-       openThreadTestSuite("lighting","BRD4187A")
+       openThreadTestSuite("lighting","BRD4187C")
        utfWiFiTestSuite('utf_matter_ci','INT0014944')
     //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_ci','INT0014944')   }
     //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_thread','INT0014944')   }
