@@ -215,8 +215,9 @@ def buildWiFiLighting()
                       	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4162A
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                        // TODO : re-enable when CSA gets the update from sdk_support to support that board and that we can rebase silabs branch to it.
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4163A
                       	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
@@ -260,8 +261,9 @@ def buildWiFiLock()
                       	sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4162A
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4162A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                        // TODO : re-enable when CSA gets the update from sdk_support to support that board and that we can rebase silabs branch to it.
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4162A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4163A
                       	sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_wf200 BRD4163A "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
                         sh './scripts/examples/gn_efr32_example.sh examples/lock-app/efr32/ out/lock_app_wifi_rs9116 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
@@ -663,6 +665,7 @@ def pipeline()
             parallelNodes['Build OpenThread Lighting BRD4164A']      = { this.buildOpenThreadExample("lighting-app", "BRD4164A")   }
             parallelNodes['Build OpenThread Lighting BRD4166A']      = { this.buildOpenThreadExample("lighting-app", "BRD4166A")   }
             parallelNodes['Build OpenThread Lighting BRD4186C']      = { this.buildOpenThreadExample("lighting-app", "BRD4186C")   }
+            parallelNodes['Build OpenThread Lighting BRD4187A']      = { this.buildOpenThreadExample("lighting-app", "BRD4187A")   }
             parallelNodes['Build OpenThread Lighting BRD4187C']      = { this.buildOpenThreadExample("lighting-app", "BRD4187C")   }
             parallelNodes['Build OpenThread Lighting BRD2601B']      = { this.buildOpenThreadExample("lighting-app", "BRD2601B")   }
             parallelNodes['Build OpenThread Lighting BRD2703A']      = { this.buildOpenThreadExample("lighting-app", "BRD2703A")   }
