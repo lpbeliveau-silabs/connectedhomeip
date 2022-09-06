@@ -6,10 +6,11 @@ properties([disableConcurrentBuilds()])
 buildOverlayDir = ''
 //TO DO, this is for SQA UTF testing, this value should get from db or somewhere instead of hardcoded
 RELEASE_NAME='22Q4-GA'
-stashFolder = 'OpenThreadExamples-lighting-app-BRD4161A'
+stashFolder = ''
 chiptoolPath = ''
 
-secrets = [[path: 'teams/gecko-sdk/app/svc_gsdk', engineVersion: 2,
+
+secrets = [[path: 'teams/gecko-sdk/app/svc_gsdk', engineVersion: 2, 
             secretValues: [[envVar: 'SL_PASSWORD', vaultKey: 'password'],
                            [envVar: 'SL_USERNAME', vaultKey: 'username']]]]
 // helpers
@@ -36,7 +37,6 @@ def initWorkspaceAndScm()
 
         // Matter Init --Checkout relevant submodule
         sh 'scripts/checkout_submodules.py --shallow --recursive --platform efr32'
-
     }
 
     dir(buildOverlayDir+'/matter-scripts'){
@@ -184,9 +184,9 @@ def buildSilabsCustomOpenThreadExamples(String board)
                     }
                 }
                 stash name: 'CustomOpenThreadExamples', includes:  'out/**/*.map ,'+
-                                                                    'out/**/*.s37 '
-
-
+                                                                    'out/**/*.s37 ' 
+                                                               
+                                                               
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
@@ -212,22 +212,22 @@ def buildWiFiLighting()
                     {
                         // TODO Rework the wifi example build for each boards independantly
                         // BRD4161A
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_wf200 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4161A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4162A
                         // TODO : re-enable when CSA gets the update from sdk_support to support that board and that we can rebase silabs branch to it.
-                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_wf200 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        // sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4162A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4163A
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_wf200 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4163A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4164A
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4164A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4164A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_wf200 BRD4164A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi wf200'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4164A  "is_debug=false show_qr_code=false enable_openthread_cli=false" --wifi rs911x'
                         // BRD4186C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4186C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=true" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4186C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=true" --wifi rs911x'
                         // BRD4187C
-                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_rs9116 BRD4187C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=true" --wifi rs911x'
+                        sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_rs9116 BRD4187C "is_debug=false disable_lcd=true use_external_flash=false enable_openthread_cli=true" --wifi rs911x'
                     }
 
                     stash name: 'wifiLighting', includes: 'out/**/*.s37 '
@@ -303,12 +303,12 @@ def buildWiFiExamples()
                 {
                   	withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/light_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false"'
+                      	sh './scripts/examples/gn_efr32_example.sh examples/lighting-app/efr32/ out/lighting_app_wifi_wf200 BRD4161A "is_debug=false show_qr_code=false enable_openthread_cli=false"'
                     }
                 }
 
-                stash name: 'wifiExamples', includes:   'out/light_app_wifi_wf200/**/*.map ,'+
-                                                        'out/light_app_wifi_wf200/**/*.s37'
+                stash name: 'wifiExamples', includes:   'out/lighting_app_wifi_wf200/**/*.map ,'+
+                                                        'out/lighting_app_wifi_wf200/**/*.s37'
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
@@ -342,8 +342,8 @@ def buildChipTool()
                     }
                 }
 
-                stash name: 'ChipTool', includes: 'out/linux-arm64-clang-chip-tool-ipv6only/chip-tool'
-
+                stash name: 'ChipTool', includes: 'out/**/chip-tool'
+                                      
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                        workspaceTmpDir,
@@ -392,7 +392,9 @@ def exportIoTReports()
 
 def openThreadTestSuite(String name, String board)
 {
-
+   // lock(label: 'Matter-Testbed', quantity: 1,  variable: 'matter-testbed', skipIfLocked : true) 
+    lock('Matter-Testbed') 
+    {
         node('gsdkBostonNode')
         {
                     sh 'printenv'
@@ -414,20 +416,19 @@ def openThreadTestSuite(String name, String board)
                                 git pull
                             '''
                         }
-                        catchError(buildResult: 'UNSTABLE',
-                                    catchInterruptions: false,
-                                    message: "[ERROR] One or more openthread tests have failed",
+                        catchError(buildResult: 'UNSTABLE', 
+                                    catchInterruptions: false, 
+                                    message: "[ERROR] One or more openthread tests have failed", 
                                     stageResult: 'SUCCESS')
                         {
                             dir('matter')
                             {
-
+  
                                 sh 'pwd '
                                 stashFolder = 'OpenThreadExamples-'+name+"-app-"+board
                                 echo "unstash folder: "+stashFolder
                                 unstash stashFolder
                                 unstash 'ChipTool'
-
                                 sh '''
                                  pwd && ls -R
                                  chiptoolPath=`find $PWD -name "chip-tool" -print `
@@ -437,7 +438,7 @@ def openThreadTestSuite(String name, String board)
 
                             }
 
-
+                            
                             def  ci_path="${WORKSPACE}/matter/out/CSA/"+name+"-app/OpenThread/standard/"
                             echo "ci_path: "+ci_path
 
@@ -458,9 +459,9 @@ def openThreadTestSuite(String name, String board)
                                 sh 'pwd && ls -R'
                                 sh 'printenv '
                                 sh "java -XX:+PrintFlagsFinal -Xmx1g -version | grep -Ei 'maxheapsize|maxram'"
-
-                                sh 'ls -ll /home/dockerUser/qaWorkspace/matter/out/CSA/lighting-app/OpenThread/standard/BRD4161A/'
-
+                            
+                                sh "ls -ll /home/dockerUser/qaWorkspace/matter/out/CSA/lighting-app/OpenThread/standard/${board}/"
+                                                                            
 
                                 sh "ant -file $WORKSPACE/sqa-tools/test_tcm.xml  compileJava"
                                 sh "ant -file $WORKSPACE/sqa-tools/test_tcm.xml  runTestsJava"
@@ -475,11 +476,12 @@ def openThreadTestSuite(String name, String board)
 
                             }
                         }
-            }
+            }             
         }
+    }
 }
 
-def utfWiFiTestSuite(String devicegoup,String testbed_name )
+def utfThreadTestSuite(String devicegoup,String testbed_name,String app_name, String  matter_type , String board, String test_suite, String manifestyaml, String testsequenceyaml )
 {
     globalLock(credentialsId: 'hwmux_token_matterci', deviceGroup: devicegoup) {
        node("gsdkMontrealNode")
@@ -496,37 +498,40 @@ def utfWiFiTestSuite(String devicegoup,String testbed_name )
                                             repoUrl: 'https://stash.silabs.com/scm/utf/utf_app_matter.git/'],
                                             userRemoteConfigs                : [[credentialsId: 'svc_gsdk',
                                                             url: 'ssh://git@stash.silabs.com/utf/utf_app_matter.git']]]
-
-
+                    
+                           
                             sh ''' git submodule sync --recursive
                                 git submodule update --init --recursive -q '''
                             sh 'git submodule foreach --recursive git fetch --tags'
                             sh ''' git clean -ffdx
                                 git submodule foreach --recursive -q git reset --hard -q
                                 git submodule foreach --recursive -q git clean -ffdx -q '''
-
+                            
                             // dir('utf_core')
                             // {
                                 // sh '''
                                 // git checkout develop
                                 // git pull
                             //    '''
-                            //
+                            //   
                             // }
 
                             dir('matter')
                             {
-                                unstash 'wifiLighting'
-                                unstash 'wifiLock'
-                                unstash 'ChipTool'
+                                    sh 'pwd '
+                                    stashFolder = 'OpenThreadExamples-'+app_name+"-app-"+board
+                                    echo "unstash folder: "+stashFolder
+                                    unstash stashFolder
+                                    unstash 'ChipTool'
+                                                                                                                                                                    
+                                    sh '''
+                                    pwd && ls -R
+                                    chiptoolPath=`find $PWD -name "chip-tool" -print `
+                                    echo $chiptoolPath
+                                    '''
 
-                                sh '''
-                                  pwd && ls -R
-                                  chiptoolPath=`find $PWD -name "chip-tool" -print `
-                                  echo $chiptoolPath
-                                  cp out/light_app_wifi_rs9116/BRD4161A/chip-efr32-lighting-example.s37 ../manifest
-                                '''
-
+                                    sh "cp out/CSA/${app_name}-app/OpenThread/standard/${board}/*.s37 ../manifest"
+                                                               
                             }
 
                             withVault([vaultSecrets: secrets])
@@ -549,9 +554,123 @@ def utfWiFiTestSuite(String devicegoup,String testbed_name )
                                     "JENKINS_SERVER_NAME=$JENKINS_URL",
                                     "JENKINS_TEST_RESULTS_URL=$JOB_URL$BUILD_NUMBER/testReport",
                                     // vars required for matter test execution (?)
-                                    'BOARD_ID=BRD4161A',
-                                    'MATTER_APP_EXAMPLE=lighting',
+                                    "BOARD_ID=${board}",
+                                    "MATTER_APP_EXAMPLE=${app_name}",
                                     'RUN_SUITE=true',
+                                    "MATTER_TYPE = ${matter_type}",
+                                    'PUBLISH_RESULTS=true', // unneeded?
+                                    'RUN_TCM_SETUP=false',  // unneeded?
+                                    "MATTER_CHIP_TOOL_PATH=${chiptoolPath}" ,
+                                    'DEBUG=true'
+                                ])
+                                {
+                                    catchError(buildResult: 'UNSTABLE', 
+                                               catchInterruptions: false, 
+                                               message: "[ERROR] One or more tests have failed", 
+                                               stageResult: 'SUCCESS')
+                                    {
+                                        sh """
+                                            echo ${TESTBED_NAME}
+                                            ./workspace_setup.sh
+                                            executor/launch_utf_tests.sh --publish_test_results true --harness  ${TESTBED_NAME}.yaml --executor_type local --pytest_command "pytest --tb=native tests${test_suite} --manifest manifest${manifestyaml}.yaml ${testsequenceyaml}"
+                                        """
+                                    }
+                                }
+                            }
+                            archiveArtifacts artifacts: 'reports/pytest-report.html'
+                            junit: 'reports/junit_report.xml'
+                        }
+                    }
+        }
+    }
+}
+
+
+def utfWiFiTestSuite(String devicegoup,String testbed_name,String app_name,String matter_type, String board,  String wifi_module, String test_suite, String manifestyaml, String testsequenceyaml)
+{
+    globalLock(credentialsId: 'hwmux_token_matterci', deviceGroup: devicegoup) {
+       node("gsdkMontrealNode")
+       {
+                    sh 'printenv'
+                    ws('/home/dockerUser/qaWorkspace/')
+                    {
+
+                        dir('utf_app_matter')
+                        {
+                            checkout scm: [$class                     : 'GitSCM',
+                                            branches                         : [[name: 'master']],
+                                            browser                          : [$class: 'Stash',
+                                            repoUrl: 'https://stash.silabs.com/scm/utf/utf_app_matter.git/'],
+                                            userRemoteConfigs                : [[credentialsId: 'svc_gsdk',
+                                                            url: 'ssh://git@stash.silabs.com/utf/utf_app_matter.git']]]
+                    
+                           
+                            sh ''' git submodule sync --recursive
+                                git submodule update --init --recursive -q '''
+                            sh 'git submodule foreach --recursive git fetch --tags'
+                            sh ''' git clean -ffdx
+                                git submodule foreach --recursive -q git reset --hard -q
+                                git submodule foreach --recursive -q git clean -ffdx -q '''
+                            
+                            // dir('utf_core')
+                            // {
+                                // sh '''
+                                // git checkout develop
+                                // git pull
+                            //    '''
+                            //   
+                            // }
+
+                            dir('matter')
+                            {
+                                if (app_name == 'lighting')
+                                {
+                                    unstash 'wifiLighting'
+                                }
+                                else if (app_name == 'lock')
+                                {
+                                    unstash 'wifiLock'
+                                }
+                                else
+                                {
+                                    echo "nothing unstashed: "+app_name
+                                }
+                                
+                                unstash 'ChipTool'
+                                sh '''
+                                  pwd && ls -R
+                                  chiptoolPath=`find $PWD -name "chip-tool" -print `
+                                  echo $chiptoolPath
+                                 '''
+                                sh "cp out/${app_name}_app_wifi_${wifi_module}/${board}/*.s37 ../manifest"
+                                 
+                                                             
+                            }
+
+                            withVault([vaultSecrets: secrets])
+                            {
+                                withEnv([
+                                    // vars required for publish to database
+                                    'UTF_QUEUE_SERVER_URL=amqps://' + SL_USERNAME + ':' + SL_PASSWORD + '@utf-queue-central.silabs.net:443/%2f',
+                                    "UTF_PRODUCER_APP_ID=$BUILD_TAG",
+                                    "RELEASE_NAME=$RELEASE_NAME",
+                                    "TEST_SUITE=MatterCI", // ?
+                                    "TEST_SCRIPT_REPO=utf-app-matter",
+                                    "SDK_URL=N/A",        // ?
+                                    "STUDIO_URL=N/A",     // ?
+                                    "BRANCH_NAME=master", // ?
+                                    "SDK_BUILD_NUM=$BUILD_NUMBER",
+                                    "TESTBED_NAME=${testbed_name}",
+                                    "BUILD_URL=$BUILD_URL",
+                                    "JENKIN_RUN_NUM=$BUILD_NUMBER",
+                                    "JENKINS_JOB_NAME=$JOB_NAME",
+                                    "JENKINS_SERVER_NAME=$JENKINS_URL",
+                                    "JENKINS_TEST_RESULTS_URL=$JOB_URL$BUILD_NUMBER/testReport",
+                                    // vars required for matter test execution (?)
+                                    "BOARD_ID=${board}",
+                                    "MATTER_APP_EXAMPLE=${app_name}",
+                                    'RUN_SUITE=true',
+                                 //   "MATTER_TYPE = ${matter_type}",
                                     'MATTER_TYPE = wifi',
                                     'PUBLISH_RESULTS=true', // unneeded?
                                     'RUN_TCM_SETUP=false',  // unneeded?
@@ -559,17 +678,17 @@ def utfWiFiTestSuite(String devicegoup,String testbed_name )
                                     'DEBUG=true'
                                 ])
                                 {
-                                    catchError(buildResult: 'UNSTABLE',
-                                               catchInterruptions: false,
-                                               message: "[ERROR] One or more tests have failed",
+                                    catchError(buildResult: 'UNSTABLE', 
+                                               catchInterruptions: false, 
+                                               message: "[ERROR] One or more tests have failed", 
                                                stageResult: 'SUCCESS')
                                     {
-                                        sh '''
+                                      //  pytestParam="\"pytest --tb=native tests${test_suite} --manifest manifest${manifestyaml}.yaml ${testsequenceyaml}\""
+                                        sh """
                                             echo ${TESTBED_NAME}
                                             ./workspace_setup.sh
-                                            executor/launch_utf_tests.sh --publish_test_results true --harness  ${TESTBED_NAME}.yaml --executor_type local --pytest_command "pytest --tb=native tests --manifest manifest/manifest.yaml --tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence.yaml"
-
-                                        '''
+                                            executor/launch_utf_tests.sh --publish_test_results true --harness  ${TESTBED_NAME}.yaml --executor_type local --pytest_command "pytest --tb=native tests${test_suite} --manifest manifest${manifestyaml}.yaml ${testsequenceyaml}"
+                                        """
                                     }
                                 }
                             }
@@ -590,20 +709,20 @@ def pushToNexus()
                                                             buildOverlayDir)
             def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
             def saveDir = 'matter/'
-            dir(dirPath) {
+            dir(dirPath) {                                                              
 
                 withVault([vaultSecrets: secrets])
                  {
-
+                                                                                                                                                                                                          
                     sh '''#!/usr/bin/env bash
                         set -o pipefail
                         set -x
-                        pwd
+                        pwd 
                         file="build-binaries.zip"
-
+                        
                         zip -r "${file}" out
                         ls -al
-
+                           
                         status_code=$(curl -s  -w "%{http_code}" --upload-file "$file" \
                                         -X PUT "https://nexus.silabs.net/repository/matter/${JOB_BASE_NAME}/${BUILD_NUMBER}/$file"\
                                         -u $SL_USERNAME:$SL_PASSWORD -H 'Content-Type: application/octet-stream'
@@ -614,11 +733,11 @@ def pushToNexus()
                                 else
                                         echo "$file File upload was successful."
                                 fi
-
+                        
                     '''
                 }
-
-
+               
+             
             }
             deactivateWorkspaceOverlay(advanceStageMarker.getBuildStagesList(), workspaceTmpDir, 'matter/')
         }
@@ -656,9 +775,10 @@ def pipeline()
         // build library dependencies
         def parallelNodes = [:]
 
-        def buildOpenThread = true;
-
-        if (buildOpenThread) {
+        def buildOpenThread=true;
+        
+        if (buildOpenThread){
+            echo 'buildOpenThread: '+buildOpenThread
 
             // Docker container solution
             parallelNodes['Build OpenThread Lighting BRD4161A']      = { this.buildOpenThreadExample("lighting-app", "BRD4161A")   }
@@ -676,6 +796,7 @@ def pipeline()
             parallelNodes['Build OpenThread Lock BRD4164A']          = { this.buildOpenThreadExample("lock-app", "BRD4164A")    }
             parallelNodes['Build OpenThread Lock BRD4166A']          = { this.buildOpenThreadExample("lock-app", "BRD4166A")    }
             parallelNodes['Build OpenThread Lock BRD4186C']          = { this.buildOpenThreadExample("lock-app", "BRD4186C")    }
+            parallelNodes['Build OpenThread Lock BRD4187A']          = { this.buildOpenThreadExample("lock-app", "BRD4187A")    }
             parallelNodes['Build OpenThread Lock BRD4187C']          = { this.buildOpenThreadExample("lock-app", "BRD4187C")    }
             parallelNodes['Build OpenThread Lock BRD2601B']          = { this.buildOpenThreadExample("lock-app", "BRD2601B")    }
             parallelNodes['Build OpenThread Lock BRD2703A']          = { this.buildOpenThreadExample("lock-app", "BRD2703A")    }
@@ -700,13 +821,12 @@ def pipeline()
             parallelNodes['Build OpenThread Window BRD2601B']        = { this.buildOpenThreadExample("window-app", "BRD2601B")  }
             parallelNodes['Build OpenThread Window BRD2703A']        = { this.buildOpenThreadExample("window-app", "BRD2703A")  }
             // parallelNodes['Build OpenThread Window BRD4304A']        = { this.buildOpenThreadExample("window-app", "BRD4304A")  }
-
-            // TODO: re-enable as part of fixing MATTER-693
-            // parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
-            // parallelNodes['Build Custom Examples BRD4186C']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186C") }
+//TODO
+        //    parallelNodes['Build Custom Examples BRD4161A']      = { this.buildSilabsCustomOpenThreadExamples("BRD4161A") }
+         //   parallelNodes['Build Custom Examples BRD4186C']      = { this.buildSilabsCustomOpenThreadExamples("BRD4186C") }
         }
 
-        //
+    
         parallelNodes['Build Wifi Lighting']        = { this.buildWiFiLighting()   }
         parallelNodes['Build Wifi Lock']            = { this.buildWiFiLock()       }
         parallelNodes['Build Chip-tool ']           = { this.buildChipTool()   }
@@ -714,26 +834,29 @@ def pipeline()
         parallelNodes.failFast = false
         parallel parallelNodes
     }
-
+    // 
     stage("Push to Nexus")
     {
         advanceStageMarker()
         pushToNexus()
-
     }
      stage('SQA')
     {
       // advanceStageMarker()
+        //even openthread test in parallel, they actually run in sequence as they are using same raspi
+        def parallelNodes = [:]
 
-      //  def parallelNodes = [:]
-       //openthread test can't run in parallel as they are using same raspi
-       openThreadTestSuite("lighting","BRD4161A")
-       openThreadTestSuite("lighting","BRD4187C")
-       utfWiFiTestSuite('utf_matter_ci','INT0014944')
-    //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_ci','INT0014944')   }
-    //   parallelNodes['UTF test INT0014944']        = { this.utfWiFiTestSuite('utf_matter_thread','INT0014944')   }
-    //   parallelNodes.failFast = false
-   //    parallel parallelNodes
+        parallelNodes['Junit lighting BRD4161A']       = { this.openThreadTestSuite("lighting","BRD4161A") }
+        parallelNodes['Junit lighting BRD4187A']       = { this.openThreadTestSuite("lighting","BRD4187A")   }
+                                                                                                                                                                           
+        parallelNodes['lighting Thread BRD4187C']   = { this.utfThreadTestSuite('utf_matter_thread','matter_thread','lighting','thread','BRD4187C','',"/manifest-4187-thread","--tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence_thread.yaml") }     
+        parallelNodes['lighting Thread BRD4161A']   = { this.utfThreadTestSuite('utf_matter_thread','matter_thread','lighting','thread','BRD4161A','',"/manifest-4161-thread","--tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence_thread_4161.yaml") }     
+        parallelNodes['lighting Thread BRD2703A']   = { this.utfThreadTestSuite('utf_matter_thread_2','matter_thread_2','lighting','thread','BRD2703A','',"/manifest-2703-thread","--tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence_thread.yaml") }     
+      
+        parallelNodes['lighting rs9116 BRD4161A']   = { this.utfWiFiTestSuite('utf_matter_ci','INT0014944','lighting','wifi','BRD4161A','rs9116','',"/manifest","--tmconfig tests/.sequence_manager/test_execution_definitions/matterci_test_sequence.yaml") }          
+                                                                         
+        parallelNodes.failFast = false
+        parallel parallelNodes
 
     }
 
