@@ -445,6 +445,7 @@ def openThreadTestSuite(String name, String board)
                             withEnv([ 'TEST_SCRIPT_REPO=matter-scripts',
                                     "BOARD_ID=${board}",
                                     "MATTER_APP_EXAMPLE=${name}" ,
+                                    "BRANCH_NAME=${JOB_BASE_NAME}",
                                     'RUN_SUITE=true',
                                     'TEST_SUITE=MatterCI',
                                     'PUBLISH_RESULTS=true',
@@ -545,7 +546,7 @@ def utfThreadTestSuite(String devicegoup,String testbed_name,String app_name, St
                                     "TEST_SCRIPT_REPO=utf-app-matter",
                                     "SDK_URL=N/A",        // ?
                                     "STUDIO_URL=N/A",     // ?
-                                    "BRANCH_NAME=master", // ?
+                                    "BRANCH_NAME=${JOB_BASE_NAME}", // ?
                                     "SDK_BUILD_NUM=$BUILD_NUMBER",
                                     "TESTBED_NAME=${testbed_name}",
                                     "BUILD_URL=$BUILD_URL",
@@ -658,7 +659,7 @@ def utfWiFiTestSuite(String devicegoup,String testbed_name,String app_name,Strin
                                     "TEST_SCRIPT_REPO=utf-app-matter",
                                     "SDK_URL=N/A",        // ?
                                     "STUDIO_URL=N/A",     // ?
-                                    "BRANCH_NAME=master", // ?
+                                    "BRANCH_NAME=${JOB_BASE_NAME}", // ?
                                     "SDK_BUILD_NUM=$BUILD_NUMBER",
                                     "TESTBED_NAME=${testbed_name}",
                                     "BUILD_URL=$BUILD_URL",
