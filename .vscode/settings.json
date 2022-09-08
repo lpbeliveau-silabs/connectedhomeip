@@ -125,7 +125,7 @@
         "**/third_party/**": true
     },
     "files.eol": "\n",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "better-comments.tags": [
         {
             "tag": "!",
@@ -168,5 +168,6 @@
     "files.trimFinalNewlines": true,
     "C_Cpp.default.cppStandard": "gnu++14",
     "C_Cpp.default.cStandard": "gnu11",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "editor.formatOnSaveMode": "modifications"
 }
