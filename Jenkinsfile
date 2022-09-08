@@ -34,6 +34,15 @@ def initWorkspaceAndScm()
                  extensions                       : scm.extensions << [$class: 'ScmName', name: 'matter'],
                  userRemoteConfigs                : scm.userRemoteConfigs]
 
+        // Switch Origin for the gecko_sdk to reduce dowload and cost
+        sh 'git --version'
+        sh 'git submodule update --init third_party/openthread/ot-efr32/'
+        sh 'cd ./third_party/openthread/ot-efr32'
+        sh 'git submodule set-url ./third_party/silabs/gecko_sdk https://stash.silabs.com/scm/embsw/gecko_sdk_release.git'
+        sh 'cd ../../../'
+        sh 'git submodule set-url ./third_party/silabs/gecko_sdk https://stash.silabs.com/scm/embsw/gecko_sdk_release.git'
+
+
 
         // Matter Init --Checkout relevant submodule
         sh 'scripts/checkout_submodules.py --shallow --recursive --platform efr32'
