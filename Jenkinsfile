@@ -8,7 +8,8 @@ buildOverlayDir = ''
 RELEASE_NAME='22Q4-GA'
 stashFolder = ''
 chiptoolPath = ''
-
+buildFarmLabel = 'Build-Farm'
+buildFarmLargeLabel = 'Build-Farm-Large'
 
 secrets = [[path: 'teams/gecko-sdk/app/svc_gsdk', engineVersion: 2, 
             secretValues: [[envVar: 'SL_PASSWORD', vaultKey: 'password'],
@@ -69,8 +70,6 @@ def initWorkspaceAndScm()
     }
 
 }
-
-buildFarmLabel = 'Build-Farm'
 
 def runInWorkspace(Map args, Closure cl)
 {
@@ -137,26 +136,34 @@ def bootstrapWorkspace()
     }
 }
 
-def buildOpenThreadExample(String name, String board)
+def buildOpenThreadExample(String app, String board)
 {
     actionWithRetry {
-        node(buildFarmLabel)
+        node(buildFarmLargeLabel)
         {
             def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                                             buildOverlayDir)
             def dirPath = workspaceTmpDir + createWorkspaceOverlay.overlayMatterPath
             def saveDir = 'matter/'
+            def buildRelease = true
+            def releaseString = "\"chip_detail_logging=false chip_automation_logging=false chip_progress_logging=false is_debug=false show_qr_code=false chip_build_libshell=false enable_openthread_cli=false chip_openthread_ftd=true\""
+
             dir(dirPath) {
                 withDockerContainer(image: "connectedhomeip/chip-build-efr32:0.5.64", args: "-u root")
                 {
                     // CSA Examples build
                     withEnv(['PW_ENVIRONMENT_ROOT='+dirPath])
                     {
-                      	sh "python3 ./silabs_ci_scripts/build_openthread_csa_examples.py \"${name}\" \"${board}\""
+
+                        sh "./scripts/examples/gn_efr32_example.sh ./examples/${app}/efr32 ./out/CSA/${app}/OpenThread/standard ${board}"
+
+                        if(buildRelease) {
+                            sh "./scripts/examples/gn_efr32_example.sh ./examples/${app}/efr32 ./out/CSA/${app}/OpenThread/release ${board} ${releaseString}"
+                        }
                     }
                 }
 
-                stash name: 'OpenThreadExamples-'+"${name}"+"-"+"${board}", includes: 'out/CSA/*/OpenThread/release/**/*.map ,'+
+                stash name: 'OpenThreadExamples-'+"${app}"+"-"+"${board}", includes: 'out/CSA/*/OpenThread/release/**/*.map ,'+
                                                                                       'out/CSA/*/OpenThread/standard/**/*.s37 ,' +
                                                                                       'out/CSA/*/OpenThread/release/**/*.s37 '
 
@@ -174,7 +181,7 @@ def buildOpenThreadExample(String name, String board)
 def buildSilabsCustomOpenThreadExamples(String board)
 {
     actionWithRetry {
-        node(buildFarmLabel)
+        node(buildFarmLargeLabel)
         {
             def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                                             buildOverlayDir)
@@ -208,7 +215,7 @@ def buildSilabsCustomOpenThreadExamples(String board)
 def buildWiFiLighting()
 {
     actionWithRetry {
-        node(buildFarmLabel)
+        node(buildFarmLargeLabel)
         {
             def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                                             buildOverlayDir)
@@ -254,7 +261,7 @@ def buildWiFiLighting()
 def buildWiFiLock()
 {
     actionWithRetry {
-        node(buildFarmLabel)
+        node(buildFarmLargeLabel)
         {
             def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                                             buildOverlayDir)
@@ -301,7 +308,7 @@ def buildWiFiLock()
 def buildWiFiExamples()
 {
     actionWithRetry {
-        node(buildFarmLabel)
+        node(buildFarmLargeLabel)
         {
             def workspaceTmpDir = createWorkspaceOverlay(advanceStageMarker.getBuildStagesList(),
                                                             buildOverlayDir)
