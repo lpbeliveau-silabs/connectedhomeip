@@ -31,7 +31,6 @@ EmberAfStatus emberAfScenesMakeValid(chip::EndpointId endpoint, uint8_t sceneId,
 #define emberAfScenesMakeInvalid emberAfScenesClusterMakeInvalidCallback
 
 void emAfPluginScenesServerPrintInfo(void);
-
 extern uint8_t emberAfPluginScenesServerEntriesInUse;
 #if defined(EMBER_AF_PLUGIN_SCENES_USE_TOKENS) && !defined(EZSP_HOST)
 // In this case, we use token storage

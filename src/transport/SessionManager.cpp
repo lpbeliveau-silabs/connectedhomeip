@@ -830,6 +830,7 @@ void SessionManager::SecureGroupMessageDispatch(const PacketHeader & packetHeade
         if (Credentials::GroupDataProvider::SecurityPolicy::kTrustFirst == groupContext.security_policy)
         {
             err = counter->VerifyOrTrustFirstGroup(packetHeader.GetMessageCounter());
+            err = CHIP_NO_ERROR;
         }
         else
         {

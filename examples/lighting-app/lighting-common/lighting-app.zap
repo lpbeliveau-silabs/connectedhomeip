@@ -1,5 +1,5 @@
 {
-  "featureLevel": 81,
+  "featureLevel": 82,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -297,7 +297,7 @@
               "code": 0,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -305,7 +305,7 @@
               "code": 1,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -313,7 +313,7 @@
               "code": 2,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -321,7 +321,7 @@
               "code": 3,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -329,7 +329,7 @@
               "code": 4,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -337,7 +337,7 @@
               "code": 5,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -345,7 +345,7 @@
               "code": 6,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             }
           ],
@@ -374,7 +374,7 @@
           "mfgCode": null,
           "define": "SCENES_CLUSTER",
           "side": "server",
-          "enabled": 0,
+          "enabled": 1,
           "commands": [
             {
               "name": "AddSceneResponse",
@@ -382,7 +382,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             },
             {
               "name": "ViewSceneResponse",
@@ -390,7 +390,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             },
             {
               "name": "RemoveSceneResponse",
@@ -398,7 +398,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             },
             {
               "name": "RemoveAllScenesResponse",
@@ -406,7 +406,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             },
             {
               "name": "StoreSceneResponse",
@@ -414,7 +414,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             },
             {
               "name": "GetSceneMembershipResponse",
@@ -422,7 +422,7 @@
               "mfgCode": null,
               "source": "server",
               "incoming": 0,
-              "outgoing": 1
+              "outgoing": 0
             }
           ],
           "attributes": [
@@ -5651,7 +5651,7 @@
               "code": 64,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -5659,7 +5659,7 @@
               "code": 65,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             },
             {
@@ -5667,7 +5667,7 @@
               "code": 66,
               "mfgCode": null,
               "source": "client",
-              "incoming": 1,
+              "incoming": 0,
               "outgoing": 0
             }
           ],
@@ -5696,7 +5696,7 @@
           "mfgCode": null,
           "define": "SCENES_CLUSTER",
           "side": "server",
-          "enabled": 0,
+          "enabled": 1,
           "commands": [
             {
               "name": "AddSceneResponse",
@@ -8194,5 +8194,6 @@
       "endpointVersion": 1,
       "deviceIdentifier": 257
     }
-  ]
+  ],
+  "log": []
 }

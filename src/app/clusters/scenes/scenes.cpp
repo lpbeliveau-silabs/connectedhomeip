@@ -25,6 +25,7 @@
 #include <app/CommandHandler.h>
 #include <app/ConcreteCommandPath.h>
 #include <app/util/af.h>
+#include <lib/core/CHIPTLV.h>
 
 #ifdef EMBER_AF_PLUGIN_GROUPS_SERVER
 #include <app/clusters/groups-server/groups-server.h>
@@ -41,6 +42,35 @@ uint8_t emberAfPluginScenesServerEntriesInUse = 0;
 #if !defined(EMBER_AF_PLUGIN_SCENES_USE_TOKENS) || defined(EZSP_HOST)
 EmberAfSceneTableEntry emberAfPluginScenesServerSceneTable[MATTER_SCENES_TABLE_SIZE];
 #endif
+
+// Finds the index for a scene from its sceneId, returns the index value when found
+// if the scene table. If the sceneID is not on server yet, returns the highest 
+// available Index value, if the scene table is full, returns EMBER_AF_SCENE_TABLE_NULL_INDEX
+static uint8_t getSceneIndex(EmberAfSceneTableEntry *entry,EndpointId endpoint, GroupId groupId, uint8_t sceneId)
+{
+    uint8_t i = 0;
+    uint8_t sceneIndex = EMBER_AF_SCENE_TABLE_NULL_INDEX;
+    ;
+    bool foundSceneId = false;
+
+    while(!(foundSceneId) && (i < MATTER_SCENES_TABLE_SIZE))
+    {
+        *entry = emberAfPluginScenesServerSceneTable[i];
+        if (entry->endpoint == endpoint && entry->groupId == groupId && entry->sceneId == sceneId)
+        {
+            sceneIndex = i;
+            foundSceneId = true;
+        }
+        if (sceneIndex == EMBER_AF_SCENE_TABLE_NULL_INDEX && entry->endpoint == EMBER_AF_SCENE_TABLE_UNUSED_ENDPOINT_ID)
+        {
+            sceneIndex = i;
+            foundSceneId = true;
+        }
+        i++;
+    }
+
+    return sceneIndex;
+}
 
 static bool readServerAttribute(EndpointId endpoint, ClusterId clusterId, AttributeId attributeId, const char * name,
                                 uint8_t * data, uint8_t size)
@@ -376,7 +406,7 @@ bool emberAfScenesClusterRecallSceneCallback(app::CommandHandler * commandObj, c
     // NOTE: TransitionTime field in the RecallScene command is currently
     // ignored. Per Zigbee Alliance ZCL 7 (07-5123-07):
     //
-    // "The transition time determines how long the tranition takes from the
+    // "The transition time determines how long the transition takes from the
     // old cluster state to the new cluster state. It is recommended that, where
     // possible (e.g., it is not possible for attributes with Boolean type),
     // a gradual transition SHOULD take place from the old to the new state
@@ -727,51 +757,41 @@ EmberAfStatus emberAfScenesClusterRecallSavedSceneCallback(chip::FabricIndex fab
 
 bool emberAfPluginScenesServerParseAddScene(
     app::CommandHandler * commandObj, const EmberAfClusterCommand * cmd, GroupId groupId, uint8_t sceneId, uint16_t transitionTime,
-    const CharSpan & sceneName, const app::DataModel::DecodableList<Structs::ExtensionFieldSet::DecodableType> & extensionFieldSets)
+    const CharSpan & sceneName, const chip::app::DataModel::DecodableList<Structs::ExtensionFieldSet::DecodableType> & extensionFieldSets)
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
     EmberAfSceneTableEntry entry;
     EmberAfStatus status;
     bool enhanced       = (cmd->commandId == ZCL_ENHANCED_ADD_SCENE_COMMAND_ID);
     auto fabricIndex    = commandObj->GetAccessingFabricIndex();
-    EndpointId endpoint = cmd->apsFrame->destinationEndpoint;
-    uint8_t i, index = EMBER_AF_SCENE_TABLE_NULL_INDEX;
+    EndpointId endpoint;
+    uint8_t i, index, idx = EMBER_AF_SCENE_TABLE_NULL_INDEX;
+    chip::TLV::TLVReader reader;
+
+
 
     emberAfScenesClusterPrintln("RX: %pAddScene 0x%2x, 0x%x, 0x%2x, \"%.*s\"", (enhanced ? "Enhanced" : ""), groupId, sceneId,
                                 transitionTime, static_cast<int>(sceneName.size()), sceneName.data());
 
+    
     auto fieldSetIter = extensionFieldSets.begin();
-
-    // Add Scene commands can only reference groups to which we belong.
-    if (!isEndpointInGroup(fabricIndex, endpoint, groupId))
+    for (idx = 0; idx < MAX_ENDPOINT_COUNT; idx ++)
     {
-        status = EMBER_ZCL_STATUS_INVALID_FIELD;
-        goto kickout;
-    }
+        endpoint = emAfEndpoints[idx].endpoint;
+        if (isEndpointInGroup(fabricIndex, endpoint, groupId))
+        {
+            index = getSceneIndex(&entry, endpoint, groupId, sceneId);
+            if (index == EMBER_AF_SCENE_TABLE_NULL_INDEX)
+            {
+                status = EMBER_ZCL_STATUS_INSUFFICIENT_SPACE;
+                //goto kickout;
+                //TODO: handle kickout without goto
 
-    for (i = 0; i < MATTER_SCENES_TABLE_SIZE; i++)
-    {
-        emberAfPluginScenesServerRetrieveSceneEntry(entry, i);
-        if (entry.endpoint == endpoint && entry.groupId == groupId && entry.sceneId == sceneId)
-        {
-            index = i;
-            break;
-        }
-        if (index == EMBER_AF_SCENE_TABLE_NULL_INDEX && entry.endpoint == EMBER_AF_SCENE_TABLE_UNUSED_ENDPOINT_ID)
-        {
-            index = i;
+                return true;
+            }
         }
     }
-
-    // If the target index is still zero, the table is full.
-    if (index == EMBER_AF_SCENE_TABLE_NULL_INDEX)
-    {
-        status = EMBER_ZCL_STATUS_INSUFFICIENT_SPACE;
-        goto kickout;
-    }
-
-    emberAfPluginScenesServerRetrieveSceneEntry(entry, index);
-
+    
     // The transition time is specified in seconds in the regular version of the
     // command and tenths of a second in the enhanced version.
     if (enhanced)
@@ -789,47 +809,75 @@ bool emberAfPluginScenesServerParseAddScene(
     emberAfCopyString(entry.name, Uint8::from_const_char(sceneName.data()), ZCL_SCENES_CLUSTER_MAXIMUM_NAME_LENGTH);
 #endif
 
-    // When adding a new scene, wipe out all of the extensions before parsing the
-    // extension field sets data.
-    if (i != index)
-    {
-#ifdef ZCL_USING_ON_OFF_CLUSTER_SERVER
-        entry.hasOnOffValue = false;
-#endif
-#ifdef ZCL_USING_LEVEL_CONTROL_CLUSTER_SERVER
-        entry.hasCurrentLevelValue = false;
-#endif
-#ifdef ZCL_USING_THERMOSTAT_CLUSTER_SERVER
-        entry.hasOccupiedCoolingSetpointValue = false;
-        entry.hasOccupiedHeatingSetpointValue = false;
-        entry.hasSystemModeValue              = false;
-#endif
-#ifdef ZCL_USING_COLOR_CONTROL_CLUSTER_SERVER
-        entry.hasCurrentXValue               = false;
-        entry.hasCurrentYValue               = false;
-        entry.hasEnhancedCurrentHueValue     = false;
-        entry.hasCurrentSaturationValue      = false;
-        entry.hasColorLoopActiveValue        = false;
-        entry.hasColorLoopDirectionValue     = false;
-        entry.hasColorLoopTimeValue          = false;
-        entry.hasColorTemperatureMiredsValue = false;
-#endif // ZCL_USING_COLOR_CONTROL_CLUSTER_SERVER
-#ifdef ZCL_USING_DOOR_LOCK_CLUSTER_SERVER
-        entry.hasLockStateValue = false;
-#endif
-#ifdef ZCL_USING_WINDOW_COVERING_CLUSTER_SERVER
-        entry.hasCurrentPositionLiftPercentageValue   = false;
-        entry.hasCurrentPositionTiltPercentageValue   = false;
-        entry.hasTargetPositionLiftPercent100thsValue = false;
-        entry.hasTargetPositionTiltPercent100thsValue = false;
-#endif
-    }
-
     while (fieldSetIter.Next())
     {
         auto & fieldSet = fieldSetIter.GetValue();
 
         ClusterId clusterId = fieldSet.clusterId;
+        const EmberAfCluster * cluster = emberAfFindClusterInType(emAfEndpoints[idx].endpointType, clusterId,CLUSTER_MASK_SERVER, nullptr);
+        if(cluster != nullptr)
+        {
+            auto attributeIter = fieldSet.attributeValueList.begin();
+            while(attributeIter.Next())
+            {
+                auto & attributePair = attributeIter.GetValue();
+
+                auto attributeValueIter = attributePair.attributeValue.begin();
+                while(attributeValueIter.Next())
+                {
+                    uint8_t attributeValue = attributeValueIter.GetValue();
+                    reader.Init(&attributeValue, 256);
+
+                    //TLV::Tag tag = reader.GetTag();
+                    TLV::TLVType type = reader.GetType();
+                    switch (type)
+                    {
+                    case  TLV::kTLVType_NotSpecified:
+                        /* code */
+                        break;
+
+                    case  TLV::kTLVType_UnknownContainer:
+                        /* code */
+                        break;
+
+                    case  TLV::kTLVType_SignedInteger:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_UnsignedInteger:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_Boolean:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_FloatingPointNumber:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_UTF8String:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_ByteString:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_Null:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_Structure:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_Array:
+                        /* code */
+                        break;
+                    case  TLV::kTLVType_List:
+                        /* code */
+                        break;
+
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+        
 
         // TODO: We need to encode scene field sets in TLV.
         // https://github.com/project-chip/connectedhomeip/issues/10334
