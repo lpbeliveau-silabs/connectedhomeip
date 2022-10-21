@@ -44,7 +44,7 @@
 #include <app/clusters/color-control-server/color-control-server.h>
 #endif // EMBER_AF_PLUGIN_COLOR_CONTROL_SERVER_TEMP
 
-#include <assert.h>
+#include <lib/support/CodeUtils.h>
 
 using namespace chip;
 using namespace chip::app::Clusters;
@@ -60,7 +60,7 @@ static bool areStartUpLevelControlServerAttributesNonVolatile(EndpointId endpoin
 #define FASTEST_TRANSITION_TIME_MS (MILLISECOND_TICKS_PER_SECOND / EMBER_AF_PLUGIN_LEVEL_CONTROL_RATE)
 #endif // EMBER_AF_PLUGIN_LEVEL_CONTROL_RATE
 
-#define LEVEL_CONTROL_LIGHTING_MIN_LEVEL 0x01
+#define LEVEL_CONTROL_LIGHTING_MIN_LEVEL 0x10
 #define LEVEL_CONTROL_LIGHTING_MAX_LEVEL 0xFE
 
 #define INVALID_STORED_LEVEL 0xFFFF
@@ -238,14 +238,14 @@ void emberAfLevelControlClusterServerTickCallback(EndpointId endpoint)
     }
     else if (state->increasing)
     {
-        assert(currentLevel.Value() < state->maxLevel);
-        assert(currentLevel.Value() < state->moveToLevel);
+        VerifyOrLogErrorReturnEmpty(currentLevel.Value() < state->maxLevel, CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrLogErrorReturnEmpty(currentLevel.Value() < state->moveToLevel, CHIP_ERROR_INVALID_ARGUMENT);
         currentLevel.SetNonNull(static_cast<uint8_t>(currentLevel.Value() + 1));
     }
     else
     {
-        assert(state->minLevel < currentLevel.Value());
-        assert(state->moveToLevel < currentLevel.Value());
+        VerifyOrLogErrorReturnEmpty(state->minLevel < currentLevel.Value(), CHIP_ERROR_INVALID_ARGUMENT);
+        VerifyOrLogErrorReturnEmpty(state->moveToLevel < currentLevel.Value(), CHIP_ERROR_INVALID_ARGUMENT);
         currentLevel.SetNonNull(static_cast<uint8_t>(currentLevel.Value() - 1));
     }
 

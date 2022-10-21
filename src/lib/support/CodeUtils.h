@@ -348,6 +348,32 @@ constexpr inline const _T & max(const _T & a, const _T & b)
     } while (false)
 #endif // CHIP_CONFIG_ERROR_SOURCE
 
+
+/**
+ *  @def VerifyOrLogErrorReturnEmpty(expr, code)
+ *
+ *  @brief
+ *    Log a specified error code if expression evaluates to false then exits current function
+ *
+ *  Example usage:
+ *
+ *  @code
+ *    VerifyOrReturnLogError(param != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
+ *  @endcode
+ *
+ *  @param[in]  expr        A Boolean expression to be evaluated.
+ *  @param[in]  code        A value to return if @a expr is false.
+ */
+#define VerifyOrLogErrorReturnEmpty(expr, code)                                                                                         \
+    do                                                                                                                             \
+    {                                                                                                                              \
+        if (!(expr))                                                                                                               \
+        {                                                                                                                          \
+            ChipLogError(NotSpecified, "%s at %s:%d", ErrorStr(code), __FILE__, __LINE__);                                         \
+            return;                                                                                                           \
+        }                                                                                                                          \
+    } while (false)
+
 /**
  *  @def ReturnErrorCodeIf(expr, code)
  *
