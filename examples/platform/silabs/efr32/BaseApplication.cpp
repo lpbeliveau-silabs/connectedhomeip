@@ -211,8 +211,12 @@ CHIP_ERROR BaseApplication::Init(Identify * identifyObj)
     }
 
     SILABS_LOG("Current Software Version: %s", CHIP_DEVICE_CONFIG_DEVICE_SOFTWARE_VERSION_STRING);
+<<<<<<< HEAD
 
 #if defined(ENABLE_WSTK_LEDS) && defined(SL_CATALOG_SIMPLE_LED_LED1_PRESENT)
+=======
+#ifdef ENABLE_WSTK_LEDS
+>>>>>>> bb20fd7b84 (WIP)
     LEDWidget::InitGpio();
     sStatusLED.Init(SYSTEM_STATE_LED);
 #endif // ENABLE_WSTK_LEDS

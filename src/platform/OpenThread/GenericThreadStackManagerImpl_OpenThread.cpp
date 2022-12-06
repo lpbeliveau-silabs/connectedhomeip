@@ -1846,16 +1846,20 @@ GenericThreadStackManagerImpl_OpenThread<ImplClass>::SetSEDIntervalMode(Connecti
 // * CSL period for SSED devices that listen for messages in scheduled time slots.
 #if CHIP_DEVICE_CONFIG_THREAD_SSED
     // Get CSL period in units of 10 symbols, convert it to microseconds and divide by 1000 to get milliseconds.
-    uint32_t curIntervalMS = otLinkCslGetPeriod(mOTInst) * OT_US_PER_TEN_SYMBOLS / 1000;
+    uint32_t curIntervalMS = (otLinkCslGetPeriod(mOTInst) * OT_US_PER_TEN_SYMBOLS) / 1000;
+    ChipLogProgress(DeviceLayer, "SSED interval before set: %" PRId32 "ms", curIntervalMS);
 #else
     uint32_t curIntervalMS = otLinkGetPollPeriod(mOTInst);
 #endif
+
     otError otErr = OT_ERROR_NONE;
     if (interval.count() != curIntervalMS)
     {
 #if CHIP_DEVICE_CONFIG_THREAD_SSED
         // Set CSL period in units of 10 symbols, convert it to microseconds and divide by 1000 to get milliseconds.
         otErr         = otLinkCslSetPeriod(mOTInst, interval.count() * 1000 / OT_US_PER_TEN_SYMBOLS);
+        uint32_t temp = interval.count() * 1000 / OT_US_PER_TEN_SYMBOLS;
+        ChipLogProgress(DeviceLayer, "SSED interval setting to: %" PRId32 "ms", temp);
         curIntervalMS = otLinkCslGetPeriod(mOTInst) * OT_US_PER_TEN_SYMBOLS / 1000;
 #else
         otErr         = otLinkSetPollPeriod(mOTInst, interval.count());

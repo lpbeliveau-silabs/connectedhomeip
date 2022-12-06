@@ -39,6 +39,9 @@ declare_args() {
   # Enable Sleepy end device
   enable_sleepy_device = false
 
+  # Enable Syncrhonized Sleepy end device
+  enable_synchronized_sed = false
+
   # OTA timeout in seconds
   OTA_periodic_query_timeout = 86400
 

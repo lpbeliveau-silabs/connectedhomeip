@@ -46,23 +46,23 @@
 #endif
 
 /****Uncomment below section for OpenThread Debug logs*/
-// #define OPENTHREAD_CONFIG_LOG_LEVEL OT_LOG_LEVEL_DEBG
+#define OPENTHREAD_CONFIG_LOG_LEVEL OT_LOG_LEVEL_DEBG
 
-// #ifndef OPENTHREAD_CONFIG_LOG_CLI
-// #define OPENTHREAD_CONFIG_LOG_CLI                   1
-// #endif
+#ifndef OPENTHREAD_CONFIG_LOG_CLI
+#define OPENTHREAD_CONFIG_LOG_CLI 1
+#endif
 
-// #ifndef OPENTHREAD_CONFIG_LOG_PKT_DUMP
-// #define OPENTHREAD_CONFIG_LOG_PKT_DUMP              1
-// #endif
+#ifndef OPENTHREAD_CONFIG_LOG_PKT_DUMP
+#define OPENTHREAD_CONFIG_LOG_PKT_DUMP 1
+#endif
 
-// #ifndef OPENTHREAD_CONFIG_LOG_PLATFORM
-// #define OPENTHREAD_CONFIG_LOG_PLATFORM              1
-// #endif
+#ifndef OPENTHREAD_CONFIG_LOG_PLATFORM
+#define OPENTHREAD_CONFIG_LOG_PLATFORM 1
+#endif
 
-// #ifndef OPENTHREAD_CONFIG_LOG_PREPEND_LEVEL
-// #define OPENTHREAD_CONFIG_LOG_PREPEND_LEVEL         1
-// #endif
+#ifndef OPENTHREAD_CONFIG_LOG_PREPEND_LEVEL
+#define OPENTHREAD_CONFIG_LOG_PREPEND_LEVEL 1
+#endif
 
 // EFR32MG21A020F1024IM32 has 96k of RAM. Reduce the number of buffers to
 // conserve RAM for this Series 2 part.

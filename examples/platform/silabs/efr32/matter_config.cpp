@@ -97,13 +97,13 @@ CHIP_ERROR EFR32MatterConfig::InitOpenThread(void)
 
 #if CHIP_DEVICE_CONFIG_THREAD_FTD
     ReturnErrorOnFailure(ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_Router));
-#else // CHIP_DEVICE_CONFIG_THREAD_FTD
-#if CHIP_DEVICE_CONFIG_ENABLE_SED
+#elif CHIP_DEVICE_CONFIG_THREAD_SSED // Not CHIP_DEVICE_CONFIG_THREAD_FTD, check CHIP_DEVICE_CONFIG_ENABLE_SSED
+    ReturnErrorOnFailure(ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_SynchronizedSleepyEndDevice));
+#elif CHIP_DEVICE_CONFIG_ENABLE_SED  // Not CHIP_DEVICE_CONFIG_THREAD_SSED, check CHIP_DEVICE_CONFIG_ENABLE_SED
     ReturnErrorOnFailure(ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_SleepyEndDevice));
-#else  // CHIP_DEVICE_CONFIG_ENABLE_SED
+#else                                // Not CHIP_DEVICE_CONFIG_ENABLE_SED, CHIP_DEVICE_CONFIG_THREAD_MTD
     ReturnErrorOnFailure(ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_MinimalEndDevice));
-#endif // CHIP_DEVICE_CONFIG_ENABLE_SED
-#endif // CHIP_DEVICE_CONFIG_THREAD_FTD
+#endif
 
     SILABS_LOG("Starting OpenThread task");
     return ThreadStackMgrImpl().StartThreadTask();
