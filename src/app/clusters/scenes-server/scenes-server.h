@@ -55,6 +55,8 @@ public:
     void OnRecallScene(const FabricIndex & aFabricIx, const EndpointId & aEndpointId, const GroupId & aGroupId,
                        const SceneId & aSceneId);
 
+    void RegisterSceneHandler(scenes::SceneHandler * handler);
+
 private:
     ScenesServer() : CommandHandlerInterface(Optional<EndpointId>(), Id), AttributeAccessInterface(Optional<EndpointId>(), Id) {}
     ~ScenesServer() {}

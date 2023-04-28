@@ -726,9 +726,10 @@ CHIP_ERROR DefaultSceneTableImpl::SceneSaveEFS(SceneTableEntry & scene)
     if (!HandlerListEmpty())
     {
         uint8_t clusterCount = 0;
-        clusterId cArray[kMaxClustersPerScene];
+        // TODO: Use dynamical allocation with emberAFClusterCount to generate a smaller array
+        clusterId cArray[GENERATED_CLUSTER_COUNT];
         Span<clusterId> cSpan(cArray);
-        clusterCount = GetClustersFromEndpoint(scene.mStorageId.mEndpointId, cArray, kMaxClustersPerScene);
+        clusterCount = GetClustersFromEndpoint(scene.mStorageId.mEndpointId, cArray, GENERATED_CLUSTER_COUNT);
         cSpan.reduce_size(clusterCount);
         for (clusterId cluster : cSpan)
         {

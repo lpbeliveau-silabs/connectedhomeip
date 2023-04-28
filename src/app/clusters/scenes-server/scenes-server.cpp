@@ -178,8 +178,6 @@ void ViewSceneParse(HandlerContext & ctx, const CommandData & req, SceneTable * 
 {
     ResponseType response;
     CHIP_ERROR err;
-    // Response Extension Field Sets buffer
-    Structs::ExtensionFieldSet::Type mResponseEFSBuffer[CHIP_CONFIG_SCENES_MAX_CLUSTERS_PER_SCENE];
 
     // Response data
     response.groupID = req.groupID;
@@ -260,7 +258,7 @@ void ViewSceneParse(HandlerContext & ctx, const CommandData & req, SceneTable * 
             }
         }
 
-        Span<Structs::ExtensionFieldSet::Type> responseEFSSpan(mResponseEFSBuffer, DeserializedEFSCount);
+        Span<Structs::ExtensionFieldSet::Type> responseEFSSpan(responseEFSBuffer, DeserializedEFSCount);
         response.extensionFieldSets.SetValue(responseEFSSpan);
     }
     response.status = static_cast<uint8_t>(Protocols::InteractionModel::Status::Success);
@@ -502,6 +500,11 @@ void ScenesServer::OnRecallScene(const FabricIndex & aFabricIx, const EndpointId
     {
         mSceneValid = true;
     }
+}
+
+void ScenesServer::RegisterSceneHandler(scenes::SceneHandler * handler)
+{
+    mSceneTable->RegisterHandler(handler);
 }
 
 void ScenesServer::HandleAddScene(HandlerContext & ctx, const Commands::AddScene::DecodableType & req)
