@@ -26,6 +26,7 @@
 #include "sl_simple_led_instances.h"
 #endif // ENABLE_WSTK_LEDS
 
+#include <app/clusters/color-control-server/color-control-server.h>
 #include <app/clusters/identify-server/identify-server.h>
 #include <app/clusters/level-control/level-control.h>
 #include <app/clusters/on-off-server/on-off-server.h>
@@ -139,6 +140,7 @@ AppTask AppTask::sAppTask;
 CHIP_ERROR AppTask::Init()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
+
 #ifdef DISPLAY_ENABLED
     GetLCD().Init((uint8_t *) "Lighting-App");
 #endif
@@ -166,6 +168,7 @@ CHIP_ERROR AppTask::Init()
 
     app::Clusters::Scenes::ScenesServer::Instance().RegisterSceneHandler(OnOffServer::Instance().GetSceneHandler());
     app::Clusters::Scenes::ScenesServer::Instance().RegisterSceneHandler(LevelControlServer::GetSceneHandler());
+    app::Clusters::Scenes::ScenesServer::Instance().RegisterSceneHandler(ColorControlServer::Instance().GetSceneHandler());
 
     LightMgr().SetCallbacks(ActionInitiated, ActionCompleted);
 

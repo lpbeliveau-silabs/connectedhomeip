@@ -182,6 +182,7 @@ public:
             attBuffer[LevelControlEFS::kLevel][0] = level.Value();
             LCPairs[0].attributeID.SetValue(Attributes::CurrentLevel::Id);
             LCPairs[0].attributeValue = Span<const uint8_t>(attBuffer[LevelControlEFS::kLevel]);
+            LCPairs[0].attributeValue.reduce_size(1);
             LCPairs[1].attributeID.SetValue(Attributes::CurrentFrequency::Id);
             LCPairs[1].attributeValue = Span<const uint8_t>(attBuffer[LevelControlEFS::kFrequency]);
         }
