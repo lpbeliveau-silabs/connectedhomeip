@@ -208,9 +208,9 @@ public:
     /// @brief Simulates save from cluster, data is already in an EFS struct but this isn't mandatory
     /// @param endpoint target endpoint
     /// @param cluster  target cluster
-    /// @param serialisedBytes data to serialize into EFS
+    /// @param serializedBytes data to serialize into EFS
     /// @return success if successfully serialized the data, CHIP_ERROR_INVALID_ARGUMENT if endpoint or cluster not supported
-    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serialisedBytes) override
+    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override
     {
         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
 
@@ -221,16 +221,16 @@ public:
             case kOnOffClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: OO_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
+                serializedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
                 break;
             case kLevelControlClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: LC_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), LC_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), LC_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(LC_buffer_serialized_length); // Used memory for Level Control TLV
+                serializedBytes.reduce_size(LC_buffer_serialized_length); // Used memory for Level Control TLV
                 break;
             default:
                 break;
@@ -243,16 +243,16 @@ public:
             case kOnOffClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: OO_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
+                serializedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
                 break;
             case kColorControlClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: CC_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), CC_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), CC_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(CC_buffer_serialized_length); // Used memory for Color Control TLV
+                serializedBytes.reduce_size(CC_buffer_serialized_length); // Used memory for Color Control TLV
                 break;
             default:
                 break;
@@ -265,23 +265,23 @@ public:
             case kOnOffClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: OO_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), OO_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
+                serializedBytes.reduce_size(OO_buffer_serialized_length); // Used memory for OnOff TLV
                 break;
             case kLevelControlClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: LC_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), LC_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), LC_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(LC_buffer_serialized_length); // Used memory for Level Control TLV
+                serializedBytes.reduce_size(LC_buffer_serialized_length); // Used memory for Level Control TLV
                 break;
             case kColorControlClusterId:
                 err = CHIP_NO_ERROR;
                 // Warning: CC_buffer needs to be populated before calling this function
-                memcpy(serialisedBytes.data(), CC_buffer, scenes::kMaxFieldBytesPerCluster);
+                memcpy(serializedBytes.data(), CC_buffer, scenes::kMaxFieldBytesPerCluster);
                 // Warning: serialized size of the buffer must also be computed before calling this function
-                serialisedBytes.reduce_size(CC_buffer_serialized_length); // Used memory for Color Control TLV
+                serializedBytes.reduce_size(CC_buffer_serialized_length); // Used memory for Color Control TLV
                 break;
             default:
                 break;
@@ -294,11 +294,11 @@ public:
     /// "cluster"
     /// @param endpoint target endpoint
     /// @param cluster  target cluster
-    /// @param serialisedBytes Data from nvm
+    /// @param serializedBytes Data from nvm
     /// @param timeMs transition time in ms
     /// @return CHIP_NO_ERROR if value as expected, CHIP_ERROR_INVALID_ARGUMENT otherwise
     CHIP_ERROR
-    ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serialisedBytes, TransitionTimeMs timeMs) override
+    ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes, TransitionTimeMs timeMs) override
     {
         CHIP_ERROR err = CHIP_ERROR_INVALID_ARGUMENT;
 
@@ -308,13 +308,13 @@ public:
             switch (cluster)
             {
             case kOnOffClusterId:
-                if (!memcmp(serialisedBytes.data(), OO_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), OO_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
                 break;
             case kLevelControlClusterId:
-                if (!memcmp(serialisedBytes.data(), LC_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), LC_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
@@ -330,13 +330,13 @@ public:
             switch (cluster)
             {
             case kOnOffClusterId:
-                if (!memcmp(serialisedBytes.data(), OO_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), OO_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
                 break;
             case kColorControlClusterId:
-                if (!memcmp(serialisedBytes.data(), CC_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), CC_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
@@ -352,19 +352,19 @@ public:
             switch (cluster)
             {
             case kOnOffClusterId:
-                if (!memcmp(serialisedBytes.data(), OO_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), OO_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
                 break;
             case kLevelControlClusterId:
-                if (!memcmp(serialisedBytes.data(), LC_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), LC_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }
                 break;
             case kColorControlClusterId:
-                if (!memcmp(serialisedBytes.data(), CC_buffer, serialisedBytes.size()))
+                if (!memcmp(serializedBytes.data(), CC_buffer, serializedBytes.size()))
                 {
                     err = CHIP_NO_ERROR;
                 }

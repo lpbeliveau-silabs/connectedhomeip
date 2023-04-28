@@ -27,6 +27,7 @@
 #endif // ENABLE_WSTK_LEDS
 
 #include <app/clusters/identify-server/identify-server.h>
+#include <app/clusters/level-control/level-control.h>
 #include <app/clusters/on-off-server/on-off-server.h>
 #include <app/clusters/scenes-server/scenes-server.h>
 #include <app/server/OnboardingCodesUtil.h>
@@ -164,6 +165,7 @@ CHIP_ERROR AppTask::Init()
     }
 
     app::Clusters::Scenes::ScenesServer::Instance().RegisterSceneHandler(OnOffServer::Instance().GetSceneHandler());
+    app::Clusters::Scenes::ScenesServer::Instance().RegisterSceneHandler(LevelControlServer::GetSceneHandler());
 
     LightMgr().SetCallbacks(ActionInitiated, ActionCompleted);
 

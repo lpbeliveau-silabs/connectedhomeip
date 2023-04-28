@@ -122,6 +122,201 @@ static bool shouldExecuteIfOff(EndpointId endpoint, CommandId commandId,
                                chip::Optional<chip::BitMask<LevelControlOptions>> optionsMask,
                                chip::Optional<chip::BitMask<LevelControlOptions>> optionsOverride);
 
+#ifdef EMBER_AF_PLUGIN_SCENES
+class DefaultLevelControlSceneHandler : public scenes::DefaultSceneHandlerImpl
+{
+public:
+    enum LevelControlEFS : uint8_t
+    {
+        kLevel = 0,
+        kFrequency,
+    };
+
+    // As per spec, 2 attributes are scenable in the level control cluster
+    static constexpr uint8_t scenableAttributeCount = 2;
+    // Maximum attribute size is uint16_t for the level control cluster
+    static constexpr uint8_t maxAttributeSize = 2;
+
+    DefaultLevelControlSceneHandler() = default;
+    ~DefaultLevelControlSceneHandler() override {}
+
+    // Default function for LevelControl cluster, only puts the LevelControl cluster ID in the span if supported on the caller
+    // endpoint
+    virtual void GetSupportedClusters(EndpointId endpoint, Span<ClusterId> & clusterBuffer) override
+    {
+        ClusterId * buffer = clusterBuffer.data();
+        if (emberAfContainsServer(endpoint, LevelControl::Id) && clusterBuffer.size() >= 1)
+        {
+            buffer[0] = LevelControl::Id;
+            clusterBuffer.reduce_size(1);
+        }
+    }
+
+    // Default function for LevelControl cluster, only checks if LevelControl is enabled on the endpoint
+    bool SupportsCluster(EndpointId endpoint, ClusterId cluster) override
+    {
+        return (cluster == LevelControl::Id) && (emberAfContainsServer(endpoint, LevelControl::Id));
+    }
+
+    /// @brief Serialize the Cluster's EFS value
+    /// @param endpoint target endpoint
+    /// @param cluster  target cluster
+    /// @param serializedBytes data to serialize into EFS
+    /// @return CHIP_NO_ERROR if successfully serialized the data, CHIP_ERROR_INVALID_ARGUMENT otherwise
+    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override
+    {
+        app::DataModel::List<const Scenes::Structs::AttributeValuePair::Type> LCattributeValueList;
+        Scenes::Structs::AttributeValuePair::Type LCPairs[scenableAttributeCount];
+        uint8_t attBuffer[scenableAttributeCount][maxAttributeSize];
+        uint16_t frequency;
+
+        app::DataModel::Nullable<uint8_t> level;
+        VerifyOrReturnError(EMBER_ZCL_STATUS_SUCCESS == Attributes::CurrentLevel::Get(endpoint, level), CHIP_ERROR_READ_FAILED);
+        VerifyOrReturnError(EMBER_ZCL_STATUS_SUCCESS == Attributes::CurrentFrequency::Get(endpoint, &frequency),
+                            CHIP_ERROR_READ_FAILED);
+        attBuffer[LevelControlEFS::kFrequency][0] = static_cast<uint8_t>(frequency & 0xff);
+        attBuffer[LevelControlEFS::kFrequency][1] = static_cast<uint8_t>(frequency >> 8);
+
+        if (level.HasValidValue())
+        {
+            attBuffer[LevelControlEFS::kLevel][0] = level.Value();
+            LCPairs[0].attributeID.SetValue(Attributes::CurrentLevel::Id);
+            LCPairs[0].attributeValue = Span<const uint8_t>(attBuffer[LevelControlEFS::kLevel]);
+            LCPairs[1].attributeID.SetValue(Attributes::CurrentFrequency::Id);
+            LCPairs[1].attributeValue = Span<const uint8_t>(attBuffer[LevelControlEFS::kFrequency]);
+        }
+        else
+        {
+            LCPairs[0].attributeID.SetValue(Attributes::CurrentFrequency::Id);
+            LCPairs[0].attributeValue = Span<const uint8_t>(attBuffer[LevelControlEFS::kFrequency]);
+        }
+
+        LCattributeValueList = LCPairs;
+
+        TLV::TLVWriter writer;
+        TLV::TLVType outer;
+        // Serialize Extension Field sets in a way consistent with the default Deserialize method
+        writer.Init(serializedBytes);
+        ReturnErrorOnFailure(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outer));
+        ReturnErrorOnFailure(app::DataModel::Encode(
+            writer, TLV::ContextTag(to_underlying(Scenes::Structs::ExtensionFieldSet::Fields::kAttributeValueList)),
+            LCattributeValueList));
+        ReturnErrorOnFailure(writer.EndContainer(outer));
+        serializedBytes.reduce_size(writer.GetLengthWritten());
+
+        return CHIP_NO_ERROR;
+    }
+
+    /// @brief Default EFS interaction when applying scene to the OnOff Cluster
+    /// @param endpoint target endpoint
+    /// @param cluster  target cluster
+    /// @param serializedBytes Data from nvm
+    /// @param timeMs transition time in ms
+    /// @return CHIP_NO_ERROR if value as expected, CHIP_ERROR_INVALID_ARGUMENT otherwise
+    CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
+                          scenes::TransitionTimeMs timeMs) override
+    {
+        app::DataModel::DecodableList<Scenes::Structs::AttributeValuePair::DecodableType> attributeValueList;
+        Scenes::Structs::AttributeValuePair::DecodableType decodePair;
+        uint8_t attBuffer[scenableAttributeCount][maxAttributeSize];
+
+        size_t attributeCount = 0;
+
+        TLV::TLVReader reader;
+        TLV::TLVType outer;
+
+        VerifyOrReturnError(cluster == Id, CHIP_ERROR_INVALID_ARGUMENT);
+
+        reader.Init(serializedBytes);
+        ReturnErrorOnFailure(reader.Next(TLV::kTLVType_Structure, TLV::AnonymousTag()));
+        ReturnErrorOnFailure(reader.EnterContainer(outer));
+        ReturnErrorOnFailure(reader.Next(
+            TLV::kTLVType_Array, TLV::ContextTag(app::Clusters::Scenes::Structs::ExtensionFieldSet::Fields::kAttributeValueList)));
+        ReturnErrorOnFailure(attributeValueList.Decode(reader));
+
+        ReturnErrorOnFailure(attributeValueList.ComputeSize(&attributeCount));
+        VerifyOrReturnError(attributeCount <= scenableAttributeCount, CHIP_ERROR_BUFFER_TOO_SMALL);
+
+        auto pair_iterator = attributeValueList.begin();
+
+        // The level control cluster should have a maximum of 2 attributes
+
+        uint8_t incIdx = 0;
+        uint8_t attIdx;
+        while (pair_iterator.Next())
+        {
+            size_t valueBytesCount = 0;
+            // Verify size of attribute value fits in a uint16_t
+            ReturnErrorOnFailure(decodePair.attributeValue.ComputeSize(&valueBytesCount));
+            VerifyOrReturnError(valueBytesCount <= sizeof(uint16_t), CHIP_ERROR_BUFFER_TOO_SMALL);
+
+            decodePair = pair_iterator.GetValue();
+            if (decodePair.attributeID.HasValue())
+            {
+                // If attribute ID was encoded, checks which attribute from LC cluster is there
+                switch (decodePair.attributeID.Value())
+                {
+                case Attributes::CurrentLevel::Id:
+                    attIdx = LevelControlEFS::kLevel;
+                    break;
+                case Attributes::CurrentFrequency::Id:
+                    attIdx = LevelControlEFS::kFrequency;
+                    break;
+                default:
+                    ReturnErrorOnFailure(reader.ExitContainer(outer));
+                    return CHIP_ERROR_INVALID_ARGUMENT;
+                }
+            }
+            else
+            {
+                // If there are no attribute ID, assumes the first value is the Current Level and increments the idx from there
+                attIdx = incIdx;
+            }
+
+            uint8_t valIdx      = 0;
+            auto value_iterator = decodePair.attributeValue.begin();
+            while (value_iterator.Next())
+            {
+                attBuffer[attIdx][valIdx] = value_iterator.GetValue();
+                valIdx++;
+            }
+            // Verify that the EFS was completely read
+            ReturnErrorOnFailure(value_iterator.GetStatus());
+            incIdx++;
+        }
+        ReturnErrorOnFailure(pair_iterator.GetStatus());
+        ReturnErrorOnFailure(reader.ExitContainer(outer));
+
+        // TODO : Implement action on frequency when frequency not provisional anymore
+
+        Status status;
+        CommandId command = LevelControlHasFeature(endpoint, LevelControl::LevelControlFeature::kOnOff)
+            ? Commands::MoveToLevelWithOnOff::Id
+            : Commands::MoveToLevel::Id;
+
+        status = moveToLevelHandler(endpoint, command, attBuffer[LevelControlEFS::kLevel][0],
+                                    app::DataModel::MakeNullable<uint16_t>(static_cast<uint16_t>(timeMs / 100)),
+                                    chip::Optional<BitMask<LevelControlOptions>>(), chip::Optional<BitMask<LevelControlOptions>>(),
+                                    INVALID_STORED_LEVEL);
+
+        if (status != Status::Success)
+        {
+            return CHIP_ERROR_READ_FAILED;
+        }
+
+        return CHIP_NO_ERROR;
+    }
+};
+static DefaultLevelControlSceneHandler sLevelControlSceneHandler;
+
+namespace LevelControlServer {
+chip::scenes::SceneHandler * GetSceneHandler()
+{
+    return &sLevelControlSceneHandler;
+}
+} // namespace LevelControlServer
+#endif // EMBER_AF_PLUGIN_SCENES
+
 #if !defined(IGNORE_LEVEL_CONTROL_CLUSTER_OPTIONS) && defined(EMBER_AF_PLUGIN_COLOR_CONTROL_SERVER_TEMP)
 static void reallyUpdateCoupledColorTemp(EndpointId endpoint);
 #define updateCoupledColorTemp(endpoint) reallyUpdateCoupledColorTemp(endpoint)
@@ -1302,7 +1497,6 @@ void emberAfLevelControlClusterServerInitCallback(EndpointId endpoint)
             Attributes::CurrentLevel::Set(endpoint, state->maxLevel);
         }
     }
-
     emberAfPluginLevelControlClusterServerPostInitCallback(endpoint);
 }
 

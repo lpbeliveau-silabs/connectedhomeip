@@ -86,9 +86,9 @@ public:
     /// @brief Serialize the Cluster's EFS value
     /// @param endpoint target endpoint
     /// @param cluster  target cluster
-    /// @param serialisedBytes data to serialize into EFS
+    /// @param serializedBytes data to serialize into EFS
     /// @return CHIP_NO_ERROR if successfully serialized the data, CHIP_ERROR_INVALID_ARGUMENT otherwise
-    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serialisedBytes) override
+    CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override
     {
         app::DataModel::List<const Scenes::Structs::AttributeValuePair::Type> OOattributeValueList;
         Scenes::Structs::AttributeValuePair::Type OOPairs[scenableAttributeCount];
@@ -111,13 +111,13 @@ public:
         TLV::TLVWriter writer;
         TLV::TLVType outer;
         // Serialize Extension Field sets in a way consistent with the default Deserialize method
-        writer.Init(serialisedBytes);
+        writer.Init(serializedBytes);
         ReturnErrorOnFailure(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outer));
         ReturnErrorOnFailure(app::DataModel::Encode(
             writer, TLV::ContextTag(to_underlying(Scenes::Structs::ExtensionFieldSet::Fields::kAttributeValueList)),
             OOattributeValueList));
         ReturnErrorOnFailure(writer.EndContainer(outer));
-        serialisedBytes.reduce_size(writer.GetLengthWritten());
+        serializedBytes.reduce_size(writer.GetLengthWritten());
 
         return CHIP_NO_ERROR;
     }
@@ -125,10 +125,10 @@ public:
     /// @brief Default EFS interaction when applying scene to the OnOff Cluster
     /// @param endpoint target endpoint
     /// @param cluster  target cluster
-    /// @param serialisedBytes Data from nvm
+    /// @param serializedBytes Data from nvm
     /// @param timeMs transition time in ms
     /// @return CHIP_NO_ERROR if value as expected, CHIP_ERROR_INVALID_ARGUMENT otherwise
-    CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serialisedBytes,
+    CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
                           scenes::TransitionTimeMs timeMs) override
     {
         app::DataModel::DecodableList<Scenes::Structs::AttributeValuePair::DecodableType> attributeValueList;
@@ -141,7 +141,7 @@ public:
 
         VerifyOrReturnError(cluster == Id, CHIP_ERROR_INVALID_ARGUMENT);
 
-        reader.Init(serialisedBytes);
+        reader.Init(serializedBytes);
         ReturnErrorOnFailure(reader.Next(TLV::kTLVType_Structure, TLV::AnonymousTag()));
         ReturnErrorOnFailure(reader.EnterContainer(outer));
         ReturnErrorOnFailure(reader.Next(
@@ -178,7 +178,15 @@ public:
         ReturnErrorOnFailure(pair_iterator.GetStatus());
         ReturnErrorOnFailure(reader.ExitContainer(outer));
 
+#ifdef EMBER_AF_PLUGIN_LEVEL_CONTROL
+        if (!(LevelControlWithOnOffFeaturePresent(endpoint) &&
+              Scenes::ScenesServer::Instance().IsHandlerRegistered(LevelControlServer::GetSceneHandler())))
+        {
+            OnOffServer::Instance().scheduleTimerCallbackMs(sceneEventControl(endpoint), timeMs);
+        }
+#else
         OnOffServer::Instance().scheduleTimerCallbackMs(sceneEventControl(endpoint), timeMs);
+#endif
 
         return CHIP_NO_ERROR;
     }

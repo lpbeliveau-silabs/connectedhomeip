@@ -45,7 +45,7 @@ public:
     /// @brief From command AddScene, allows handler to filter through clusters in command to serialize only the supported ones.
     /// @param endpoint[in] Endpoint ID
     /// @param extensionFieldSet[in] ExtensionFieldSets provided by the AddScene Command, pre initialized
-    /// @param serialisedBytes[out] Buffer to fill from the ExtensionFieldSet in command
+    /// @param serializedBytes[out] Buffer to fill from the ExtensionFieldSet in command
     /// @return CHIP_NO_ERROR if successful, CHIP_ERROR_INVALID_ARGUMENT if the cluster is not supported, CHIP_ERROR value otherwise
     virtual CHIP_ERROR SerializeAdd(EndpointId endpoint,
                                     const app::Clusters::Scenes::Structs::ExtensionFieldSet::DecodableType & extensionFieldSet,
@@ -96,6 +96,7 @@ public:
             writer, TLV::ContextTag(app::Clusters::Scenes::Structs::ExtensionFieldSet::Fields::kAttributeValueList),
             attributeValueList));
         ReturnErrorOnFailure(writer.EndContainer(outer));
+        serializedBytes.reduce_size(writer.GetLengthWritten());
 
         return CHIP_NO_ERROR;
     }
@@ -103,10 +104,10 @@ public:
     /// @brief Simulates taking data from nvm and loading it in a command object if the cluster is supported by the endpoint
     /// @param endpoint target endpoint
     /// @param cluster  target cluster
-    /// @param serialisedBytes data to deserialize into EFS
+    /// @param serializedBytes data to deserialize into EFS
     /// @return CHIP_NO_ERROR if Extension Field Set was successfully populated, CHIP_ERROR_INVALID_ARGUMENT if the cluster is not
     /// supported, specific CHIP_ERROR otherwise
-    virtual CHIP_ERROR Deserialize(EndpointId endpoint, ClusterId cluster, const ByteSpan & serialisedBytes,
+    virtual CHIP_ERROR Deserialize(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
                                    app::Clusters::Scenes::Structs::ExtensionFieldSet::Type & extensionFieldSet) override
     {
         app::DataModel::DecodableList<app::Clusters::Scenes::Structs::AttributeValuePair::DecodableType> attributeValueList;
@@ -118,7 +119,7 @@ public:
         uint8_t pairCount = 0;
 
         extensionFieldSet.clusterID = cluster;
-        reader.Init(serialisedBytes);
+        reader.Init(serializedBytes);
         ReturnErrorOnFailure(reader.Next(TLV::kTLVType_Structure, TLV::AnonymousTag()));
         ReturnErrorOnFailure(reader.EnterContainer(outer));
         ReturnErrorOnFailure(reader.Next(
