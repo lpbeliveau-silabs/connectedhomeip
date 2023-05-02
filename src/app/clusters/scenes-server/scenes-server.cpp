@@ -105,7 +105,7 @@ void AddSceneParse(CommandHandlerInterface::HandlerContext & ctx, const CommandD
     }
     else if (ctx.mRequestPath.mCommandId == Commands::EnhancedAddScene::Id)
     {
-        transitionTimeMs = static_cast<uint32_t>(req.transitionTime * 10000);
+        transitionTimeMs = static_cast<uint32_t>(req.transitionTime * 100);
     }
 
     auto fieldSetIter = req.extensionFieldSets.begin();
@@ -223,7 +223,7 @@ void ViewSceneParse(HandlerContext & ctx, const CommandData & req, SceneTable * 
         }
         else if (ctx.mRequestPath.mCommandId == Commands::EnhancedViewScene::Id)
         {
-            response.transitionTime.SetValue(static_cast<uint16_t>(scene.mStorageData.mSceneTransitionTimeMs / 10000));
+            response.transitionTime.SetValue(static_cast<uint16_t>(scene.mStorageData.mSceneTransitionTimeMs / 100));
         }
     }
 
@@ -505,6 +505,11 @@ void ScenesServer::OnRecallScene(const FabricIndex & aFabricIx, const EndpointId
 void ScenesServer::RegisterSceneHandler(scenes::SceneHandler * handler)
 {
     mSceneTable->RegisterHandler(handler);
+}
+
+bool ScenesServer::IsHandlerRegistered(scenes::SceneHandler * handler)
+{
+    return mSceneTable->mHandlerList.Contains(handler);
 }
 
 void ScenesServer::HandleAddScene(HandlerContext & ctx, const Commands::AddScene::DecodableType & req)

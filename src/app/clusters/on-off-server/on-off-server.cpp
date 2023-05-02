@@ -171,22 +171,15 @@ public:
 
         auto value_iterator = decodePair.attributeValue.begin();
         value_iterator.Next();
-        uint8_t onOffVal = value_iterator.GetValue();
+        mSceneOnOffState = value_iterator.GetValue();
 
         // Verify that the EFS was completely read
         ReturnErrorOnFailure(value_iterator.GetStatus());
         ReturnErrorOnFailure(pair_iterator.GetStatus());
         ReturnErrorOnFailure(reader.ExitContainer(outer));
 
-#ifdef EMBER_AF_PLUGIN_LEVEL_CONTROL
-        if (!LevelControlWithOnOffFeaturePresent(endpoint))
-        {
-            OnOff::Attributes::OnOff::Set(endpoint, onOffVal);
-            OnOffServer::Instance().scheduleTimerCallbackMs(sceneEventControl(endpoint), timeMs);
-        }
-#else
         OnOffServer::Instance().scheduleTimerCallbackMs(sceneEventControl(endpoint), timeMs);
-#endif
+
         return CHIP_NO_ERROR;
     }
 
