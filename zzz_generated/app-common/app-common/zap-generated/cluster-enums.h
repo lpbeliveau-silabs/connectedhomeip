@@ -242,13 +242,13 @@ enum class LevelControlOptions : uint8_t
 };
 } // namespace LevelControl
 
-namespace BinaryInputBasic {} // namespace BinaryInputBasic
+namespace BinaryInputBasic {}     // namespace BinaryInputBasic
 
 namespace PulseWidthModulation {} // namespace PulseWidthModulation
 
-namespace Descriptor {} // namespace Descriptor
+namespace Descriptor {}           // namespace Descriptor
 
-namespace Binding {} // namespace Binding
+namespace Binding {}              // namespace Binding
 
 namespace AccessControl {
 
@@ -1345,17 +1345,17 @@ enum class GroupKeySecurityPolicyEnum : uint8_t
 };
 } // namespace GroupKeyManagement
 
-namespace FixedLabel {} // namespace FixedLabel
+namespace FixedLabel {}         // namespace FixedLabel
 
-namespace UserLabel {} // namespace UserLabel
+namespace UserLabel {}          // namespace UserLabel
 
 namespace ProxyConfiguration {} // namespace ProxyConfiguration
 
-namespace ProxyDiscovery {} // namespace ProxyDiscovery
+namespace ProxyDiscovery {}     // namespace ProxyDiscovery
 
-namespace ProxyValid {} // namespace ProxyValid
+namespace ProxyValid {}         // namespace ProxyValid
 
-namespace BooleanState {} // namespace BooleanState
+namespace BooleanState {}       // namespace BooleanState
 
 namespace ModeSelect {
 
@@ -2379,7 +2379,7 @@ enum class PressureMeasurementFeature : uint32_t
 };
 } // namespace PressureMeasurement
 
-namespace FlowMeasurement {} // namespace FlowMeasurement
+namespace FlowMeasurement {}             // namespace FlowMeasurement
 
 namespace RelativeHumidityMeasurement {} // namespace RelativeHumidityMeasurement
 
@@ -2789,11 +2789,11 @@ enum class ApplicationStatusEnum : uint8_t
 };
 } // namespace ApplicationBasic
 
-namespace AccountLogin {} // namespace AccountLogin
+namespace AccountLogin {}          // namespace AccountLogin
 
 namespace ElectricalMeasurement {} // namespace ElectricalMeasurement
 
-namespace ClientMonitoring {} // namespace ClientMonitoring
+namespace ClientMonitoring {}      // namespace ClientMonitoring
 
 namespace UnitTesting {
 
