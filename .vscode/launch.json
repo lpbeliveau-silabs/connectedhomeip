@@ -5,6 +5,40 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug efr32 example app",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/out/${input:efr32Examples}-app/${input:efr32Boards}/matter-silabs-${input:efr32Examples}-example.out",
+            "serverpath": "/opt/SEGGER/JLink_V782/JLinkGDBServer",
+            "servertype": "jlink",
+            "device": "${input:efr32MCU}",
+            "interface": "swd",
+            "serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
+            "runToMain": true,
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "decoders": [
+                    {
+                        "port": 0, // In RTT lingo, this is the buffer index (or channel)
+                        "type": "console"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "GDB test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/default/tests/TestSynchronizedReadInteraction",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false
+        },
+        {
             "name": "Attach to running process",
             "type": "lldb",
             "request": "attach",
@@ -476,6 +510,42 @@
         }
     ],
     "inputs": [
+        {
+            "type": "pickString",
+            "id": "efr32Examples",
+            "description": "What efr32 example do you want to build?",
+            "options": ["lock", "lighting", "window", "light-switch"],
+            "default": "lighting"
+        },
+        {
+            "type": "pickString",
+            "id": "efr32Boards",
+            "description": "What efr32 example do you want to build?",
+            "options": [
+                "BRD4161A",
+                "BRD4164A",
+                "BRD4166A",
+                "BRD4170A",
+                "BRD4170A",
+                "BRD4304A",
+                "BRD4186A",
+                "BRD4187A",
+                "BRD4187C"
+            ],
+            "default": "BRD4187C"
+        },
+        {
+            "type": "pickString",
+            "id": "efr32MCU",
+            "description": "What efr32 MCU do you want to build?",
+            "options": [
+                "EFR32MG12P432F1024GL125", // BRD4164A
+                "EFR32MG12P433F1024GL125", // BRD4161A
+                "EFR32MG24A010F1536GM48", // BRD4186A/87A
+                "EFR32MG12P332F1024GL125" // BRD4166A
+            ],
+            "default": "EFR32MG24A010F1536GM48"
+        },
         {
             "type": "command",
             "id": "outAppDarwin",
