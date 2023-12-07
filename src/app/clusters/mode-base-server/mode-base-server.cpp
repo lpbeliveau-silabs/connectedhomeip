@@ -25,6 +25,10 @@
 #include <app/util/attribute-storage.h>
 #include <platform/DiagnosticDataProvider.h>
 
+#ifdef EMBER_AF_PLUGIN_SCENES
+#include <app/clusters/scenes-server/scenes-server.h>
+#endif // EMBER_AF_PLUGIN_SCENES
+
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
@@ -37,6 +41,116 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace ModeBase {
+
+#if defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+
+static void TimerCallback(System::Layer * aLayer, void * aAppState)
+{
+    Instance::DefaultModeBaseSceneHandler * handler = static_cast<Instance::DefaultModeBaseSceneHandler *>(aAppState);
+    handler->SceneCallback();
+}
+
+// Default function for the mode base cluster, only puts the mode base cluster ID in the span if supported on the given
+// endpoint. This assumes a single handler for a mode base cluster per endpoint. If multiple handlers are needed, a custom
+// scene handler should be implemented.
+void Instance::DefaultModeBaseSceneHandler::GetSupportedClusters(EndpointId endpoint, Span<ClusterId> & clusterBuffer)
+{
+    ClusterId * buffer = clusterBuffer.data();
+
+    if (mInstance != nullptr && endpoint == mInstance->GetEndpointId())
+    {
+        buffer[0] = mInstance->GetClusterId();
+        clusterBuffer.reduce_size(1);
+    }
+    else
+    {
+        clusterBuffer.reduce_size(0);
+    }
+}
+
+// Default function for mode base cluster, only checks if mode base is enabled on the endpoint
+bool Instance::DefaultModeBaseSceneHandler::SupportsCluster(EndpointId endpoint, ClusterId cluster)
+{
+    return mInstance != nullptr && endpoint == mInstance->GetEndpointId() && cluster == mInstance->GetClusterId();
+}
+
+/// @brief Serialize the Cluster's EFS value
+/// @param endpoint target endpoint
+/// @param cluster  target cluster
+/// @param serializedBytes data to serialize into EFS
+/// @return CHIP_NO_ERROR if successfully serialized the data, CHIP_ERROR_INVALID_ARGUMENT otherwise
+CHIP_ERROR Instance::DefaultModeBaseSceneHandler::SerializeSave(EndpointId endpoint, ClusterId cluster,
+                                                                MutableByteSpan & serializedBytes)
+{
+    using AttributeValuePair = Scenes::Structs::AttributeValuePair::Type;
+
+    if (mInstance == nullptr)
+    {
+        ChipLogError(Zcl, "ERR: Failed to serialize CurrentMode on Endpoint %x", endpoint);
+        return CHIP_ERROR_INCORRECT_STATE;
+    }
+
+    uint8_t currentMode = mInstance->GetCurrentMode();
+
+    AttributeValuePair pairs[scenableAttributeCount];
+
+    pairs[0].attributeID    = Attributes::CurrentMode::Id;
+    pairs[0].attributeValue = currentMode;
+
+    app::DataModel::List<AttributeValuePair> attributeValueList(pairs);
+
+    return EncodeAttributeValueList(attributeValueList, serializedBytes);
+}
+
+/// @brief Default EFS interaction when applying scene to the ModeBase Cluster
+/// @param endpoint target endpoint
+/// @param cluster  target cluster
+/// @param serializedBytes Data from nvm
+/// @param timeMs transition time in ms
+/// @return CHIP_NO_ERROR if value as expected, CHIP_ERROR_INVALID_ARGUMENT otherwise
+CHIP_ERROR Instance::DefaultModeBaseSceneHandler::ApplyScene(EndpointId endpoint, ClusterId cluster,
+                                                             const ByteSpan & serializedBytes, scenes::TransitionTimeMs timeMs)
+{
+    app::DataModel::DecodableList<Scenes::Structs::AttributeValuePair::DecodableType> attributeValueList;
+
+    VerifyOrReturnError(cluster == mInstance->GetClusterId(), CHIP_ERROR_INVALID_ARGUMENT);
+
+    ReturnErrorOnFailure(DecodeAttributeValueList(serializedBytes, attributeValueList));
+
+    size_t attributeCount = 0;
+    ReturnErrorOnFailure(attributeValueList.ComputeSize(&attributeCount));
+    VerifyOrReturnError(attributeCount <= scenableAttributeCount, CHIP_ERROR_BUFFER_TOO_SMALL);
+
+    auto pair_iterator = attributeValueList.begin();
+    while (pair_iterator.Next())
+    {
+        auto & decodePair = pair_iterator.GetValue();
+        VerifyOrReturnError(decodePair.attributeID == Attributes::CurrentMode::Id, CHIP_ERROR_INVALID_ARGUMENT);
+        mSceneNextMode = static_cast<uint8_t>(decodePair.attributeValue);
+    }
+    // Verify that the EFS was completely read
+    ReturnErrorOnFailure(pair_iterator.GetStatus());
+
+    StartTimer(chip::System::Clock::Milliseconds32(timeMs));
+
+    return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR Instance::DefaultModeBaseSceneHandler::StartTimer(chip::System::Clock::Milliseconds32 aTimeout)
+{
+    return DeviceLayer::SystemLayer().StartTimer(aTimeout, TimerCallback, this);
+}
+
+void Instance::DefaultModeBaseSceneHandler::CancelTimer()
+{
+    DeviceLayer::SystemLayer().CancelTimer(TimerCallback, this);
+}
+
+void Instance::DefaultModeBaseSceneHandler::SceneCallback()
+{
+    mInstance->UpdateCurrentMode(mSceneNextMode);
+}
+#endif // defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
 
 Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId, uint32_t aFeature) :
     CommandHandlerInterface(Optional<EndpointId>(aEndpointId), aClusterId),
@@ -63,6 +177,10 @@ void Instance::Shutdown()
     UnregisterThisInstance();
     chip::app::InteractionModelEngine::GetInstance()->UnregisterCommandHandler(this);
     unregisterAttributeAccessOverride(this);
+#if defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+    mSceneHandler.CancelTimer();
+    Scenes::ScenesServer::Instance().UnregisterSceneHandler(mEndpointId, &mSceneHandler);
+#endif // defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
 }
 
 CHIP_ERROR Instance::Init()
@@ -80,7 +198,8 @@ CHIP_ERROR Instance::Init()
     RegisterThisInstance();
     ReturnErrorOnFailure(mDelegate->Init());
 
-    // If the StartUpMode is set, the CurrentMode attribute SHALL be set to the StartUpMode value, when the server is powered up.
+    // If the StartUpMode is set, the CurrentMode attribute SHALL be set to the StartUpMode value, when the server is powered
+    // up.
     if (!mStartUpMode.IsNull())
     {
         // This behavior does not apply to reboots associated with OTA.
@@ -156,6 +275,11 @@ CHIP_ERROR Instance::Init()
         }
     }
 #endif // EMBER_AF_PLUGIN_ON_OFF_SERVER
+
+#if defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+    // Registers Scene handlers for the color control cluster on the server
+    Scenes::ScenesServer::Instance().RegisterSceneHandler(mEndpointId, &mSceneHandler);
+#endif // defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
 
     return CHIP_NO_ERROR;
 }
@@ -392,6 +516,11 @@ void Instance::HandleChangeToMode(HandlerContext & ctx, const Commands::ChangeTo
     {
         UpdateCurrentMode(newMode);
         ChipLogProgress(Zcl, "ModeBase: HandleChangeToMode changed to mode %u", newMode);
+#ifdef EMBER_AF_PLUGIN_SCENES
+        //  the scene has been changed (the value of CurrentMode has changed) so
+        //  the current scene as described in the scene table is invalid
+        Scenes::ScenesServer::Instance().MakeSceneInvalidForAllFabrics(mEndpointId);
+#endif // EMBER_AF_PLUGIN_SCENES
     }
 
     ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
