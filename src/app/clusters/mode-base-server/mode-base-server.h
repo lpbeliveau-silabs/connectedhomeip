@@ -25,6 +25,10 @@
 #include <app/util/af.h>
 #include <lib/support/IntrusiveList.h>
 
+#ifdef EMBER_AF_PLUGIN_SCENES
+#include <app/clusters/scenes-server/scenes-server.h>
+#endif // EMBER_AF_PLUGIN_SCENES
+
 namespace chip {
 namespace app {
 namespace Clusters {
@@ -98,6 +102,11 @@ public:
      */
     EndpointId GetEndpointId() const { return mEndpointId; }
 
+    /**
+     * @return The cluster ID.
+     */
+    ClusterId GetClusterId() const { return mClusterId; }
+
     // Cluster constants, from the spec.
     static constexpr uint8_t kMaxModeLabelSize = 64;
     static constexpr uint8_t kMaxNumOfModeTags = 8;
@@ -124,11 +133,67 @@ public:
     // Unregisters this instance if already registered.
     void Shutdown();
 
+#if defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+
+    class DefaultModeBaseSceneHandler : public scenes::DefaultSceneHandlerImpl
+    {
+    public:
+        // As per spec, 1 attribute is scenable in the mode base cluster
+        static constexpr uint8_t scenableAttributeCount = 1;
+
+        DefaultModeBaseSceneHandler(Instance * instance) : mInstance(instance) {}
+        ~DefaultModeBaseSceneHandler() override {}
+
+        // Default function for the mode base cluster, only puts the mode base cluster ID in the span if supported on the given
+        // endpoint. This assumes a single handler for a mode base cluster per endpoint. If multiple handlers are needed, a custom
+        // scene handler should be implemented.
+        void GetSupportedClusters(EndpointId endpoint, Span<ClusterId> & clusterBuffer) override;
+
+        // Default function for mode base cluster, only checks if mode base is enabled on the endpoint
+        bool SupportsCluster(EndpointId endpoint, ClusterId cluster) override;
+
+        /// @brief Serialize the Cluster's EFS value
+        /// @param endpoint target endpoint
+        /// @param cluster  target cluster
+        /// @param serializedBytes data to serialize into EFS
+        /// @return CHIP_NO_ERROR if successfully serialized the data, CHIP_ERROR_INVALID_ARGUMENT otherwise
+        CHIP_ERROR SerializeSave(EndpointId endpoint, ClusterId cluster, MutableByteSpan & serializedBytes) override;
+
+        /// @brief Default EFS interaction when applying scene to the ModeBase Cluster
+        /// @param endpoint target endpoint
+        /// @param cluster  target cluster
+        /// @param serializedBytes Data from nvm
+        /// @param timeMs transition time in ms
+        /// @return CHIP_NO_ERROR if value as expected, CHIP_ERROR_INVALID_ARGUMENT otherwise
+        CHIP_ERROR ApplyScene(EndpointId endpoint, ClusterId cluster, const ByteSpan & serializedBytes,
+                              scenes::TransitionTimeMs timeMs) override;
+
+        /// @brief This function is called when the device is applying a scene so it can respect the transition time value.
+        CHIP_ERROR StartTimer(chip::System::Clock::Milliseconds32 aTimeout);
+
+        /// @brief This function needs to be called before the hadler is getting unregistered/destroyed.
+        void CancelTimer();
+
+        // @brief This function is called after the Transition time has elapsed and the device is to transition to the next mode.
+        // It calls the UpdateCurrentMode of the instance with mSceneNextMode as a parameter
+        void SceneCallback();
+
+    private:
+        Instance * mInstance;
+        uint8_t mSceneNextMode = 0; // This is a buffer value to allow the scene handler to apply the next mode after the scene
+                                    // transition timer expires.
+    };
+#endif // defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+
 private:
     Delegate * mDelegate;
 
     EndpointId mEndpointId;
     ClusterId mClusterId;
+
+#if defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
+    DefaultModeBaseSceneHandler mSceneHandler = DefaultModeBaseSceneHandler(this);
+#endif // defined(EMBER_AF_PLUGIN_SCENES) && CHIP_CONFIG_SCENES_USE_DEFAULT_HANDLERS
 
     // Attribute data store
     uint8_t mCurrentMode = 0; // This is a temporary value and may not be valid. We will change this to the value of the first
