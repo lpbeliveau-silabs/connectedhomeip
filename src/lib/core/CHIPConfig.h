@@ -1434,8 +1434,8 @@ extern const char CHIP_NON_PRODUCTION_MARKER[];
  * the mode select cluster.
  */
 #ifndef CHIP_CONFIG_SCENES_MAX_CLUSTERS_PER_SCENE
-#define CHIP_CONFIG_SCENES_MAX_CLUSTERS_PER_SCENE 4
-#endif
+#define CHIP_CONFIG_SCENES_MAX_CLUSTERS_PER_SCENE 3
+#endif // CHIP_CONFIG_SCENES_MAX_CLUSTERS_PER_SCENE
 
 /**
  * @brief The maximum size of a single extension field set for a single cluster
@@ -1497,7 +1497,7 @@ extern const char CHIP_NON_PRODUCTION_MARKER[];
  *  Color Control Cluster Max Size: 93 bytes
  * */
 #ifndef CHIP_CONFIG_SCENES_MAX_SERIALIZED_SCENE_SIZE_BYTES
-#define CHIP_CONFIG_SCENES_MAX_SERIALIZED_SCENE_SIZE_BYTES 256
+#define CHIP_CONFIG_SCENES_MAX_SERIALIZED_SCENE_SIZE_BYTES 512
 #endif
 
 /**
