@@ -179,7 +179,7 @@ cluster Groups = 4 {
 }
 
 /** Attributes and commands for scene configuration and manipulation. */
-provisional cluster Scenes = 5 {
+provisional cluster Matter Scenes = 98 {
   revision 5;
 
   bitmap CopyModeBitmap : bitmap8 {
@@ -8981,5 +8981,3 @@ endpoint 1 {
     callback attribute clusterRevision default = 3;
   }
 }
-
-
