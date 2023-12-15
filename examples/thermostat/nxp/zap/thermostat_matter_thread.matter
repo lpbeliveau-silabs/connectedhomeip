@@ -188,13 +188,6 @@ provisional cluster Scenes = 5 {
 
   bitmap Feature : bitmap32 {
     kSceneNames = 0x1;
-    kExplicit = 0x2;
-    kTableSize = 0x4;
-    kFabricScenes = 0x8;
-  }
-
-  bitmap NameSupportBitmap : bitmap8 {
-    kSceneNames = 0x80;
   }
 
   struct AttributeValuePair {
@@ -216,14 +209,9 @@ provisional cluster Scenes = 5 {
     fabric_idx fabricIndex = 254;
   }
 
-  readonly attribute optional int8u sceneCount = 0;
-  readonly attribute optional int8u currentScene = 1;
-  readonly attribute optional group_id currentGroup = 2;
-  readonly attribute optional boolean sceneValid = 3;
-  readonly attribute NameSupportBitmap nameSupport = 4;
-  readonly attribute optional nullable node_id lastConfiguredBy = 5;
-  readonly attribute int16u sceneTableSize = 6;
-  readonly attribute SceneInfoStruct fabricSceneInfo[] = 7;
+  readonly attribute optional nullable node_id lastConfiguredBy = 0;
+  readonly attribute int16u sceneTableSize = 1;
+  readonly attribute SceneInfoStruct fabricSceneInfo[] = 2;
   readonly attribute command_id generatedCommandList[] = 65528;
   readonly attribute command_id acceptedCommandList[] = 65529;
   readonly attribute event_id eventList[] = 65530;
@@ -234,7 +222,7 @@ provisional cluster Scenes = 5 {
   request struct AddSceneRequest {
     group_id groupID = 0;
     int8u sceneID = 1;
-    int16u transitionTime = 2;
+    int32u transitionTimeMS = 2;
     char_string sceneName = 3;
     ExtensionFieldSet extensionFieldSets[] = 4;
   }
@@ -254,7 +242,7 @@ provisional cluster Scenes = 5 {
     status status = 0;
     group_id groupID = 1;
     int8u sceneID = 2;
-    optional int16u transitionTime = 3;
+    optional int32u transitionTimeMS = 3;
     optional char_string sceneName = 4;
     optional ExtensionFieldSet extensionFieldSets[] = 5;
   }
@@ -293,7 +281,7 @@ provisional cluster Scenes = 5 {
   request struct RecallSceneRequest {
     group_id groupID = 0;
     int8u sceneID = 1;
-    optional nullable int16u transitionTime = 2;
+    optional nullable int32u transitionTimeMS = 2;
   }
 
   request struct GetSceneMembershipRequest {
@@ -307,34 +295,6 @@ provisional cluster Scenes = 5 {
     optional int8u sceneList[] = 3;
   }
 
-  request struct EnhancedAddSceneRequest {
-    group_id groupID = 0;
-    int8u sceneID = 1;
-    int16u transitionTime = 2;
-    char_string sceneName = 3;
-    ExtensionFieldSet extensionFieldSets[] = 4;
-  }
-
-  response struct EnhancedAddSceneResponse = 64 {
-    status status = 0;
-    group_id groupID = 1;
-    int8u sceneID = 2;
-  }
-
-  request struct EnhancedViewSceneRequest {
-    group_id groupID = 0;
-    int8u sceneID = 1;
-  }
-
-  response struct EnhancedViewSceneResponse = 65 {
-    status status = 0;
-    group_id groupID = 1;
-    int8u sceneID = 2;
-    optional int16u transitionTime = 3;
-    optional char_string sceneName = 4;
-    optional ExtensionFieldSet extensionFieldSets[] = 5;
-  }
-
   request struct CopySceneRequest {
     CopyModeBitmap mode = 0;
     group_id groupIdentifierFrom = 1;
@@ -343,7 +303,7 @@ provisional cluster Scenes = 5 {
     int8u sceneIdentifierTo = 4;
   }
 
-  response struct CopySceneResponse = 66 {
+  response struct CopySceneResponse = 60 {
     status status = 0;
     group_id groupIdentifierFrom = 1;
     int8u sceneIdentifierFrom = 2;
@@ -363,12 +323,8 @@ provisional cluster Scenes = 5 {
   fabric command RecallScene(RecallSceneRequest): DefaultSuccess = 5;
   /** Get an unused scene identifier when no commissioning tool is in the network, or for a commissioning tool to get the used scene identifiers within a certain group */
   fabric command GetSceneMembership(GetSceneMembershipRequest): GetSceneMembershipResponse = 6;
-  /** Allows a scene to be added using a finer scene transition time than the AddScene command. */
-  fabric command EnhancedAddScene(EnhancedAddSceneRequest): EnhancedAddSceneResponse = 64;
-  /** Allows a scene to be retrieved using a finer scene transition time than the ViewScene command */
-  fabric command EnhancedViewScene(EnhancedViewSceneRequest): EnhancedViewSceneResponse = 65;
   /** Allows a client to efficiently copy scenes from one group/scene identifier pair to another group/scene identifier pair. */
-  fabric command CopyScene(CopySceneRequest): CopySceneResponse = 66;
+  fabric command CopyScene(CopySceneRequest): CopySceneResponse = 60;
 }
 
 /** The Descriptor Cluster is meant to replace the support from the Zigbee Device Object (ZDO) for describing a node, its endpoints and clusters. */
@@ -2486,7 +2442,7 @@ endpoint 1 {
     ram      attribute nameSupport;
     ram      attribute sceneTableSize;
     callback attribute fabricSceneInfo;
-    ram      attribute featureMap default = 15;
+    ram      attribute featureMap default = 1;
     ram      attribute clusterRevision default = 4;
 
     handle command AddScene;
@@ -2578,5 +2534,3 @@ endpoint 1 {
     handle command SetpointRaiseLower;
   }
 }
-
-

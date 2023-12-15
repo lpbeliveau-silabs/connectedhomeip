@@ -4539,24 +4539,8 @@
               "isEnabled": 1
             },
             {
-              "name": "EnhancedAddScene",
-              "code": 64,
-              "mfgCode": null,
-              "source": "client",
-              "isIncoming": 1,
-              "isEnabled": 1
-            },
-            {
-              "name": "EnhancedViewScene",
-              "code": 65,
-              "mfgCode": null,
-              "source": "client",
-              "isIncoming": 1,
-              "isEnabled": 1
-            },
-            {
               "name": "CopyScene",
-              "code": 66,
+              "code": 60,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
@@ -4564,22 +4548,6 @@
             }
           ],
           "attributes": [
-            {
-              "name": "NameSupport",
-              "code": 4,
-              "mfgCode": null,
-              "side": "server",
-              "type": "NameSupportBitmap",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x80",
-              "reportable": 1,
-              "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
             {
               "name": "LastConfiguredBy",
               "code": 5,
@@ -4686,7 +4654,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "15",
+              "defaultValue": "1",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
