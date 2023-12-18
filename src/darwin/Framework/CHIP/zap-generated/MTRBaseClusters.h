@@ -267,53 +267,11 @@ MTR_AVAILABLE(ios(16.1), macos(13.0), watchos(9.1), tvos(16.1))
  */
 - (void)getSceneMembershipWithParams:(MTRScenesClusterGetSceneMembershipParams *)params completion:(void (^)(MTRScenesClusterGetSceneMembershipResponseParams * _Nullable data, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
 /**
- * Command EnhancedAddScene
- *
- * Allows a scene to be added using a finer scene transition time than the AddScene command.
- */
-- (void)enhancedAddSceneWithParams:(MTRScenesClusterEnhancedAddSceneParams *)params completion:(void (^)(MTRScenesClusterEnhancedAddSceneResponseParams * _Nullable data, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-/**
- * Command EnhancedViewScene
- *
- * Allows a scene to be retrieved using a finer scene transition time than the ViewScene command
- */
-- (void)enhancedViewSceneWithParams:(MTRScenesClusterEnhancedViewSceneParams *)params completion:(void (^)(MTRScenesClusterEnhancedViewSceneResponseParams * _Nullable data, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-/**
  * Command CopyScene
  *
  * Allows a client to efficiently copy scenes from one group/scene identifier pair to another group/scene identifier pair.
  */
 - (void)copySceneWithParams:(MTRScenesClusterCopySceneParams *)params completion:(void (^)(MTRScenesClusterCopySceneResponseParams * _Nullable data, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-
-- (void)readAttributeSceneCountWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-- (void)subscribeAttributeSceneCountWithParams:(MTRSubscribeParams *)params
-                       subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablished
-                                 reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-+ (void)readAttributeSceneCountWithClusterStateCache:(MTRClusterStateCacheContainer *)clusterStateCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-
-- (void)readAttributeCurrentSceneWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-- (void)subscribeAttributeCurrentSceneWithParams:(MTRSubscribeParams *)params
-                         subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablished
-                                   reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-+ (void)readAttributeCurrentSceneWithClusterStateCache:(MTRClusterStateCacheContainer *)clusterStateCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-
-- (void)readAttributeCurrentGroupWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-- (void)subscribeAttributeCurrentGroupWithParams:(MTRSubscribeParams *)params
-                         subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablished
-                                   reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-+ (void)readAttributeCurrentGroupWithClusterStateCache:(MTRClusterStateCacheContainer *)clusterStateCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-
-- (void)readAttributeSceneValidWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-- (void)subscribeAttributeSceneValidWithParams:(MTRSubscribeParams *)params
-                       subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablished
-                                 reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-+ (void)readAttributeSceneValidWithClusterStateCache:(MTRClusterStateCacheContainer *)clusterStateCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-
-- (void)readAttributeNameSupportWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-- (void)subscribeAttributeNameSupportWithParams:(MTRSubscribeParams *)params
-                        subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablished
-                                  reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
-+ (void)readAttributeNameSupportWithClusterStateCache:(MTRClusterStateCacheContainer *)clusterStateCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
 
 - (void)readAttributeLastConfiguredByWithCompletion:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completion MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4));
 - (void)subscribeAttributeLastConfiguredByWithParams:(MTRSubscribeParams *)params
@@ -15597,14 +15555,7 @@ typedef NS_OPTIONS(uint8_t, MTRScenesCopyMode) {
 
 typedef NS_OPTIONS(uint32_t, MTRScenesFeature) {
     MTRScenesFeatureSceneNames MTR_AVAILABLE(ios(17.0), macos(14.0), watchos(10.0), tvos(17.0)) = 0x1,
-    MTRScenesFeatureExplicit MTR_PROVISIONALLY_AVAILABLE = 0x2,
-    MTRScenesFeatureTableSize MTR_PROVISIONALLY_AVAILABLE = 0x4,
-    MTRScenesFeatureFabricScenes MTR_PROVISIONALLY_AVAILABLE = 0x8,
 } MTR_AVAILABLE(ios(17.0), macos(14.0), watchos(10.0), tvos(17.0));
-
-typedef NS_OPTIONS(uint8_t, MTRScenesNameSupportBitmap) {
-    MTRScenesNameSupportBitmapSceneNames MTR_PROVISIONALLY_AVAILABLE = 0x80,
-} MTR_PROVISIONALLY_AVAILABLE;
 
 typedef NS_ENUM(uint8_t, MTROnOffDelayedAllOffEffectVariant) {
     MTROnOffDelayedAllOffEffectVariantDelayedOffFastFade MTR_AVAILABLE(ios(17.2), macos(14.2), watchos(10.2), tvos(17.2)) = 0x00,
@@ -19443,47 +19394,8 @@ typedef NS_OPTIONS(uint8_t, MTRTestClusterSimpleBitmap) {
     MTR_DEPRECATED("Please use recallSceneWithParams:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
 - (void)getSceneMembershipWithParams:(MTRScenesClusterGetSceneMembershipParams *)params completionHandler:(void (^)(MTRScenesClusterGetSceneMembershipResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
     MTR_DEPRECATED("Please use getSceneMembershipWithParams:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)enhancedAddSceneWithParams:(MTRScenesClusterEnhancedAddSceneParams *)params completionHandler:(void (^)(MTRScenesClusterEnhancedAddSceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
-    MTR_DEPRECATED("Please use enhancedAddSceneWithParams:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)enhancedViewSceneWithParams:(MTRScenesClusterEnhancedViewSceneParams *)params completionHandler:(void (^)(MTRScenesClusterEnhancedViewSceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
-    MTR_DEPRECATED("Please use enhancedViewSceneWithParams:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
 - (void)copySceneWithParams:(MTRScenesClusterCopySceneParams *)params completionHandler:(void (^)(MTRScenesClusterCopySceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
     MTR_DEPRECATED("Please use copySceneWithParams:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-
-- (void)readAttributeSceneCountWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeSceneCountWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)subscribeAttributeSceneCountWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval
-                                             params:(MTRSubscribeParams * _Nullable)params
-                            subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablishedHandler
-                                      reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_DEPRECATED("Please use subscribeAttributeSceneCountWithParams:subscriptionEstablished:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-+ (void)readAttributeSceneCountWithAttributeCache:(MTRAttributeCacheContainer *)attributeCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeSceneCountWithAttributeCache:endpoint:queue:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-
-- (void)readAttributeCurrentSceneWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeCurrentSceneWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)subscribeAttributeCurrentSceneWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval
-                                               params:(MTRSubscribeParams * _Nullable)params
-                              subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablishedHandler
-                                        reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_DEPRECATED("Please use subscribeAttributeCurrentSceneWithParams:subscriptionEstablished:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-+ (void)readAttributeCurrentSceneWithAttributeCache:(MTRAttributeCacheContainer *)attributeCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeCurrentSceneWithAttributeCache:endpoint:queue:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-
-- (void)readAttributeCurrentGroupWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeCurrentGroupWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)subscribeAttributeCurrentGroupWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval
-                                               params:(MTRSubscribeParams * _Nullable)params
-                              subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablishedHandler
-                                        reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_DEPRECATED("Please use subscribeAttributeCurrentGroupWithParams:subscriptionEstablished:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-+ (void)readAttributeCurrentGroupWithAttributeCache:(MTRAttributeCacheContainer *)attributeCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeCurrentGroupWithAttributeCache:endpoint:queue:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-
-- (void)readAttributeSceneValidWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeSceneValidWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)subscribeAttributeSceneValidWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval
-                                             params:(MTRSubscribeParams * _Nullable)params
-                            subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablishedHandler
-                                      reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_DEPRECATED("Please use subscribeAttributeSceneValidWithParams:subscriptionEstablished:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-+ (void)readAttributeSceneValidWithAttributeCache:(MTRAttributeCacheContainer *)attributeCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeSceneValidWithAttributeCache:endpoint:queue:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-
-- (void)readAttributeNameSupportWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeNameSupportWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-- (void)subscribeAttributeNameSupportWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval
-                                              params:(MTRSubscribeParams * _Nullable)params
-                             subscriptionEstablished:(MTRSubscriptionEstablishedHandler _Nullable)subscriptionEstablishedHandler
-                                       reportHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))reportHandler MTR_DEPRECATED("Please use subscribeAttributeNameSupportWithParams:subscriptionEstablished:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
-+ (void)readAttributeNameSupportWithAttributeCache:(MTRAttributeCacheContainer *)attributeCacheContainer endpoint:(NSNumber *)endpoint queue:(dispatch_queue_t)queue completionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeNameSupportWithAttributeCache:endpoint:queue:completion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
 
 - (void)readAttributeLastConfiguredByWithCompletionHandler:(void (^)(NSNumber * _Nullable value, NSError * _Nullable error))completionHandler MTR_DEPRECATED("Please use readAttributeLastConfiguredByWithCompletion:", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4));
 - (void)subscribeAttributeLastConfiguredByWithMinInterval:(NSNumber * _Nonnull)minInterval maxInterval:(NSNumber * _Nonnull)maxInterval

@@ -620,60 +620,6 @@ using chip::System::Clock::Timeout;
                                         completion:responseHandler];
 }
 
-- (void)enhancedAddSceneWithParams:(MTRScenesClusterEnhancedAddSceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedValues expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completion:(void (^)(MTRScenesClusterEnhancedAddSceneResponseParams * _Nullable data, NSError * _Nullable error))completion
-{
-    if (params == nil) {
-        params = [[MTRScenesClusterEnhancedAddSceneParams
-            alloc] init];
-    }
-
-    auto responseHandler = ^(id _Nullable response, NSError * _Nullable error) {
-        completion(response, error);
-    };
-
-    auto * timedInvokeTimeoutMs = params.timedInvokeTimeoutMs;
-
-    using RequestType = Scenes::Commands::EnhancedAddScene::Type;
-    [self.device _invokeKnownCommandWithEndpointID:@(self.endpoint)
-                                         clusterID:@(RequestType::GetClusterId())
-                                         commandID:@(RequestType::GetCommandId())
-                                    commandPayload:params
-                                    expectedValues:expectedValues
-                             expectedValueInterval:expectedValueIntervalMs
-                                timedInvokeTimeout:timedInvokeTimeoutMs
-                       serverSideProcessingTimeout:params.serverSideProcessingTimeout
-                                     responseClass:MTRScenesClusterEnhancedAddSceneResponseParams.class
-                                             queue:self.callbackQueue
-                                        completion:responseHandler];
-}
-
-- (void)enhancedViewSceneWithParams:(MTRScenesClusterEnhancedViewSceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedValues expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completion:(void (^)(MTRScenesClusterEnhancedViewSceneResponseParams * _Nullable data, NSError * _Nullable error))completion
-{
-    if (params == nil) {
-        params = [[MTRScenesClusterEnhancedViewSceneParams
-            alloc] init];
-    }
-
-    auto responseHandler = ^(id _Nullable response, NSError * _Nullable error) {
-        completion(response, error);
-    };
-
-    auto * timedInvokeTimeoutMs = params.timedInvokeTimeoutMs;
-
-    using RequestType = Scenes::Commands::EnhancedViewScene::Type;
-    [self.device _invokeKnownCommandWithEndpointID:@(self.endpoint)
-                                         clusterID:@(RequestType::GetClusterId())
-                                         commandID:@(RequestType::GetCommandId())
-                                    commandPayload:params
-                                    expectedValues:expectedValues
-                             expectedValueInterval:expectedValueIntervalMs
-                                timedInvokeTimeout:timedInvokeTimeoutMs
-                       serverSideProcessingTimeout:params.serverSideProcessingTimeout
-                                     responseClass:MTRScenesClusterEnhancedViewSceneResponseParams.class
-                                             queue:self.callbackQueue
-                                        completion:responseHandler];
-}
-
 - (void)copySceneWithParams:(MTRScenesClusterCopySceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedValues expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completion:(void (^)(MTRScenesClusterCopySceneResponseParams * _Nullable data, NSError * _Nullable error))completion
 {
     if (params == nil) {
@@ -699,31 +645,6 @@ using chip::System::Clock::Timeout;
                                      responseClass:MTRScenesClusterCopySceneResponseParams.class
                                              queue:self.callbackQueue
                                         completion:responseHandler];
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)readAttributeSceneCountWithParams:(MTRReadParams * _Nullable)params
-{
-    return [self.device readAttributeWithEndpointID:@(self.endpoint) clusterID:@(MTRClusterIDTypeScenesID) attributeID:@(MTRAttributeIDTypeClusterScenesAttributeSceneCountID) params:params];
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)readAttributeCurrentSceneWithParams:(MTRReadParams * _Nullable)params
-{
-    return [self.device readAttributeWithEndpointID:@(self.endpoint) clusterID:@(MTRClusterIDTypeScenesID) attributeID:@(MTRAttributeIDTypeClusterScenesAttributeCurrentSceneID) params:params];
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)readAttributeCurrentGroupWithParams:(MTRReadParams * _Nullable)params
-{
-    return [self.device readAttributeWithEndpointID:@(self.endpoint) clusterID:@(MTRClusterIDTypeScenesID) attributeID:@(MTRAttributeIDTypeClusterScenesAttributeCurrentGroupID) params:params];
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)readAttributeSceneValidWithParams:(MTRReadParams * _Nullable)params
-{
-    return [self.device readAttributeWithEndpointID:@(self.endpoint) clusterID:@(MTRClusterIDTypeScenesID) attributeID:@(MTRAttributeIDTypeClusterScenesAttributeSceneValidID) params:params];
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)readAttributeNameSupportWithParams:(MTRReadParams * _Nullable)params
-{
-    return [self.device readAttributeWithEndpointID:@(self.endpoint) clusterID:@(MTRClusterIDTypeScenesID) attributeID:@(MTRAttributeIDTypeClusterScenesAttributeNameSupportID) params:params];
 }
 
 - (NSDictionary<NSString *, id> * _Nullable)readAttributeLastConfiguredByWithParams:(MTRReadParams * _Nullable)params
@@ -832,22 +753,6 @@ using chip::System::Clock::Timeout;
                                                                                                                                                  // Cast is safe because subclass does not add any selectors.
                                                                                                                                                  completionHandler(static_cast<MTRScenesClusterGetSceneMembershipResponseParams *>(data), error);
                                                                                                                                              }];
-}
-- (void)enhancedAddSceneWithParams:(MTRScenesClusterEnhancedAddSceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedDataValueDictionaries expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completionHandler:(void (^)(MTRScenesClusterEnhancedAddSceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
-{
-    [self enhancedAddSceneWithParams:params expectedValues:expectedDataValueDictionaries expectedValueInterval:expectedValueIntervalMs completion:
-                                                                                                                                           ^(MTRScenesClusterEnhancedAddSceneResponseParams * _Nullable data, NSError * _Nullable error) {
-                                                                                                                                               // Cast is safe because subclass does not add any selectors.
-                                                                                                                                               completionHandler(static_cast<MTRScenesClusterEnhancedAddSceneResponseParams *>(data), error);
-                                                                                                                                           }];
-}
-- (void)enhancedViewSceneWithParams:(MTRScenesClusterEnhancedViewSceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedDataValueDictionaries expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completionHandler:(void (^)(MTRScenesClusterEnhancedViewSceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
-{
-    [self enhancedViewSceneWithParams:params expectedValues:expectedDataValueDictionaries expectedValueInterval:expectedValueIntervalMs completion:
-                                                                                                                                            ^(MTRScenesClusterEnhancedViewSceneResponseParams * _Nullable data, NSError * _Nullable error) {
-                                                                                                                                                // Cast is safe because subclass does not add any selectors.
-                                                                                                                                                completionHandler(static_cast<MTRScenesClusterEnhancedViewSceneResponseParams *>(data), error);
-                                                                                                                                            }];
 }
 - (void)copySceneWithParams:(MTRScenesClusterCopySceneParams *)params expectedValues:(NSArray<NSDictionary<NSString *, id> *> * _Nullable)expectedDataValueDictionaries expectedValueInterval:(NSNumber * _Nullable)expectedValueIntervalMs completionHandler:(void (^)(MTRScenesClusterCopySceneResponseParams * _Nullable data, NSError * _Nullable error))completionHandler
 {

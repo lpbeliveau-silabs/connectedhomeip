@@ -290,24 +290,9 @@ typedef NS_ENUM(uint32_t, MTRAttributeIDType) {
     MTRAttributeIDTypeClusterGroupsAttributeClusterRevisionID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = MTRAttributeIDTypeGlobalAttributeClusterRevisionID,
 
     // Cluster Scenes deprecated attribute names
-    MTRClusterScenesAttributeSceneCountID
-        MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeSceneCountID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000000,
-    MTRClusterScenesAttributeCurrentSceneID
-        MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeCurrentSceneID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000001,
-    MTRClusterScenesAttributeCurrentGroupID
-        MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeCurrentGroupID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000002,
-    MTRClusterScenesAttributeSceneValidID
-        MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeSceneValidID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000003,
-    MTRClusterScenesAttributeNameSupportID
-        MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeNameSupportID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000004,
     MTRClusterScenesAttributeLastConfiguredByID
         MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeLastConfiguredByID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000005,
+    = 0x00000000,
     MTRClusterScenesAttributeGeneratedCommandListID
         MTR_DEPRECATED("Please use MTRAttributeIDTypeClusterScenesAttributeGeneratedCommandListID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
     = MTRClusterGlobalAttributeGeneratedCommandListID,
@@ -325,14 +310,9 @@ typedef NS_ENUM(uint32_t, MTRAttributeIDType) {
     = MTRClusterGlobalAttributeClusterRevisionID,
 
     // Cluster Scenes attributes
-    MTRAttributeIDTypeClusterScenesAttributeSceneCountID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000000,
-    MTRAttributeIDTypeClusterScenesAttributeCurrentSceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000001,
-    MTRAttributeIDTypeClusterScenesAttributeCurrentGroupID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000002,
-    MTRAttributeIDTypeClusterScenesAttributeSceneValidID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000003,
-    MTRAttributeIDTypeClusterScenesAttributeNameSupportID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000004,
-    MTRAttributeIDTypeClusterScenesAttributeLastConfiguredByID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000005,
-    MTRAttributeIDTypeClusterScenesAttributeSceneTableSizeID MTR_PROVISIONALLY_AVAILABLE = 0x00000006,
-    MTRAttributeIDTypeClusterScenesAttributeFabricSceneInfoID MTR_PROVISIONALLY_AVAILABLE = 0x00000007,
+    MTRAttributeIDTypeClusterScenesAttributeLastConfiguredByID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000000,
+    MTRAttributeIDTypeClusterScenesAttributeSceneTableSizeID MTR_PROVISIONALLY_AVAILABLE = 0x00000001,
+    MTRAttributeIDTypeClusterScenesAttributeFabricSceneInfoID MTR_PROVISIONALLY_AVAILABLE = 0x00000002,
     MTRAttributeIDTypeClusterScenesAttributeGeneratedCommandListID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = MTRAttributeIDTypeGlobalAttributeGeneratedCommandListID,
     MTRAttributeIDTypeClusterScenesAttributeAcceptedCommandListID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = MTRAttributeIDTypeGlobalAttributeAcceptedCommandListID,
     MTRAttributeIDTypeClusterScenesAttributeEventListID MTR_PROVISIONALLY_AVAILABLE = MTRAttributeIDTypeGlobalAttributeEventListID,
@@ -5745,24 +5725,12 @@ typedef NS_ENUM(uint32_t, MTRCommandIDType) {
     MTRClusterScenesCommandGetSceneMembershipResponseID
         MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandGetSceneMembershipResponseID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
     = 0x00000006,
-    MTRClusterScenesCommandEnhancedAddSceneID
-        MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandEnhancedAddSceneID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000040,
-    MTRClusterScenesCommandEnhancedAddSceneResponseID
-        MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandEnhancedAddSceneResponseID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000040,
-    MTRClusterScenesCommandEnhancedViewSceneID
-        MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandEnhancedViewSceneID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000041,
-    MTRClusterScenesCommandEnhancedViewSceneResponseID
-        MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandEnhancedViewSceneResponseID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000041,
     MTRClusterScenesCommandCopySceneID
         MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandCopySceneID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000042,
+    = 0x00000040,
     MTRClusterScenesCommandCopySceneResponseID
         MTR_DEPRECATED("Please use MTRCommandIDTypeClusterScenesCommandCopySceneResponseID", ios(16.1, 16.4), macos(13.0, 13.3), watchos(9.1, 9.4), tvos(16.1, 16.4))
-    = 0x00000042,
+    = 0x00000040,
 
     // Cluster Scenes commands
     MTRCommandIDTypeClusterScenesCommandAddSceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000000,
@@ -5778,12 +5746,8 @@ typedef NS_ENUM(uint32_t, MTRCommandIDType) {
     MTRCommandIDTypeClusterScenesCommandRecallSceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000005,
     MTRCommandIDTypeClusterScenesCommandGetSceneMembershipID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000006,
     MTRCommandIDTypeClusterScenesCommandGetSceneMembershipResponseID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000006,
-    MTRCommandIDTypeClusterScenesCommandEnhancedAddSceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000040,
-    MTRCommandIDTypeClusterScenesCommandEnhancedAddSceneResponseID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000040,
-    MTRCommandIDTypeClusterScenesCommandEnhancedViewSceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000041,
-    MTRCommandIDTypeClusterScenesCommandEnhancedViewSceneResponseID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000041,
-    MTRCommandIDTypeClusterScenesCommandCopySceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000042,
-    MTRCommandIDTypeClusterScenesCommandCopySceneResponseID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000042,
+    MTRCommandIDTypeClusterScenesCommandCopySceneID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000040,
+    MTRCommandIDTypeClusterScenesCommandCopySceneResponseID MTR_AVAILABLE(ios(16.4), macos(13.3), watchos(9.4), tvos(16.4)) = 0x00000040,
 
     // Cluster OnOff deprecated command id names
     MTRClusterOnOffCommandOffID

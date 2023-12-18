@@ -90,21 +90,6 @@ static BOOL AttributeIsSpecifiedInScenesCluster(AttributeId aAttributeId)
 {
     using namespace Clusters::Scenes;
     switch (aAttributeId) {
-    case Attributes::SceneCount::Id: {
-        return YES;
-    }
-    case Attributes::CurrentScene::Id: {
-        return YES;
-    }
-    case Attributes::CurrentGroup::Id: {
-        return YES;
-    }
-    case Attributes::SceneValid::Id: {
-        return YES;
-    }
-    case Attributes::NameSupport::Id: {
-        return YES;
-    }
     case Attributes::LastConfiguredBy::Id: {
         return YES;
     }

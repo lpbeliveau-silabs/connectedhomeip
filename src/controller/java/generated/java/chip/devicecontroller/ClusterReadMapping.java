@@ -199,62 +199,7 @@ public class ClusterReadMapping {
        return result;
     }
     private static Map<String, InteractionInfo> readScenesInteractionInfo() {
-       Map<String, InteractionInfo> result = new LinkedHashMap<>();Map<String, CommandParameterInfo> readScenesSceneCountCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-        InteractionInfo readScenesSceneCountAttributeInteractionInfo = new InteractionInfo(
-          (cluster, callback, commandArguments) -> {
-            ((ChipClusters.ScenesCluster) cluster).readSceneCountAttribute(
-              (ChipClusters.IntegerAttributeCallback) callback
-            );
-          },
-          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
-          readScenesSceneCountCommandParams
-        );
-        result.put("readSceneCountAttribute", readScenesSceneCountAttributeInteractionInfo);
-     Map<String, CommandParameterInfo> readScenesCurrentSceneCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-        InteractionInfo readScenesCurrentSceneAttributeInteractionInfo = new InteractionInfo(
-          (cluster, callback, commandArguments) -> {
-            ((ChipClusters.ScenesCluster) cluster).readCurrentSceneAttribute(
-              (ChipClusters.IntegerAttributeCallback) callback
-            );
-          },
-          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
-          readScenesCurrentSceneCommandParams
-        );
-        result.put("readCurrentSceneAttribute", readScenesCurrentSceneAttributeInteractionInfo);
-     Map<String, CommandParameterInfo> readScenesCurrentGroupCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-        InteractionInfo readScenesCurrentGroupAttributeInteractionInfo = new InteractionInfo(
-          (cluster, callback, commandArguments) -> {
-            ((ChipClusters.ScenesCluster) cluster).readCurrentGroupAttribute(
-              (ChipClusters.IntegerAttributeCallback) callback
-            );
-          },
-          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
-          readScenesCurrentGroupCommandParams
-        );
-        result.put("readCurrentGroupAttribute", readScenesCurrentGroupAttributeInteractionInfo);
-     Map<String, CommandParameterInfo> readScenesSceneValidCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-        InteractionInfo readScenesSceneValidAttributeInteractionInfo = new InteractionInfo(
-          (cluster, callback, commandArguments) -> {
-            ((ChipClusters.ScenesCluster) cluster).readSceneValidAttribute(
-              (ChipClusters.BooleanAttributeCallback) callback
-            );
-          },
-          () -> new ClusterInfoMapping.DelegatedBooleanAttributeCallback(),
-          readScenesSceneValidCommandParams
-        );
-        result.put("readSceneValidAttribute", readScenesSceneValidAttributeInteractionInfo);
-     Map<String, CommandParameterInfo> readScenesNameSupportCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-        InteractionInfo readScenesNameSupportAttributeInteractionInfo = new InteractionInfo(
-          (cluster, callback, commandArguments) -> {
-            ((ChipClusters.ScenesCluster) cluster).readNameSupportAttribute(
-              (ChipClusters.IntegerAttributeCallback) callback
-            );
-          },
-          () -> new ClusterInfoMapping.DelegatedIntegerAttributeCallback(),
-          readScenesNameSupportCommandParams
-        );
-        result.put("readNameSupportAttribute", readScenesNameSupportAttributeInteractionInfo);
-     Map<String, CommandParameterInfo> readScenesLastConfiguredByCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
+       Map<String, InteractionInfo> result = new LinkedHashMap<>();Map<String, CommandParameterInfo> readScenesLastConfiguredByCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
         InteractionInfo readScenesLastConfiguredByAttributeInteractionInfo = new InteractionInfo(
           (cluster, callback, commandArguments) -> {
             ((ChipClusters.ScenesCluster) cluster).readLastConfiguredByAttribute(

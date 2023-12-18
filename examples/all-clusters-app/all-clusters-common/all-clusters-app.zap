@@ -6578,7 +6578,7 @@
             },
             {
               "name": "CopyScene",
-              "code": 60,
+              "code": 64,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
@@ -6586,7 +6586,7 @@
             },
             {
               "name": "CopySceneResponse",
-              "code": 60,
+              "code": 64,
               "mfgCode": null,
               "source": "server",
               "isIncoming": 0,
@@ -20993,7 +20993,7 @@
             },
             {
               "name": "CopyScene",
-              "code": 60,
+              "code": 64,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
@@ -21001,7 +21001,7 @@
             },
             {
               "name": "CopySceneResponse",
-              "code": 60,
+              "code": 64,
               "mfgCode": null,
               "source": "server",
               "isIncoming": 0,

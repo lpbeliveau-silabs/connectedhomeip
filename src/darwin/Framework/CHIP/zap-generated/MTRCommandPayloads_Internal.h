@@ -172,30 +172,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface MTRScenesClusterEnhancedAddSceneParams (InternalMethods)
-
-- (NSDictionary<NSString *, id> * _Nullable)_encodeAsDataValue:(NSError * __autoreleasing *)error;
-
-@end
-
-@interface MTRScenesClusterEnhancedAddSceneResponseParams (InternalMethods)
-
-- (CHIP_ERROR)_setFieldsFromDecodableStruct:(const chip::app::Clusters::Scenes::Commands::EnhancedAddSceneResponse::DecodableType &)decodableStruct;
-
-@end
-
-@interface MTRScenesClusterEnhancedViewSceneParams (InternalMethods)
-
-- (NSDictionary<NSString *, id> * _Nullable)_encodeAsDataValue:(NSError * __autoreleasing *)error;
-
-@end
-
-@interface MTRScenesClusterEnhancedViewSceneResponseParams (InternalMethods)
-
-- (CHIP_ERROR)_setFieldsFromDecodableStruct:(const chip::app::Clusters::Scenes::Commands::EnhancedViewSceneResponse::DecodableType &)decodableStruct;
-
-@end
-
 @interface MTRScenesClusterCopySceneParams (InternalMethods)
 
 - (NSDictionary<NSString *, id> * _Nullable)_encodeAsDataValue:(NSError * __autoreleasing *)error;

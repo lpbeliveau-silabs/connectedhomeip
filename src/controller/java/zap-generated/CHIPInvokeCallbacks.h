@@ -160,36 +160,6 @@ private:
     jobject javaCallbackRef;
 };
 
-class CHIPScenesClusterEnhancedAddSceneResponseCallback
-    : public Callback::Callback<CHIPScenesClusterEnhancedAddSceneResponseCallbackType>
-{
-public:
-    CHIPScenesClusterEnhancedAddSceneResponseCallback(jobject javaCallback);
-
-    ~CHIPScenesClusterEnhancedAddSceneResponseCallback();
-
-    static void CallbackFn(void * context,
-                           const chip::app::Clusters::Scenes::Commands::EnhancedAddSceneResponse::DecodableType & data);
-
-private:
-    jobject javaCallbackRef;
-};
-
-class CHIPScenesClusterEnhancedViewSceneResponseCallback
-    : public Callback::Callback<CHIPScenesClusterEnhancedViewSceneResponseCallbackType>
-{
-public:
-    CHIPScenesClusterEnhancedViewSceneResponseCallback(jobject javaCallback);
-
-    ~CHIPScenesClusterEnhancedViewSceneResponseCallback();
-
-    static void CallbackFn(void * context,
-                           const chip::app::Clusters::Scenes::Commands::EnhancedViewSceneResponse::DecodableType & data);
-
-private:
-    jobject javaCallbackRef;
-};
-
 class CHIPScenesClusterCopySceneResponseCallback : public Callback::Callback<CHIPScenesClusterCopySceneResponseCallbackType>
 {
 public:

@@ -515,7 +515,7 @@ public class ClusterInfoMapping {
     }
 
     @Override
-    public void onSuccess(Integer status, Integer groupID, Integer sceneID, Optional<Integer> transitionTime, Optional<String> sceneName, Optional<ArrayList<ChipStructs.ScenesClusterExtensionFieldSet>> extensionFieldSets) {
+    public void onSuccess(Integer status, Integer groupID, Integer sceneID, Optional<Long> transitionTimeMS, Optional<String> sceneName, Optional<ArrayList<ChipStructs.ScenesClusterExtensionFieldSet>> extensionFieldSets) {
       Map<CommandResponseInfo, Object> responseValues = new LinkedHashMap<>();
 
       CommandResponseInfo statusResponseValue = new CommandResponseInfo("status", "Integer");
@@ -524,8 +524,8 @@ public class ClusterInfoMapping {
       responseValues.put(groupIDResponseValue, groupID);
       CommandResponseInfo sceneIDResponseValue = new CommandResponseInfo("sceneID", "Integer");
       responseValues.put(sceneIDResponseValue, sceneID);
-      CommandResponseInfo transitionTimeResponseValue = new CommandResponseInfo("transitionTime", "Optional<Integer>");
-      responseValues.put(transitionTimeResponseValue, transitionTime);
+      CommandResponseInfo transitionTimeMSResponseValue = new CommandResponseInfo("transitionTimeMS", "Optional<Long>");
+      responseValues.put(transitionTimeMSResponseValue, transitionTimeMS);
       CommandResponseInfo sceneNameResponseValue = new CommandResponseInfo("sceneName", "Optional<String>");
       responseValues.put(sceneNameResponseValue, sceneName);
       // extensionFieldSets: ExtensionFieldSet
@@ -634,65 +634,6 @@ public class ClusterInfoMapping {
       CommandResponseInfo groupIDResponseValue = new CommandResponseInfo("groupID", "Integer");
       responseValues.put(groupIDResponseValue, groupID);
       // sceneList: int8u
-      // Conversion from this type to Java is not properly implemented yet
-
-      callback.onSuccess(responseValues);
-    }
-
-    @Override
-    public void onError(Exception error) {
-      callback.onFailure(error);
-    }
-  }
-
-  public static class DelegatedScenesClusterEnhancedAddSceneResponseCallback implements ChipClusters.ScenesCluster.EnhancedAddSceneResponseCallback, DelegatedClusterCallback {
-    private ClusterCommandCallback callback;
-    @Override
-    public void setCallbackDelegate(ClusterCommandCallback callback) {
-      this.callback = callback;
-    }
-
-    @Override
-    public void onSuccess(Integer status, Integer groupID, Integer sceneID) {
-      Map<CommandResponseInfo, Object> responseValues = new LinkedHashMap<>();
-
-      CommandResponseInfo statusResponseValue = new CommandResponseInfo("status", "Integer");
-      responseValues.put(statusResponseValue, status);
-      CommandResponseInfo groupIDResponseValue = new CommandResponseInfo("groupID", "Integer");
-      responseValues.put(groupIDResponseValue, groupID);
-      CommandResponseInfo sceneIDResponseValue = new CommandResponseInfo("sceneID", "Integer");
-      responseValues.put(sceneIDResponseValue, sceneID);
-      callback.onSuccess(responseValues);
-    }
-
-    @Override
-    public void onError(Exception error) {
-      callback.onFailure(error);
-    }
-  }
-
-  public static class DelegatedScenesClusterEnhancedViewSceneResponseCallback implements ChipClusters.ScenesCluster.EnhancedViewSceneResponseCallback, DelegatedClusterCallback {
-    private ClusterCommandCallback callback;
-    @Override
-    public void setCallbackDelegate(ClusterCommandCallback callback) {
-      this.callback = callback;
-    }
-
-    @Override
-    public void onSuccess(Integer status, Integer groupID, Integer sceneID, Optional<Integer> transitionTime, Optional<String> sceneName, Optional<ArrayList<ChipStructs.ScenesClusterExtensionFieldSet>> extensionFieldSets) {
-      Map<CommandResponseInfo, Object> responseValues = new LinkedHashMap<>();
-
-      CommandResponseInfo statusResponseValue = new CommandResponseInfo("status", "Integer");
-      responseValues.put(statusResponseValue, status);
-      CommandResponseInfo groupIDResponseValue = new CommandResponseInfo("groupID", "Integer");
-      responseValues.put(groupIDResponseValue, groupID);
-      CommandResponseInfo sceneIDResponseValue = new CommandResponseInfo("sceneID", "Integer");
-      responseValues.put(sceneIDResponseValue, sceneID);
-      CommandResponseInfo transitionTimeResponseValue = new CommandResponseInfo("transitionTime", "Optional<Integer>");
-      responseValues.put(transitionTimeResponseValue, transitionTime);
-      CommandResponseInfo sceneNameResponseValue = new CommandResponseInfo("sceneName", "Optional<String>");
-      responseValues.put(sceneNameResponseValue, sceneName);
-      // extensionFieldSets: ExtensionFieldSet
       // Conversion from this type to Java is not properly implemented yet
 
       callback.onSuccess(responseValues);
@@ -20185,8 +20126,8 @@ public class ClusterInfoMapping {
     CommandParameterInfo scenesaddScenesceneIDCommandParameterInfo = new CommandParameterInfo("sceneID", Integer.class, Integer.class);
     scenesaddSceneCommandParams.put("sceneID",scenesaddScenesceneIDCommandParameterInfo);
 
-    CommandParameterInfo scenesaddScenetransitionTimeCommandParameterInfo = new CommandParameterInfo("transitionTime", Integer.class, Integer.class);
-    scenesaddSceneCommandParams.put("transitionTime",scenesaddScenetransitionTimeCommandParameterInfo);
+    CommandParameterInfo scenesaddScenetransitionTimeMSCommandParameterInfo = new CommandParameterInfo("transitionTimeMS", Long.class, Long.class);
+    scenesaddSceneCommandParams.put("transitionTimeMS",scenesaddScenetransitionTimeMSCommandParameterInfo);
 
     CommandParameterInfo scenesaddScenesceneNameCommandParameterInfo = new CommandParameterInfo("sceneName", String.class, String.class);
     scenesaddSceneCommandParams.put("sceneName",scenesaddScenesceneNameCommandParameterInfo);
@@ -20201,8 +20142,8 @@ public class ClusterInfoMapping {
            , (Integer)
              commandArguments.get("sceneID")
 
-           , (Integer)
-             commandArguments.get("transitionTime")
+           , (Long)
+             commandArguments.get("transitionTimeMS")
 
            , (String)
              commandArguments.get("sceneName")
@@ -20315,8 +20256,8 @@ public class ClusterInfoMapping {
     CommandParameterInfo scenesrecallScenesceneIDCommandParameterInfo = new CommandParameterInfo("sceneID", Integer.class, Integer.class);
     scenesrecallSceneCommandParams.put("sceneID",scenesrecallScenesceneIDCommandParameterInfo);
 
-    CommandParameterInfo scenesrecallScenetransitionTimeCommandParameterInfo = new CommandParameterInfo("transitionTime", Optional.class, Integer.class);
-    scenesrecallSceneCommandParams.put("transitionTime",scenesrecallScenetransitionTimeCommandParameterInfo);
+    CommandParameterInfo scenesrecallScenetransitionTimeMSCommandParameterInfo = new CommandParameterInfo("transitionTimeMS", Optional.class, Long.class);
+    scenesrecallSceneCommandParams.put("transitionTimeMS",scenesrecallScenetransitionTimeMSCommandParameterInfo);
     InteractionInfo scenesrecallSceneInteractionInfo = new InteractionInfo(
       (cluster, callback, commandArguments) -> {
         ((ChipClusters.ScenesCluster) cluster)
@@ -20325,8 +20266,8 @@ public class ClusterInfoMapping {
         commandArguments.get("groupID")
         , (Integer)
         commandArguments.get("sceneID")
-        , (Optional<Integer>)
-        commandArguments.get("transitionTime")
+        , (Optional<Long>)
+        commandArguments.get("transitionTimeMS")
         );
       },
       () -> new DelegatedDefaultClusterCallback(),
@@ -20351,70 +20292,6 @@ public class ClusterInfoMapping {
         scenesgetSceneMembershipCommandParams
       );
     scenesClusterInteractionInfoMap.put("getSceneMembership", scenesgetSceneMembershipInteractionInfo);
-
-    Map<String, CommandParameterInfo> scenesenhancedAddSceneCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-
-    CommandParameterInfo scenesenhancedAddScenegroupIDCommandParameterInfo = new CommandParameterInfo("groupID", Integer.class, Integer.class);
-    scenesenhancedAddSceneCommandParams.put("groupID",scenesenhancedAddScenegroupIDCommandParameterInfo);
-
-    CommandParameterInfo scenesenhancedAddScenesceneIDCommandParameterInfo = new CommandParameterInfo("sceneID", Integer.class, Integer.class);
-    scenesenhancedAddSceneCommandParams.put("sceneID",scenesenhancedAddScenesceneIDCommandParameterInfo);
-
-    CommandParameterInfo scenesenhancedAddScenetransitionTimeCommandParameterInfo = new CommandParameterInfo("transitionTime", Integer.class, Integer.class);
-    scenesenhancedAddSceneCommandParams.put("transitionTime",scenesenhancedAddScenetransitionTimeCommandParameterInfo);
-
-    CommandParameterInfo scenesenhancedAddScenesceneNameCommandParameterInfo = new CommandParameterInfo("sceneName", String.class, String.class);
-    scenesenhancedAddSceneCommandParams.put("sceneName",scenesenhancedAddScenesceneNameCommandParameterInfo);
-
-    InteractionInfo scenesenhancedAddSceneInteractionInfo = new InteractionInfo(
-      (cluster, callback, commandArguments) -> {
-        ((ChipClusters.ScenesCluster) cluster)
-          .enhancedAddScene((ChipClusters.ScenesCluster.EnhancedAddSceneResponseCallback) callback
-           , (Integer)
-             commandArguments.get("groupID")
-
-           , (Integer)
-             commandArguments.get("sceneID")
-
-           , (Integer)
-             commandArguments.get("transitionTime")
-
-           , (String)
-             commandArguments.get("sceneName")
-
-           , (ArrayList<ChipStructs.ScenesClusterExtensionFieldSet>)
-             commandArguments.get("extensionFieldSets")
-
-            );
-        },
-        () -> new DelegatedScenesClusterEnhancedAddSceneResponseCallback(),
-        scenesenhancedAddSceneCommandParams
-      );
-    scenesClusterInteractionInfoMap.put("enhancedAddScene", scenesenhancedAddSceneInteractionInfo);
-
-    Map<String, CommandParameterInfo> scenesenhancedViewSceneCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
-
-    CommandParameterInfo scenesenhancedViewScenegroupIDCommandParameterInfo = new CommandParameterInfo("groupID", Integer.class, Integer.class);
-    scenesenhancedViewSceneCommandParams.put("groupID",scenesenhancedViewScenegroupIDCommandParameterInfo);
-
-    CommandParameterInfo scenesenhancedViewScenesceneIDCommandParameterInfo = new CommandParameterInfo("sceneID", Integer.class, Integer.class);
-    scenesenhancedViewSceneCommandParams.put("sceneID",scenesenhancedViewScenesceneIDCommandParameterInfo);
-    InteractionInfo scenesenhancedViewSceneInteractionInfo = new InteractionInfo(
-      (cluster, callback, commandArguments) -> {
-        ((ChipClusters.ScenesCluster) cluster)
-          .enhancedViewScene((ChipClusters.ScenesCluster.EnhancedViewSceneResponseCallback) callback
-           , (Integer)
-             commandArguments.get("groupID")
-
-           , (Integer)
-             commandArguments.get("sceneID")
-
-            );
-        },
-        () -> new DelegatedScenesClusterEnhancedViewSceneResponseCallback(),
-        scenesenhancedViewSceneCommandParams
-      );
-    scenesClusterInteractionInfoMap.put("enhancedViewScene", scenesenhancedViewSceneInteractionInfo);
 
     Map<String, CommandParameterInfo> scenescopySceneCommandParams = new LinkedHashMap<String, CommandParameterInfo>();
 
