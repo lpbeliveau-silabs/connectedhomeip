@@ -81,18 +81,6 @@ Davis, CA 95616, USA
         <mandatoryConform/>
       </otherwiseConform>
       <commands>
-        <command id="" name="EnhancedAddScene">
-          <otherwiseConform>
-            <provisionalConform/>
-            <mandatoryConform/>
-          </otherwiseConform>
-        </command>
-        <command id="" name="EnhancedViewScene">
-          <otherwiseConform>
-            <provisionalConform/>
-            <mandatoryConform/>
-          </otherwiseConform>
-        </command>
         <command id="" name="CopyScene">
           <otherwiseConform>
             <provisionalConform/>
