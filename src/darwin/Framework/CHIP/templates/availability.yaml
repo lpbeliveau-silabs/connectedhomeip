@@ -8303,6 +8303,16 @@
               - ActivateTextTrack
               - DeactivateTextTrack
       command fields:
+          Scenes:
+              AddScene:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTimeMS
+              ViewSceneResponse:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTimeMS
+              RecallScene:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTimeMS
           NetworkCommissioning:
               # Targeting Spring 2024 Matter release
               AddOrUpdateWiFiNetwork:
@@ -8511,6 +8521,39 @@
               Feature:
                   Watermarks: WaterMarks
   removed:
+      bitmap values:
+          Scenes:
+              Feature:
+                  # Targeting Spring 2024 Matter release
+                  - Explicit
+                  - TableSize
+                  - FabricScenes
+      attributes:
+          Scenes:
+              # Targeting Spring 2024 Matter release
+              - SceneCount
+              - CurrentScene
+              - CurrentGroup
+              - SceneValid
+              - NameSupport
+      commands:
+          Scenes:
+              # Targeting Spring 2024 Matter release
+              - EnhancedAddScene
+              - EnhancedAddSceneResponse
+              - EnhancedViewScene
+              - EnhancedViewSceneResponse
+      command fields:
+          Scenes:
+              AddScene:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTime
+              ViewSceneResponse:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTime
+              RecallScene:
+                  # Targeting Spring 2024 Matter release
+                  - transitionTime     
       enum values:
           ContentLauncher:
               # The URLNotAvailable value got renamed at the same time
