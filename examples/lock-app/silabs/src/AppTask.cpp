@@ -297,7 +297,7 @@ void AppTask::ButtonEventHandler(uint8_t button, uint8_t btnAction)
     }
 }
 
-void AppTask::ActionInitiated(LockManager::Action_t aAction, int32_t aActor)
+void AppTask::ActionInitiated(LockManager::Action_t aAction, int32_t aActor, chip::EndpointId endpointId)
 {
     if (aAction == LockManager::UNLOCK_ACTION || aAction == LockManager::LOCK_ACTION)
     {
@@ -309,6 +309,10 @@ void AppTask::ActionInitiated(LockManager::Action_t aAction, int32_t aActor)
         sAppTask.GetLCD().WriteDemoUI(locked);
 #endif // DISPLAY_ENABLED
     }
+    else if (aAction == LockManager::UNLATCH_ACTION)
+    {
+        SILABS_LOG("Unlatch Action has been initiated");
+    }
 
     if (aActor == AppEvent::kEventType_Button)
     {
@@ -316,7 +320,7 @@ void AppTask::ActionInitiated(LockManager::Action_t aAction, int32_t aActor)
     }
 }
 
-void AppTask::ActionCompleted(LockManager::Action_t aAction)
+void AppTask::ActionCompleted(LockManager::Action_t aAction, chip::EndpointId endpointId)
 {
     // if the action has been completed by the lock, update the lock trait.
     // Turn off the lock LED if in a LOCKED state OR
@@ -324,6 +328,11 @@ void AppTask::ActionCompleted(LockManager::Action_t aAction)
     if (aAction == LockManager::LOCK_ACTION)
     {
         SILABS_LOG("Lock Action has been completed")
+    }
+    else if (aAction == LockManager::UNLATCH_ACTION)
+    {
+        SILABS_LOG("Unlatch Action has been completed")
+        LockMgr().InitiateAction(AppEvent::kEventType_Lock, LockManager::UNLOCK_ACTION, endpointId);
     }
     else if (aAction == LockManager::UNLOCK_ACTION)
     {

@@ -121,6 +121,7 @@ public:
     {
         LOCK_ACTION = 0,
         UNLOCK_ACTION,
+        UNLATCH_ACTION,
 
         INVALID_ACTION
     } Action;
@@ -130,14 +131,16 @@ public:
         kState_LockInitiated = 0,
         kState_LockCompleted,
         kState_UnlockInitiated,
+        kState_UnlatchInitiated,
         kState_UnlockCompleted,
+        kState_UnlatchCompleted,
     } State;
 
     CHIP_ERROR Init(chip::app::DataModel::Nullable<chip::app::Clusters::DoorLock::DlLockState> state,
                     EFR32DoorLock::LockInitParams::LockParam lockParam);
     bool NextState();
     bool IsActionInProgress();
-    bool InitiateAction(int32_t aActor, Action_t aAction);
+    bool InitiateAction(int32_t aActor, Action_t aAction, chip::EndpointId endpointId);
 
     typedef void (*Callback_fn_initiated)(Action_t, int32_t aActor);
     typedef void (*Callback_fn_completed)(Action_t);
@@ -194,6 +197,8 @@ public:
     bool ReadConfigValues();
 
 private:
+    chip::EndpointId mEndpointId;
+
     friend LockManager & LockMgr();
     State_t mState;
 

@@ -184,17 +184,25 @@ bool LockManager::NextState()
     return (mState == kState_UnlockCompleted);
 }
 
-bool LockManager::InitiateAction(int32_t aActor, Action_t aAction)
+bool LockManager::InitiateAction(int32_t aActor, Action_t aAction, chip::EndpointId endpointId)
 {
     bool action_initiated = false;
     State_t new_state;
-
+    ChipLogProgress(Zcl, "Door Lock App: LockManager::InitiateAction [Actor=%ld,Action=%d,State=%d]", aActor, aAction, mState);
     // Initiate Turn Lock/Unlock Action only when the previous one is complete.
-    if (mState == kState_LockCompleted && aAction == UNLOCK_ACTION)
+    if ((mState == kState_LockCompleted || mState == kState_UnlatchCompleted) && (aAction == UNLOCK_ACTION))
     {
+        ChipLogProgress(Zcl, "ACtion initiated: %d", aAction);
         action_initiated = true;
 
         new_state = kState_UnlockInitiated;
+    }
+    else if (mState == kState_LockCompleted && (aAction == UNLATCH_ACTION))
+    {
+        ChipLogProgress(Zcl, "ACtion initiated: %d", aAction);
+        action_initiated = true;
+
+        new_state = kState_UnlatchInitiated;
     }
     else if (mState == kState_UnlockCompleted && aAction == LOCK_ACTION)
     {
@@ -205,7 +213,6 @@ bool LockManager::InitiateAction(int32_t aActor, Action_t aAction)
 
     if (action_initiated)
     {
-
         StartTimer(ACTUATOR_MOVEMENT_PERIOS_MS);
 
         // Since the timer started successfully, update the state and trigger callback
@@ -213,7 +220,7 @@ bool LockManager::InitiateAction(int32_t aActor, Action_t aAction)
 
         if (mActionInitiated_CB)
         {
-            mActionInitiated_CB(aAction, aActor);
+            mActionInitiated_CB(aAction, aActor, endpointId);
         }
     }
 
@@ -272,6 +279,11 @@ void LockManager::ActuatorMovementTimerEventHandler(AppEvent * aEvent)
     {
         lock->mState    = kState_LockCompleted;
         actionCompleted = LOCK_ACTION;
+    }
+    else if (lock->mState == kState_UnlatchInitiated)
+    {
+        lock->mState    = kState_UnlatchCompleted;
+        actionCompleted = UNLATCH_ACTION;
     }
     else if (lock->mState == kState_UnlockInitiated)
     {
