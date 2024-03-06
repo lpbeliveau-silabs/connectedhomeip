@@ -59,6 +59,7 @@ void SynchronizedReportSchedulerImpl::OnTransitionToIdle()
 
 CHIP_ERROR SynchronizedReportSchedulerImpl::ScheduleReport(Timeout timeout, ReadHandlerNode * node, const Timestamp & now)
 {
+    ChipLogDetail(DataManagement, "Cancelling");
     // Cancel Report if it is currently scheduled
     mTimerDelegate->CancelTimer(this);
     if (timeout == Milliseconds32(0))
@@ -66,6 +67,10 @@ CHIP_ERROR SynchronizedReportSchedulerImpl::ScheduleReport(Timeout timeout, Read
         TimerFired();
         return CHIP_NO_ERROR;
     }
+    ChipLogDetail(DataManagement, "Cancelled");
+    // Detail log of timeout before firing
+    ChipLogDetail(DataManagement, "Scheduling report in 0x" ChipLogFormatX64 " ms", ChipLogValueX64(timeout.count()));
+
     ReturnErrorOnFailure(mTimerDelegate->StartTimer(this, timeout));
     mNextReportTimestamp = now + timeout;
 
@@ -178,6 +183,8 @@ void SynchronizedReportSchedulerImpl::TimerFired()
 
     // If there are no handlers registered, no need to do anything.
     VerifyOrReturn(mNodesPool.Allocated());
+
+    ChipLogDetail(DataManagement, "TimerFired at 0x" ChipLogFormatX64 "", ChipLogValueX64(now.count()));
 
     mNodesPool.ForEachActiveObject([now, &firedEarly](ReadHandlerNode * node) {
         if (node->GetMinTimestamp() <= now)

@@ -463,6 +463,12 @@ void BaseApplication::ButtonHandler(AppEvent * aEvent)
     // FACTORY_RESET_TRIGGER_TIMEOUT to signal factory reset has been initiated.
     // To cancel factory reset: release the APP_FUNCTION_BUTTON once all LEDs
     // start blinking within the FACTORY_RESET_CANCEL_WINDOW_TIMEOUT
+
+    // Log monotonic timestamp in ms
+    SILABS_LOG("ButtonHandler Monotonic timestamp: %d", chip::System::SystemClock().GetMonotonicMilliseconds64());
+    // Log OS tick count
+    SILABS_LOG("ButtonHandler OS Tick Count: %d", xTaskGetTickCount());
+
     if (aEvent->ButtonEvent.Action == static_cast<uint8_t>(SilabsPlatform::ButtonAction::ButtonPressed))
     {
         StartFunctionTimer(FACTORY_RESET_TRIGGER_TIMEOUT);

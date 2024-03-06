@@ -155,8 +155,12 @@ public:
         {
             uint16_t minInterval, maxInterval;
             aReadHandler->GetReportingIntervals(minInterval, maxInterval);
+            ChipLogProgress(DataManagement, "Min: %d Max: %d", minInterval, maxInterval);
             mMinTimestamp = now + System::Clock::Seconds16(minInterval);
-            mMaxTimestamp = now + System::Clock::Seconds16(maxInterval);
+            mMaxTimestamp = now + System::Clock::Seconds16(5);
+            ChipLogProgress(DataManagement, "Now: 0x" ChipLogFormatX64 "Min: 0x" ChipLogFormatX64 " Max: 0x" ChipLogFormatX64 "",
+                            ChipLogValueX64(now.count()), ChipLogValueX64(mMinTimestamp.count()),
+                            ChipLogValueX64(mMaxTimestamp.count()));
         }
 
         void TimerFired() override
