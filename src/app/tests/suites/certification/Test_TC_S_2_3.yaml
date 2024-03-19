@@ -264,6 +264,19 @@ tests:
                 value: G1
               - name: "SceneList"
                 value: []
+                
+    - label:
+          "Step 1g: TH sends a GetSceneMembership command to Group G1 with the
+          GroupID field set to G1."
+      PICS: S.S.C06.Rsp
+      command: "GetSceneMembership"
+      groupId: G1
+      arguments:
+          values:
+              - name: "GroupID"
+                value: G1
+      response:
+          value: 0x00
 
     - label:
           "Step 2: TH sends a AddScene command to DUT with the GroupID field set
