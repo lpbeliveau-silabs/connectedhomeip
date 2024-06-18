@@ -85,6 +85,8 @@ static chip::DeviceLayer::Internal::Efr32PsaOperationalKeystore gOperationalKeys
 
 #include <platform/silabs/platformAbstraction/SilabsPlatform.h>
 
+#include "FabricTableDelegate.h"
+
 /**********************************************************
  * Defines
  *********************************************************/

@@ -105,12 +105,18 @@ public:
      *
      * @param appLed Pointer to the configure LEDWidget for the application defined LED
      */
-    void LinkAppLed(LEDWidget * appLed) { sAppActionLed = appLed; }
+    void LinkAppLed(LEDWidget * appLed)
+    {
+        sAppActionLed = appLed;
+    }
 
     /**
      * @brief Remove the app Led linkage form the baseApplication context
      */
-    void UnlinkAppLed() { sAppActionLed = nullptr; }
+    void UnlinkAppLed()
+    {
+        sAppActionLed = nullptr;
+    }
 
     /**
      * @brief PostEvent function that add event to AppTask queue for processing
@@ -155,6 +161,12 @@ public:
     static void OnTriggerIdentifyEffectCompleted(chip::System::Layer * systemLayer, void * appState);
     static void OnTriggerIdentifyEffect(Identify * identify);
 #endif
+
+    /**
+     * @brief Updates the static boolean isCommissioned to the desired state
+     *
+     */
+    static void UpdateCommissioningStatus(bool newState);
 
 protected:
     CHIP_ERROR Init();

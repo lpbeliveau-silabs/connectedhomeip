@@ -70,6 +70,8 @@
 #include <performance_test_commands.h>
 #endif // PERFORMANCE_TEST_ENABLED
 
+#include "FabricTableDelegate.h"
+
 /**********************************************************
  * Defines and Constants
  *********************************************************/
@@ -155,6 +157,9 @@ Identify gIdentify = {
 };
 
 #endif // MATTER_DM_PLUGIN_IDENTIFY_SERVER
+
+BaseAppFabricTableDelegate sAppFabricDelegate;
+bool isCommissioned = false;
 } // namespace
 
 bool BaseApplication::sIsProvisioned           = false;
@@ -297,6 +302,8 @@ CHIP_ERROR BaseApplication::Init()
 #if CHIP_ENABLE_OPENTHREAD
     BaseApplication::sIsProvisioned = ConnectivityMgr().IsThreadProvisioned();
 #endif
+
+    err = chip::Server::GetInstance().GetFabricTable().AddFabricDelegate(&sAppFabricDelegate);
     return err;
 }
 
@@ -384,7 +391,7 @@ bool BaseApplication::ActivateStatusLedPatterns()
     if (!isPatternSet)
     {
         // Apply different status feedbacks
-        if (BaseApplication::sIsProvisioned && sIsEnabled)
+        if (isCommissioned)
         {
             if (sIsAttached)
             {
@@ -408,6 +415,21 @@ bool BaseApplication::ActivateStatusLedPatterns()
 #endif // CHIP_CONFIG_ENABLE_ICD_SERVER
 #endif // ENABLE_WSTK_LEDS) && SL_CATALOG_SIMPLE_LED_LED1_PRESENT
     return isPatternSet;
+}
+
+void BaseApplication::UpdateCommissioningStatus(bool newState)
+{
+    isCommissioned = newState;
+    if (isCommissioned)
+    {
+        SILABS_LOG("Device is commissioned");
+    }
+    else
+    {
+        SILABS_LOG("Device is not commissioned");
+    }
+
+    ActivateStatusLedPatterns();
 }
 
 // TODO Move State Monitoring elsewhere
