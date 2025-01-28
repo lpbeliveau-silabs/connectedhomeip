@@ -255,7 +255,6 @@ void BaseApplicationDelegate::OnCommissioningWindowClosed()
 #endif // QR_CODE_ENABLED
 #endif // DISPLAY_ENABLED
     }
-
 }
 
 void BaseApplicationDelegate::OnFabricCommitted(const FabricTable & fabricTable, FabricIndex fabricIndex)
