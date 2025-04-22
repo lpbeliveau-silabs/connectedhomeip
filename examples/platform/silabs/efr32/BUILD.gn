@@ -191,6 +191,9 @@ source_set("efr32-common") {
     if (chip_enable_icd_server) {
       deps += [ "${silabs_common_plat_dir}/shell:icd" ]
     }
+    if (sl_enable_ble_side_channel) {
+      deps += [ "${silabs_common_plat_dir}/shell:ble" ]
+    }
   }
 
   public_deps += [
