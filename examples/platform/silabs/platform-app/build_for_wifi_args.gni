@@ -22,5 +22,4 @@ import("${chip_root}/src/platform/silabs/wifi/args.gni")
 chip_enable_read_client = false
 
 chip_enable_ota_requestor = true
-app_data_model =
-    "${chip_root}/examples/lighting-app/silabs/data_model:silabs-lighting"
+app_data_model = "${chip_root}/examples/platform/silabs/platform-app/data_model:silabs-platform"

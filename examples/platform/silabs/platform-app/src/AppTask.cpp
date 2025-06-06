@@ -22,27 +22,19 @@
 #include "AppEvent.h"
 
 #include "LEDWidget.h"
-#if (defined(SL_MATTER_RGB_LED_ENABLED) && SL_MATTER_RGB_LED_ENABLED == 1)
-#include "RGBLEDWidget.h"
-#endif //(defined(SL_MATTER_RGB_LED_ENABLED) && SL_MATTER_RGB_LED_ENABLED == 1)
 #include <app-common/zap-generated/attributes/Accessors.h>
-// #include <app/clusters/on-off-server/on-off-server.h>
 #include <app/server/Server.h>
 #include <app/util/attribute-storage.h>
-#include <setup_payload/OnboardingCodesUtil.h>
-
 #include <assert.h>
-
+#include <lib/support/CodeUtils.h>
+#include <platform/CHIPDeviceLayer.h>
 #include <platform/silabs/platformAbstraction/SilabsPlatform.h>
-
+#include <setup_payload/OnboardingCodesUtil.h>
 #include <setup_payload/QRCodeSetupPayloadGenerator.h>
 #include <setup_payload/SetupPayload.h>
 
-#include <lib/support/CodeUtils.h>
-
-#include <platform/CHIPDeviceLayer.h>
-
 #define APP_FUNCTION_BUTTON 0
+#define APP_USER_ACTION 1
 
 using namespace chip;
 using namespace chip::app;
@@ -105,15 +97,62 @@ void AppTask::AppTaskMain(void * pvParameter)
     }
 }
 
+void AppTask::ApplicationEventHandler(AppEvent * aEvent)
+{
+    VerifyOrReturn(aEvent->Type == AppEvent::kEventType_Button);
+    VerifyOrReturn(aEvent->ButtonEvent.Action == static_cast<uint8_t>(SilabsPlatform::ButtonAction::ButtonPressed));
+
+    // Simple Application logic that toggles the BoleanState StateValue attribute.
+    // DO NOT COPY for product logic. This is only meant to showcase the Platform app support for the LIT ICD feature in test.
+    PlatformMgr().ScheduleWork([](intptr_t) {
+        bool state = true;
+
+        Protocols::InteractionModel::Status status = chip::app::Clusters::BooleanState::Attributes::StateValue::Get(1, &state);
+        if (status != Protocols::InteractionModel::Status::Success)
+        {
+            // Failed to read StateValue. Default to true (open state)
+            state = true;
+            ChipLogError(NotSpecified, "ERR: reading boolean status value %x", to_underlying(status));
+        }
+
+        status = chip::app::Clusters::BooleanState::Attributes::StateValue::Set(1, !state);
+        if (status != Protocols::InteractionModel::Status::Success)
+        {
+            ChipLogError(NotSpecified, "ERR: updating boolean status value %x", to_underlying(status));
+        }
+    });
+}
+
 void AppTask::ButtonEventHandler(uint8_t button, uint8_t btnAction)
 {
     AppEvent button_event           = {};
     button_event.Type               = AppEvent::kEventType_Button;
     button_event.ButtonEvent.Action = btnAction;
 
+    if (button == APP_USER_ACTION)
+    {
+        button_event.Handler = ApplicationEventHandler;
+        sAppTask.PostEvent(&button_event);
+    }
     if (button == APP_FUNCTION_BUTTON)
     {
         button_event.Handler = BaseApplication::ButtonHandler;
         AppTask::GetAppTask().PostEvent(&button_event);
     }
+}
+
+// DO NOT COPY for product logic. This is only a showcase of the Platform app support for the LIT ICD feature in test.
+void AppTask::OnEnterActiveMode()
+{
+#ifdef DISPLAY_ENABLED
+    sAppTask.GetLCD().WriteDemoUI(true);
+#endif
+}
+
+// DO NOT COPY for product logic. This is only a showcase of the Platform app support for the LIT ICD feature in test.
+void AppTask::OnEnterIdleMode()
+{
+#ifdef DISPLAY_ENABLED
+    sAppTask.GetLCD().WriteDemoUI(false);
+#endif
 }

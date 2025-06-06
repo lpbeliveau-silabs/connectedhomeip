@@ -75,6 +75,18 @@ public:
      */
     static void ButtonEventHandler(uint8_t button, uint8_t btnAction);
 
+    /**
+     * @brief When the ICD enters ActiveMode, update LCD to reflect the ICD current state.
+     *        Set LCD to ActiveMode UI.
+     */
+    void OnEnterActiveMode();
+
+    /**
+     * @brief When the ICD enters IdleMode, update LCD to reflect the ICD current state.
+     *        Set LCD to IdleMode UI.
+     */
+    void OnEnterIdleMode();
+
 private:
     static AppTask sAppTask;
 
@@ -96,9 +108,9 @@ private:
 
     /**
      * @brief PB1 Button event processing function
-     *        Function triggers a switch action sent to the CHIP task
+     *        Function triggers a application action sent to the CHIP task
      *
      * @param aEvent button event being processed
      */
-    // static void SwitchActionEventHandler(AppEvent * aEvent);
+    static void ApplicationEventHandler(AppEvent * aEvent);
 };

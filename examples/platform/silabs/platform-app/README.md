@@ -244,6 +244,11 @@ combination with JLinkRTTClient as follows:
             procedure. **LEDs** blink in unison when the factory reset procedure is
             initiated.
 
+    **Push Button 1**
+
+        -   Triggers a User action event to transition the ICD to Active mode.
+        -
+
 *   You can provision and control the Chip device using the python controller,
     Chip tool standalone, Android or iOS app
 
