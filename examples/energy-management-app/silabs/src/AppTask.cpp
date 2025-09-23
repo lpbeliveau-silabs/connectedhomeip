@@ -42,7 +42,9 @@
 
 #include <lib/support/CodeUtils.h>
 
+#include <EVSEManufacturerImpl.h>
 #include <EnergyManagementAppCmdLineOptions.h>
+#include <energy-evse-modes.h>
 #include <platform/CHIPDeviceLayer.h>
 
 #ifdef SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
@@ -83,6 +85,7 @@ constexpr chip::EndpointId kWaterHeaterEndpoint = 2;
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
+using namespace chip::app::Clusters::EnergyEvse;
 using namespace chip::app::Clusters::DeviceEnergyManagement;
 using namespace chip::app::Clusters::DeviceEnergyManagement::Attributes;
 using namespace chip::app::Clusters::WaterHeaterManagement;
@@ -234,7 +237,15 @@ CHIP_ERROR AppTask::AppInit()
     }
 #endif // QR_CODE_ENABLED
 #endif
+    chip::DeviceLayer::PlatformMgr().LockChipStack();
+    EnergyEvseDelegate * dg = GetEvseManufacturer()->GetEvseDelegate();
+    dg->HwSetVehicleID(CharSpan::fromCharString("TEST_VEHICLE_123456789"));
+    dg->SetStateOfCharge(77);
+    dg->HwSetState(StateEnum::kPluggedInCharging);
+    dg->SetState(StateEnum::kPluggedInCharging);
 
+    EnergyEvseMode::Instance()->UpdateCurrentMode(EnergyEvseMode::kModeTimeOfUse);
+    chip::DeviceLayer::PlatformMgr().UnlockChipStack();
     return err;
 }
 
