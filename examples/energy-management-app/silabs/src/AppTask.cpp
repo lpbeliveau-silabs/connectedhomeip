@@ -244,6 +244,10 @@ CHIP_ERROR AppTask::AppInit()
     dg->HwSetState(StateEnum::kPluggedInCharging);
     dg->SetState(StateEnum::kPluggedInCharging);
 
+    uint32_t now_epoch_s = 0;
+    ReturnErrorOnFailure(System::Clock::GetClock_MatterEpochS(now_epoch_s));
+    dg->SetNextChargeTargetTime(now_epoch_s + 1200);
+
     EnergyEvseMode::Instance()->UpdateCurrentMode(EnergyEvseMode::kModeTimeOfUse);
     chip::DeviceLayer::PlatformMgr().UnlockChipStack();
     return err;

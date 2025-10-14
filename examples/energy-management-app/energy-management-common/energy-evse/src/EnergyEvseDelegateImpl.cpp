@@ -1758,6 +1758,9 @@ CHIP_ERROR EnergyEvseDelegate::SetNextChargeStartTime(DataModel::Nullable<uint32
 
 DataModel::Nullable<uint32_t> EnergyEvseDelegate::GetNextChargeTargetTime()
 {
+    uint32_t now_epoch_s = 0;
+    System::Clock::GetClock_MatterEpochS(now_epoch_s);
+    mNextChargeTargetTime.SetNonNull(now_epoch_s + 1200);
     return mNextChargeTargetTime;
 }
 CHIP_ERROR EnergyEvseDelegate::SetNextChargeTargetTime(DataModel::Nullable<uint32_t> newNextChargeTargetTimeUtc)
