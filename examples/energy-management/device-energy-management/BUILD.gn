@@ -27,10 +27,10 @@ source_set("energy-management") {
       [ "${chip_root}/examples/energy-management/electrical-sensor/include" ]
 
   public_deps = [
-    "${chip_root}/src/app",
+    "${chip_root}/src/app:interaction-model",
     "${chip_root}/src/app/clusters/device-energy-management-server",
     "${chip_root}/src/lib/core",
-    "${chip_root}/src/protocols/interaction_model",
+    "${chip_root}/src/protocols:protocols",
     "${chip_root}/src/system",
   ]
 }
