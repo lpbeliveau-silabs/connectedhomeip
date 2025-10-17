@@ -191,10 +191,10 @@ def _get_targets(coverage: Optional[bool]) -> list[ApplicationTarget]:
     targets.append(
         ApplicationTarget(
             kind=SubprocessKind.APP,
-            env_key="ENERGY_MANAGEMENT_APP",
-            cli_key="energy-management",
-            target=f"{target_prefix}-energy-management-{suffix}",
-            binary="chip-energy-management-app",
+            env_key="EVSE_APP",
+            cli_key="evse",
+            target=f"{target_prefix}-evse-{suffix}",
+            binary="chip-evse-app",
         )
     )
     targets.append(
@@ -1356,7 +1356,8 @@ def chip_tool_tests(
     if keep_going:
         cmd.append("--keep-going")
 
-    subprocess.run(_with_activate(cmd), check=True)
+
+subprocess.run(_with_activate(cmd), check=True)
 
 
 if __name__ == "__main__":

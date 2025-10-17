@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Project CHIP Authors
+# Copyright (c) 2020 Project CHIP Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,23 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import("//build_overrides/build.gni")
 import("//build_overrides/chip.gni")
+import("${chip_root}/config/standalone/args.gni")
 
-import("${build_root}/config/compiler/compiler.gni")
-import("${chip_root}/build/chip/tests.gni")
-import("${chip_root}/src/platform/device.gni")
+silabs_sdk_target = get_label_info(":sdk", "label_no_toolchain")
+chip_enable_openthread = false
+import("${chip_root}/src/platform/silabs/wifi/args.gni")
 
-if (chip_build_tests) {
-  import("${chip_root}/build/chip/chip_test_group.gni")
-
-  chip_test_group("example_tests") {
-    deps = []
-    tests = []
-
-    if (chip_device_platform == "linux" && current_os == "linux") {
-      tests += [ "${chip_root}/examples/evse-app/evse-common/tests" ]
-    }
-  }
-}
+sl_enable_test_event_trigger = true
+chip_enable_ota_requestor = false
+disable_lcd = true
+app_data_model = "${chip_root}/examples/evse-app/evse-common"
