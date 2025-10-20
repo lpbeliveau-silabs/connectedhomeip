@@ -28,6 +28,7 @@ source_set("energy-management") {
 
   public_deps = [
     "${chip_root}/src/app:interaction-model",
+    "${chip_root}/src/app:app",
     "${chip_root}/src/app/clusters/device-energy-management-server",
     "${chip_root}/src/lib/core",
     "${chip_root}/src/protocols:protocols",
