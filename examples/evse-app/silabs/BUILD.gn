@@ -132,8 +132,8 @@ if (wifi_soc) {
     }
   }
 }
-silabs_executable("energy-management-app") {
-  output_name = "matter-silabs-energy-management-example.out"
+silabs_executable("evse-app") {
+  output_name = "matter-silabs-evse-example.out"
   include_dirs = [ "include" ]
   defines = []
 
@@ -153,9 +153,6 @@ silabs_executable("energy-management-app") {
   }
 
   sources = [
-    "${chip_root}/examples/energy-management-app/energy-management-common/common/src/EnergyManagementAppCommonMain.cpp",
-    "${chip_root}/examples/energy-management-app/energy-management-common/common/src/EnergyTimeUtils.cpp",
-    "${chip_root}/examples/energy-management-app/energy-management-common/common/src/Identify.cpp",
     "${examples_common_plat_dir}/main.cpp",
     "src/AppTask.cpp",
   ]
@@ -248,7 +245,7 @@ silabs_executable("energy-management-app") {
 }
 
 group("silabs") {
-  deps = [ ":energy-management-app" ]
+  deps = [ ":evse-app" ]
 }
 
 group("default") {
