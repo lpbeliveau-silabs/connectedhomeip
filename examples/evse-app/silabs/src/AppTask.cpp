@@ -20,7 +20,6 @@
 #include "AppTask.h"
 #include "AppConfig.h"
 #include "AppEvent.h"
-#include "LEDWidget.h"
 #include <EnergyManagementAppCommonMain.h>
 #include <app-common/zap-generated/cluster-enums.h>
 #include <app-common/zap-generated/cluster-objects.h>
@@ -47,20 +46,9 @@
 
 #ifdef SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
 #include <app/TestEventTriggerDelegate.h>
-
-#if SL_MATTER_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER
-#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
-#endif
-#if SL_MATTER_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER
-#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
-#endif
-#if SL_MATTER_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER
-#include <app/clusters/water-heater-management-server/WaterHeaterManagementTestEventTriggerHandler.h>
-#endif
-#if SL_MATTER_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER
 #include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
-#endif
-
+#include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
+#include <app/clusters/energy-evse-server/EnergyEvseTestEventTriggerHandler.h>
 #endif // SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
 
 #if (defined(SL_CATALOG_SIMPLE_LED_LED1_PRESENT) || defined(SIWX_917))
@@ -75,8 +63,7 @@
 namespace {
 
 LEDWidget sEnergyManagementLED;
-constexpr chip::EndpointId kEvseEndpoint        = 1;
-constexpr chip::EndpointId kWaterHeaterEndpoint = 2;
+constexpr chip::EndpointId kEvseEndpoint = 1;
 
 } // namespace
 
@@ -85,7 +72,6 @@ using namespace chip::app;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::DeviceEnergyManagement;
 using namespace chip::app::Clusters::DeviceEnergyManagement::Attributes;
-using namespace chip::app::Clusters::WaterHeaterManagement;
 using namespace ::chip::DeviceLayer;
 using namespace ::chip::DeviceLayer::Silabs;
 using namespace ::chip::DeviceLayer::Internal;
@@ -102,22 +88,10 @@ namespace app {
 namespace Clusters {
 namespace DeviceEnergyManagement {
 
-// Keep track of the parsed featureMap option
-#if (SL_MATTER_CONFIG_DEM_SUPPORT_POWER_FORECAST_REPORTING) && (SL_MATTER_CONFIG_DEM_SUPPORT_STATE_FORECAST_REPORTING)
-#error Cannot define SL_MATTER_CONFIG_DEM_SUPPORT_POWER_FORECAST_REPORTING and SL_MATTER_CONFIG_DEM_SUPPORT_STATE_FORECAST_REPORTING
-#endif
-
-#if SL_MATTER_CONFIG_DEM_SUPPORT_POWER_FORECAST_REPORTING
+// TODO: This needs to come from zap or a config file
 static chip::BitMask<Feature> sFeatureMap(Feature::kPowerAdjustment, Feature::kPowerForecastReporting,
                                           Feature::kStartTimeAdjustment, Feature::kPausable, Feature::kForecastAdjustment,
                                           Feature::kConstraintBasedAdjustment);
-#elif SL_MATTER_CONFIG_DEM_SUPPORT_STATE_FORECAST_REPORTING
-static chip::BitMask<Feature> sFeatureMap(Feature::kPowerAdjustment, Feature::kStateForecastReporting,
-                                          Feature::kStartTimeAdjustment, Feature::kPausable, Feature::kForecastAdjustment,
-                                          Feature::kConstraintBasedAdjustment);
-#else
-static chip::BitMask<Feature> sFeatureMap(Feature::kPowerAdjustment);
-#endif
 
 chip::BitMask<Feature> GetFeatureMapFromCmdLine()
 {
@@ -133,32 +107,15 @@ AppTask AppTask::sAppTask;
 
 EndpointId GetEnergyDeviceEndpointId()
 {
-#if SL_CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE
-    return kWaterHeaterEndpoint;
-#else
     return kEvseEndpoint;
-#endif
 }
 
 void ApplicationInit()
 {
     chip::DeviceLayer::PlatformMgr().LockChipStack();
     SILABS_LOG("==================================================");
-#if SL_MATTER_CONFIG_ENABLE_EXAMPLE_EVSE_DEVICE
     SILABS_LOG("energy-management-example EVSE starting. featureMap 0x%08lx", DeviceEnergyManagement::sFeatureMap.Raw());
-
     EvseApplicationInit();
-    // Disable Water Heater Endpoint
-    emberAfEndpointEnableDisable(kWaterHeaterEndpoint, false);
-#endif // CONFIG_ENABLE_EXAMPLE_EVSE_DEVICE
-
-#if SL_CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE
-    SILABS_LOG("energy-management-example WaterHeater starting. featureMap 0x%08lx", DeviceEnergyManagement::sFeatureMap.Raw());
-
-    WaterHeaterApplicationInit();
-    // Disable EVSE Endpoint
-    emberAfEndpointEnableDisable(kEvseEndpoint, false);
-#endif // CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE
     SILABS_LOG("==================================================");
 
     sEnergyManagementLED.Init(EVSE_LED);
@@ -167,13 +124,8 @@ void ApplicationInit()
 void ApplicationShutdown()
 {
     chip::DeviceLayer::PlatformMgr().LockChipStack();
-#if SL_MATTER_CONFIG_ENABLE_EXAMPLE_EVSE_DEVICE
     EvseApplicationShutdown();
-#endif // CONFIG_ENABLE_EXAMPLE_EVSE_DEVICE
 
-#if SL_CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE
-    WaterHeaterApplicationShutdown();
-#endif // CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE
     chip::DeviceLayer::PlatformMgr().UnlockChipStack();
 }
 
@@ -186,43 +138,27 @@ CHIP_ERROR AppTask::AppInit()
 #ifdef SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
     TestEventTriggerDelegate * pTestEventDelegate = Server::GetInstance().GetTestEventTriggerDelegate();
 
-#if SL_MATTER_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER
     static EnergyEvseTestEventTriggerHandler sEnergyEvseTestEventTriggerHandler;
     if (pTestEventDelegate != nullptr)
     {
         VerifyOrDie(pTestEventDelegate->AddHandler(&sEnergyEvseTestEventTriggerHandler) == CHIP_NO_ERROR);
     }
-#endif
 
-#if SL_MATTER_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER
     static EnergyReportingTestEventTriggerHandler sEnergyReportingTestEventTriggerHandler;
     if (pTestEventDelegate != nullptr)
     {
         VerifyOrDie(pTestEventDelegate->AddHandler(&sEnergyReportingTestEventTriggerHandler) == CHIP_NO_ERROR);
     }
 
-#endif
-#if SL_MATTER_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER
-    static WaterHeaterManagementTestEventTriggerHandler sWaterHeaterManagementTestEventTriggerHandler;
-
-    if (pTestEventDelegate != nullptr)
-    {
-        VerifyOrDie(pTestEventDelegate->AddHandler(&sWaterHeaterManagementTestEventTriggerHandler) == CHIP_NO_ERROR);
-    }
-#endif
-#if SL_MATTER_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER
     static DeviceEnergyManagementTestEventTriggerHandler sDeviceEnergyManagementTestEventTriggerHandler;
     if (pTestEventDelegate != nullptr)
     {
         VerifyOrDie(pTestEventDelegate->AddHandler(&sDeviceEnergyManagementTestEventTriggerHandler) == CHIP_NO_ERROR);
     }
-#endif
-
 #endif // SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
 
 // Update the LCD with the Stored value. Show QR Code if not provisioned
 #ifdef DISPLAY_ENABLED
-    GetLCD().WriteDemoUI(LightMgr().IsLightOn());
 #ifdef QR_CODE_ENABLED
 #ifdef SL_WIFI
     if (!chip::DeviceLayer::ConnectivityMgr().IsWiFiStationProvisioned())

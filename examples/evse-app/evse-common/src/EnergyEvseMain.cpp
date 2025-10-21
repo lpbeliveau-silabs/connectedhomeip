@@ -16,13 +16,12 @@
  *    limitations under the License.
  */
 
-#include "EnergyManagementAppCmdLineOptions.h"
-
 #include <DeviceEnergyManagementManager.h>
 #include <EVSEManufacturerImpl.h>
 #include <ElectricalPowerMeasurementDelegate.h>
 #include <ElectricalSensorInit.h>
 #include <EnergyEvseManager.h>
+#include <EnergyManagementAppCmdLineOptions.h>
 #include <EnergyManagementAppCommonMain.h>
 #include <PowerTopologyDelegate.h>
 #include <device-energy-management-modes.h>

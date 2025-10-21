@@ -14,20 +14,23 @@
 
 import("//build_overrides/chip.gni")
 
-source_set("energy-management") {
+# This cannot be removed until we have code driven clusters for electrical power measurement.
+import("${chip_root}/examples/platform/silabs/args.gni")
+config("config") {
+  include_dirs =
+      [ "${chip_root}/examples/energy-management/electrical-sensor/include" ]
+}
+
+source_set("electrical-sensor") {
   sources = [
     "${chip_root}/examples/energy-management/electrical-sensor/src/ElectricalPowerMeasurementDelegate.cpp",
-    "${chip_root}/examples/energy-management/electrical-sensor/src/EnergyReportingEventTriggers.cpp",
-    "${chip_root}/examples/energy-management/electrical-sensor/src/FakeReadings.cpp",
     "${chip_root}/examples/energy-management/electrical-sensor/src/PowerTopologyDelegate.cpp",
   ]
 
-  include_dirs =
-      [ "${chip_root}/examples/energy-management/electrical-sensor/include" ]
+  public_configs = [ ":config" ]
 
   public_deps = [
     "${chip_root}/src/app:interaction-model",
-    "${chip_root}/src/app/clusters/device-energy-management-server",
     "${chip_root}/src/app/clusters/electrical-energy-measurement-server",
     "${chip_root}/src/app/clusters/electrical-power-measurement-server",
     "${chip_root}/src/app/clusters/power-topology-server",
@@ -35,5 +38,6 @@ source_set("energy-management") {
     "${chip_root}/src/lib/core",
     "${chip_root}/src/protocols:protocols",
     "${chip_root}/src/system",
+    app_data_model,
   ]
 }

@@ -42,14 +42,13 @@ source_set("evse-common-lib") {
 
   public_configs = [ ":config" ]
 
-  include_dirs = [ "include" ]
-
   public_deps = [
-    ":evse-common",
-    "${chip_root}/examples/energy-management/device-energy-management:energy-management",
-    "${chip_root}/examples/energy-management/electrical-sensor:energy-management",
+    "${chip_root}/examples/energy-management/device-energy-management:device-energy-management",
+    "${chip_root}/examples/energy-management/electrical-sensor:electrical-sensor",
+    "${chip_root}/examples/evse-app/energy-management-triggers:tests-event-triggers",
     "${chip_root}/src/app",
     "${chip_root}/src/app/clusters/energy-evse-server",
+    "${chip_root}/src/app/clusters/identify-server:identify-server",
     "${chip_root}/src/lib/core",
     "${chip_root}/src/protocols/interaction_model",
     "${chip_root}/src/system",

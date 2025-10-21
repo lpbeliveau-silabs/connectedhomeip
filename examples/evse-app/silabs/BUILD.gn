@@ -47,21 +47,6 @@ import("${examples_common_plat_dir}/args.gni")
 declare_args() {
   # Dump memory usage at link time.
   chip_print_memory_usage = false
-
-  # Enable test event triggers by default: Disable these in production devices
-  sl_enable_energy_evse_trigger = true
-  sl_enable_energy_reporting_trigger = true
-  sl_enable_water_heater_management_trigger = true
-  sl_enable_device_energy_management_trigger = true
-
-  # Device Energy Management feature support - only one of these can be true
-  # or both can be disabled if forecasting is not supported
-  sl_dem_support_power_forecast_reporting = true
-  sl_dem_support_state_forecast_reporting = false
-
-  # Only one of these examples should be enabled
-  sl_enable_example_evse_device = true
-  sl_enable_example_water_heater_device = false
 }
 
 if (slc_generate) {
@@ -137,17 +122,6 @@ silabs_executable("evse-app") {
   include_dirs = [ "include" ]
   defines = []
 
-  defines += [
-    "SL_MATTER_CONFIG_ENABLE_ENERGY_EVSE_TRIGGER=${sl_enable_energy_evse_trigger}",
-    "SL_MATTER_CONFIG_ENABLE_ENERGY_REPORTING_TRIGGER=${sl_enable_energy_reporting_trigger}",
-    "SL_MATTER_CONFIG_ENABLE_WATER_HEATER_MANAGEMENT_TRIGGER=${sl_enable_water_heater_management_trigger}",
-    "SL_MATTER_CONFIG_ENABLE_DEVICE_ENERGY_MANAGEMENT_TRIGGER=${sl_enable_device_energy_management_trigger}",
-    "SL_MATTER_CONFIG_DEM_SUPPORT_POWER_FORECAST_REPORTING=${sl_dem_support_power_forecast_reporting}",
-    "SL_MATTER_CONFIG_DEM_SUPPORT_STATE_FORECAST_REPORTING=${sl_dem_support_state_forecast_reporting}",
-    "SL_MATTER_CONFIG_ENABLE_EXAMPLE_EVSE_DEVICE=${sl_enable_example_evse_device}",
-    "SL_CONFIG_ENABLE_EXAMPLE_WATER_HEATER_DEVICE=${sl_enable_example_water_heater_device}",
-  ]
-
   if (silabs_board == "BRD2704A") {
     defines += [ "SL_STATUS_LED=0" ]
   }
@@ -159,6 +133,7 @@ silabs_executable("evse-app") {
 
   deps = [
     ":sdk",
+    "${chip_root}/examples/evse-app/energy-management-triggers:tests-event-triggers",
     "${chip_root}/examples/evse-app/evse-common:evse-common-lib",
     "${chip_root}/src/app:attribute-persistence",
     app_data_model,
