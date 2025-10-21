@@ -20,7 +20,6 @@
 
 #include <DEMManufacturerDelegate.h>
 #include <app/clusters/device-energy-management-server/device-energy-management-server.h>
-#include <app/util/config.h>
 
 namespace chip {
 namespace app {

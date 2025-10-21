@@ -16,9 +16,8 @@
  *    limitations under the License.
  */
 
+#include <ChargingTargetsMemMgr.h>
 #include <app-common/zap-generated/cluster-objects.h>
-
-#include "ChargingTargetsMemMgr.h"
 
 using namespace chip;
 using namespace chip::app;

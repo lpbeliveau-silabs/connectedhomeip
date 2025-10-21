@@ -1,7 +1,6 @@
 /*
  *
- *    Copyright (c) 2020 Project CHIP Authors
- *    Copyright (c) 2019 Google LLC.
+ *    Copyright (c) 2025 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +17,13 @@
  */
 
 #pragma once
+#include <DeviceEnergyManagementDelegateImpl.h>
+#include <lib/core/DataModelTypes.h>
 
-#include "silabs_utils.h"
+// The DEM Delegate is used for the TestEventTriggers
+chip::app::Clusters::DeviceEnergyManagement::DeviceEnergyManagementDelegate * GetDEMDelegate();
 
-// ---- EVSE Example App Config ----
-
-#define APP_TASK_NAME "EVSE"
-#define BLE_DEV_NAME "SL-" APP_TASK_NAME
+// This app is configured by default with EP1 for EVSE and EP2 for WaterHeater, with only one endpoint
+// enabled. On linux, there's a command line argument (--application) to dynamically enable
+// "evse|water-heater", i.e. EP1 or EP2. On other platforms, it's a build time definition (#define).
+chip::EndpointId GetEnergyDeviceEndpointId();

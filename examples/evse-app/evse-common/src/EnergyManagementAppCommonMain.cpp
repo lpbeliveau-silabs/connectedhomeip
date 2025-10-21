@@ -17,18 +17,17 @@
  */
 
 #include "EnergyManagementAppCommonMain.h"
-#include "EnergyManagementAppCmdLineOptions.h"
+
+#include <DEMConfig.h>
 #include <DeviceEnergyManagementDelegateImpl.h>
 #include <DeviceEnergyManagementManager.h>
 #include <ElectricalPowerMeasurementDelegate.h>
 #include <EnergyEvseMain.h>
+#include <EnergyManagementAppCmdLineOptions.h>
 #include <PowerTopologyDelegate.h>
-#include <WhmMain.h>
-#include <WhmManufacturer.h>
 #include <app/clusters/electrical-energy-measurement-server/electrical-energy-measurement-server.h>
 #include <device-energy-management-modes.h>
 #include <energy-evse-modes.h>
-#include <water-heater-mode.h>
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -43,7 +42,6 @@ using namespace chip::app::Clusters::DeviceEnergyManagement;
 using namespace chip::app::Clusters::ElectricalPowerMeasurement;
 using namespace chip::app::Clusters::ElectricalEnergyMeasurement;
 using namespace chip::app::Clusters::PowerTopology;
-using namespace chip::app::Clusters::WaterHeaterManagement;
 
 namespace {
 
@@ -376,34 +374,4 @@ void EvseApplicationShutdown()
 
     Clusters::DeviceEnergyManagementMode::Shutdown();
     Clusters::EnergyEvseMode::Shutdown();
-}
-
-void WaterHeaterApplicationInit()
-{
-    auto endpointId = GetEnergyDeviceEndpointId();
-    VerifyOrDie(EnergyManagementCommonClustersInit(endpointId) == CHIP_NO_ERROR);
-    VerifyOrDie(WhmApplicationInit(endpointId) == CHIP_NO_ERROR);
-
-    /* For Device Energy Management we need the ESA to be Online and ready to accept commands */
-    TEMPORARY_RETURN_IGNORED gDEMDelegate->SetESAState(ESAStateEnum::kOnline);
-    TEMPORARY_RETURN_IGNORED gDEMDelegate->SetESAType(ESATypeEnum::kWaterHeating);
-    gDEMDelegate->SetDEMManufacturerDelegate(*GetWhmManufacturer());
-
-    // Set the abs min and max power
-    TEMPORARY_RETURN_IGNORED gDEMDelegate->SetAbsMinPower(1200000); // 1.2KW
-    TEMPORARY_RETURN_IGNORED gDEMDelegate->SetAbsMaxPower(7600000); // 7.6KW
-}
-
-void WaterHeaterApplicationShutdown()
-{
-    ChipLogDetail(AppServer, "Energy Management App (WaterHeater): WaterHeaterShutdown()");
-
-    /* Shutdown in reverse order that they were created */
-    TEMPORARY_RETURN_IGNORED PowerTopologyShutdown();              /* Free the PowerTopology */
-    TEMPORARY_RETURN_IGNORED ElectricalPowerMeasurementShutdown(); /* Free the Energy Meter */
-    DeviceEnergyManagementShutdown();                              /* Free the DEM */
-    TEMPORARY_RETURN_IGNORED WhmApplicationShutdown();
-
-    Clusters::DeviceEnergyManagementMode::Shutdown();
-    Clusters::WaterHeaterMode::Shutdown();
 }
