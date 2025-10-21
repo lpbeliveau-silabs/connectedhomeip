@@ -17,18 +17,17 @@
  */
 
 #include "EnergyManagementAppCommonMain.h"
-#include "EnergyManagementAppCmdLineOptions.h"
+
+#include <DEMConfig.h>
 #include <DeviceEnergyManagementDelegateImpl.h>
 #include <DeviceEnergyManagementManager.h>
 #include <ElectricalPowerMeasurementDelegate.h>
 #include <EnergyEvseMain.h>
+#include <EnergyManagementAppCmdLineOptions.h>
 #include <PowerTopologyDelegate.h>
-#include <WhmMain.h>
-#include <WhmManufacturer.h>
 #include <app/clusters/electrical-energy-measurement-server/electrical-energy-measurement-server.h>
 #include <device-energy-management-modes.h>
 #include <energy-evse-modes.h>
-#include <water-heater-mode.h>
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -43,7 +42,6 @@ using namespace chip::app::Clusters::DeviceEnergyManagement;
 using namespace chip::app::Clusters::ElectricalPowerMeasurement;
 using namespace chip::app::Clusters::ElectricalEnergyMeasurement;
 using namespace chip::app::Clusters::PowerTopology;
-using namespace chip::app::Clusters::WaterHeaterManagement;
 
 namespace {
 

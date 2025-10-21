@@ -16,10 +16,12 @@
  *    limitations under the License.
  */
 
-#include <EnergyManagementAppCmdLineOptions.h>
-#include <EnergyManagementAppCommonMain.h>
+#include <DEMConfig.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <device-energy-management-modes.h>
+#include <lib/core/CHIPError.h>
+#include <memory>
+#include <protocols/interaction_model/Constants.h>
 
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::DeviceEnergyManagementMode;

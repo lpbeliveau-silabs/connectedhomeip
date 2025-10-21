@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Project CHIP Authors
+# Copyright (c) 2020-2024 Project CHIP Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,28 @@
 
 import("//build_overrides/chip.gni")
 
-config("energy-management-util-config") {
+config("config") {
   include_dirs = [ "." ]
 }
 
-source_set("energy-management-util") {
-  public = [ "EnergyManagementAppCmdLineOptions.h" ]
+source_set("tests-event-triggers") {
+  sources = [
+    "DEMTestEventTriggers.cpp",
+    "EnergyReportingEventTriggers.cpp",
+    "FakeReadings.cpp",
+    "FakeReadings.h",
+  ]
 
-  public_configs = [ ":energy-management-util-config" ]
+  public_configs = [ ":config" ]
+
+  cflags = [ "-Wconversion" ]
 
   public_deps = [
-    "${chip_root}/src/app-common",
-    "${chip_root}/src/lib/support",
+    "${chip_root}/examples/energy-management/device-energy-management:device-energy-management",
+    "${chip_root}/examples/energy-management/electrical-sensor:electrical-sensor",
+    "${chip_root}/src/app",
+    "${chip_root}/src/app/common:cluster-objects",
+    "${chip_root}/src/lib",
+    "${chip_root}/src/lib/core",
   ]
 }
