@@ -24,9 +24,12 @@
 #include <app/clusters/testing/ClusterTester.h>
 #include <app/clusters/testing/ValidateGlobalAttributes.h>
 #include <app/data-model-provider/tests/ReadTesting.h>
+#include <app/server-cluster/testing/TestEventGenerator.h>
 #include <app/server-cluster/testing/TestServerClusterContext.h>
 #include <clusters/DeviceEnergyManagement/Attributes.h>
+#include <clusters/DeviceEnergyManagement/Events.h>
 #include <clusters/DeviceEnergyManagement/Metadata.h>
+#include <lib/support/TimerDelegateMock.h>
 
 using namespace chip;
 using namespace chip::app;
@@ -46,6 +49,8 @@ struct TestDeviceEnergyManagementCluster : public ::testing::Test
     static void TearDownTestSuite() { chip::Platform::MemoryShutdown(); }
 
     void SetUp() override {}
+
+    chip::TimerDelegateMock mMockTimerDelegate;
 };
 
 TEST_F(TestDeviceEnergyManagementCluster, TestFeatures)
@@ -57,7 +62,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestFeatures)
     {
         BitMask<Feature> noFeatures;
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, noFeatures, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, noFeatures, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -84,7 +90,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestFeatures)
     {
         BitMask<Feature> features(Feature::kPowerAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -107,7 +114,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestFeatures)
     {
         BitMask<Feature> features(Feature::kPowerForecastReporting);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -131,7 +139,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestFeatures)
                                      Feature::kStartTimeAdjustment, Feature::kPausable, Feature::kForecastAdjustment,
                                      Feature::kConstraintBasedAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, allFeatures, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, allFeatures, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -161,7 +170,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestAttributes)
     {
         BitMask<Feature> noFeatures;
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, noFeatures, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, noFeatures, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -195,7 +205,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestAttributes)
     {
         BitMask<Feature> features(Feature::kPowerAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -227,7 +238,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestAttributes)
     {
         BitMask<Feature> features(Feature::kPowerForecastReporting);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -256,7 +268,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> noFeatures;
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, noFeatures, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, noFeatures, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -274,7 +287,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> features(Feature::kPowerAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -330,7 +344,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> features(Feature::kStartTimeAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -376,7 +391,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> features(Feature::kPausable);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -431,7 +447,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> features(Feature::kForecastAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -477,7 +494,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
     {
         BitMask<Feature> features(Feature::kConstraintBasedAdjustment);
 
-        DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
         EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -524,7 +542,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
         {
             BitMask<Feature> features(Feature::kStartTimeAdjustment);
 
-            DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+            DeviceEnergyManagementCluster cluster(
+                DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
             EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -589,7 +608,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
         {
             BitMask<Feature> features(Feature::kForecastAdjustment);
 
-            DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+            DeviceEnergyManagementCluster cluster(
+                DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
             EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -618,7 +638,8 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
         {
             BitMask<Feature> features(Feature::kConstraintBasedAdjustment);
 
-            DeviceEnergyManagementCluster cluster(DeviceEnergyManagementCluster::Config(kTestEndpointId, features, &mockDelegate));
+            DeviceEnergyManagementCluster cluster(
+                DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
 
             EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
 
@@ -642,6 +663,284 @@ TEST_F(TestDeviceEnergyManagementCluster, TestCommands)
 
             cluster.Shutdown();
         }
+    }
+}
+
+TEST_F(TestDeviceEnergyManagementCluster, TestEvents)
+{
+    chip::Test::TestServerClusterContext context;
+    DeviceEnergyManagementMockDelegate mockDelegate;
+    auto & logOnlyEvents = context.EventsGenerator();
+
+    // Test 1: PowerAdjustRequest should generate PowerAdjustStart event
+    {
+        BitMask<Feature> features(Feature::kPowerAdjustment);
+
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
+
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+        using namespace Commands;
+        using namespace Events;
+
+        // Invoke PowerAdjustRequest command
+        {
+            PowerAdjustRequest::Type command;
+            command.power    = 1000;
+            command.duration = 60;
+            command.cause    = AdjustmentCauseEnum::kLocalOptimization;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(PowerAdjustRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Verify PowerAdjustStart event was generated
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(
+                event->eventOptions.mPath,
+                ConcreteEventPath(kTestEndpointId, PowerAdjustStart::Type::GetClusterId(), PowerAdjustStart::Type::GetEventId()));
+
+            PowerAdjustStart::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+        }
+
+        cluster.Shutdown();
+    }
+
+    // Test 2: CancelPowerAdjustRequest should generate PowerAdjustEnd event with kCancelled cause
+    {
+        BitMask<Feature> features(Feature::kPowerAdjustment);
+
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
+
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+        using namespace Commands;
+        using namespace Events;
+
+        // First start a power adjustment
+        {
+            PowerAdjustRequest::Type command;
+            command.power    = 1000;
+            command.duration = 60;
+            command.cause    = AdjustmentCauseEnum::kLocalOptimization;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(PowerAdjustRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Verify event was generated
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+
+            using PowerAdjustStartEventType = Events::PowerAdjustStart::Type;
+            EXPECT_EQ(event->eventOptions.mPath,
+                      ConcreteEventPath(kTestEndpointId, PowerAdjustStartEventType::GetClusterId(),
+                                        PowerAdjustStartEventType::GetEventId()));
+
+            PowerAdjustStart::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+        }
+
+        // Cancel the power adjustment
+        {
+            CancelPowerAdjustRequest::Type command;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(CancelPowerAdjustRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Verify PowerAdjustEnd event was generated with kCancelled cause
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(event->eventOptions.mPath,
+                      ConcreteEventPath(kTestEndpointId, PowerAdjustEnd::Type::GetClusterId(), PowerAdjustEnd::Type::GetEventId()));
+
+            PowerAdjustEnd::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+            EXPECT_EQ(decodedEvent.cause, CauseEnum::kCancelled);
+        }
+
+        cluster.Shutdown();
+    }
+
+    // Test 3: PauseRequest should generate Paused event
+    {
+        BitMask<Feature> features(Feature::kPausable);
+
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
+
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+        // Setup Forecast with pausable slot for PauseRequest to work
+        {
+            Structs::ForecastStruct::Type forecast;
+            forecast.forecastID           = 1;
+            forecast.startTime            = 1000;
+            forecast.endTime              = 2000;
+            forecast.isPausable           = true;
+            forecast.activeSlotNumber     = 0;
+            forecast.forecastUpdateReason = ForecastUpdateReasonEnum::kLocalOptimization;
+
+            Structs::SlotStruct::Type slot;
+            slot.slotIsPausable.SetValue(true);
+            slot.minPauseDuration.SetValue(10);
+            slot.maxPauseDuration.SetValue(3600);
+
+            static Structs::SlotStruct::Type slots[1] = { slot };
+            forecast.slots                            = DataModel::List<const Structs::SlotStruct::Type>(slots, 1);
+
+            DataModel::Nullable<Structs::ForecastStruct::Type> forecastNullable;
+            forecastNullable.SetNonNull(forecast);
+            mockDelegate.SetForecast(forecastNullable);
+        }
+
+        using namespace Commands;
+        using namespace Events;
+
+        // Invoke PauseRequest command
+        {
+            PauseRequest::Type command;
+            command.duration = 60;
+            command.cause    = AdjustmentCauseEnum::kLocalOptimization;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(PauseRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Verify Paused event was generated
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(event->eventOptions.mPath,
+                      ConcreteEventPath(kTestEndpointId, Paused::Type::GetClusterId(), Paused::Type::GetEventId()));
+
+            Paused::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+        }
+
+        cluster.Shutdown();
+    }
+
+    // Test 4: ResumeRequest should generate Resumed event
+    {
+        BitMask<Feature> features(Feature::kPausable);
+
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
+
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+        // Setup Forecast and set ESA state to Paused
+        {
+            Structs::ForecastStruct::Type forecast;
+            forecast.forecastID = 1;
+            forecast.startTime  = 1000;
+            forecast.endTime    = 2000;
+            forecast.isPausable = true;
+            forecast.activeSlotNumber.SetNonNull(0);
+            forecast.forecastUpdateReason = ForecastUpdateReasonEnum::kLocalOptimization;
+
+            static Structs::SlotStruct::Type slots[1];
+            forecast.slots = DataModel::List<const Structs::SlotStruct::Type>(slots, 1);
+
+            DataModel::Nullable<Structs::ForecastStruct::Type> forecastNullable;
+            forecastNullable.SetNonNull(forecast);
+            mockDelegate.SetForecast(forecastNullable);
+            ASSERT_EQ(mockDelegate.SetESAState(ESAStateEnum::kPaused), CHIP_NO_ERROR);
+        }
+
+        using namespace Commands;
+        using namespace Events;
+
+        // Invoke ResumeRequest command
+        {
+            ResumeRequest::Type command;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(ResumeRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Verify Resumed event was generated
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(event->eventOptions.mPath,
+                      ConcreteEventPath(kTestEndpointId, Resumed::Type::GetClusterId(), Resumed::Type::GetEventId()));
+
+            Resumed::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+            EXPECT_EQ(decodedEvent.cause, CauseEnum::kNormalCompletion);
+        }
+
+        cluster.Shutdown();
+    }
+
+    // Test 5: Timer firing should generate PowerAdjustEnd event with kNormalCompletion cause
+    {
+        BitMask<Feature> features(Feature::kPowerAdjustment);
+
+        DeviceEnergyManagementCluster cluster(
+            DeviceEnergyManagementCluster::Config(kTestEndpointId, mMockTimerDelegate, features, &mockDelegate));
+
+        EXPECT_EQ(cluster.Startup(context.Get()), CHIP_NO_ERROR);
+
+        using namespace Commands;
+        using namespace Events;
+
+        // Invoke PowerAdjustRequest command
+        {
+            PowerAdjustRequest::Type command;
+            command.power    = 1000;
+            command.duration = 60;
+            command.cause    = AdjustmentCauseEnum::kLocalOptimization;
+
+            chip::Test::ClusterTester tester(cluster);
+            auto result = tester.Invoke(PowerAdjustRequest::Id, command);
+            EXPECT_TRUE(result.IsSuccess());
+        }
+
+        // Consume PowerAdjustStart event
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(
+                event->eventOptions.mPath,
+                ConcreteEventPath(kTestEndpointId, PowerAdjustStart::Type::GetClusterId(), PowerAdjustStart::Type::GetEventId()));
+
+            PowerAdjustStart::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+        }
+
+        // Advance timer to trigger timer expiration
+        mMockTimerDelegate.AdvanceClock(System::Clock::Seconds32(60));
+
+        // Verify PowerAdjustEnd event was generated with kNormalCompletion cause
+        {
+            auto event = logOnlyEvents.GetNextEvent();
+            ASSERT_TRUE(event.has_value());
+            EXPECT_EQ(event->eventOptions.mPath,
+                      ConcreteEventPath(kTestEndpointId, PowerAdjustEnd::Type::GetClusterId(), PowerAdjustEnd::Type::GetEventId()));
+
+            PowerAdjustEnd::DecodableType decodedEvent;
+            ASSERT_EQ(event->GetEventData(decodedEvent), CHIP_NO_ERROR);
+            EXPECT_EQ(decodedEvent.cause, CauseEnum::kNormalCompletion);
+            EXPECT_EQ(decodedEvent.duration, 60u);
+        }
+
+        cluster.Shutdown();
     }
 }
 

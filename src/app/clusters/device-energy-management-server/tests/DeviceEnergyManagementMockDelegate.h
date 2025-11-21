@@ -98,6 +98,13 @@ public:
 
     const DataModel::Nullable<Structs::ForecastStruct::Type> & GetForecast() override;
 
+    /**
+     * @brief Get energy use since last PowerAdjustStart event
+     *
+     * Returns a mock constant value for testing purposes.
+     */
+    int64_t GetEnergyUseSinceLastPowerAdjustStart() override;
+
     CHIP_ERROR SetESAState(ESAStateEnum) override;
 
     // Test helpers to set internal state

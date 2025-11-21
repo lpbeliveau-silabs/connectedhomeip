@@ -20,6 +20,7 @@
 #include <app/clusters/device-energy-management-server/tests/DeviceEnergyManagementMockDelegate.h>
 #include <app/server-cluster/testing/TestServerClusterContext.h>
 #include <data-model-providers/codegen/CodegenDataModelProvider.h>
+#include <lib/support/TimerDelegateMock.h>
 #include <pw_unit_test/framework.h>
 
 using namespace chip;
@@ -43,6 +44,7 @@ struct TestDeviceEnergyManagementClusterBackwardsCompatibility : public ::testin
     void SetUp() override {}
 
     chip::Test::TestServerClusterContext mContext;
+    chip::TimerDelegateMock mMockTimerDelegate;
 };
 
 TEST_F(TestDeviceEnergyManagementClusterBackwardsCompatibility, TestInstanceLifecycle)
@@ -54,7 +56,7 @@ TEST_F(TestDeviceEnergyManagementClusterBackwardsCompatibility, TestInstanceLife
                                      Feature::kStartTimeAdjustment, Feature::kPausable, Feature::kForecastAdjustment,
                                      Feature::kConstraintBasedAdjustment);
 
-        Instance instance(kTestEndpointId, mockDelegate, allFeatures);
+        Instance instance(kTestEndpointId, mockDelegate, allFeatures, mMockTimerDelegate);
 
         // Test initialization (registration)
         EXPECT_EQ(instance.Init(), CHIP_NO_ERROR);
@@ -86,7 +88,7 @@ TEST_F(TestDeviceEnergyManagementClusterBackwardsCompatibility, TestInstanceLife
     {
         DeviceEnergyManagementMockDelegate mockDelegate;
         BitMask<Feature> noFeatures;
-        Instance instance(kTestEndpointId, mockDelegate, noFeatures);
+        Instance instance(kTestEndpointId, mockDelegate, noFeatures, mMockTimerDelegate);
 
         // Test initialization
         EXPECT_EQ(instance.Init(), CHIP_NO_ERROR);

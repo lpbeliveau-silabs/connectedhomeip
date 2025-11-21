@@ -22,6 +22,7 @@
 #include <app/clusters/device-energy-management-server/DeviceEnergyManagementCluster.h>
 #include <app/server-cluster/ServerClusterInterfaceRegistry.h>
 #include <lib/support/LinkedList.h>
+#include <platform/DefaultTimerDelegate.h>
 
 namespace chip {
 namespace app {
@@ -32,6 +33,10 @@ class Instance
 {
 public:
     Instance(EndpointId aEndpointId, Delegate & aDelegate, Feature aFeature);
+    // Constructor to allow unit tests to inject a mock timer delegate
+    Instance(EndpointId aEndpointId, Delegate & aDelegate, Feature aFeature, TimerDelegate & aTimerDelegate) :
+        mCluster(DeviceEnergyManagementCluster::Config(aEndpointId, aTimerDelegate, aFeature, &aDelegate))
+    {}
 
     ~Instance() {}
 

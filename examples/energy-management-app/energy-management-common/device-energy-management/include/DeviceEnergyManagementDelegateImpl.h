@@ -88,6 +88,14 @@ public:
                                                                      AdjustmentCauseEnum cause) override;
 
     /**
+     * @brief Delegate handler for GetEnergyUse
+     *
+     * @return The energy used by the ESA in milli-Watt-hours since the last PowerAdjustStart event. This can be calculater by
+     * taking a snapshot of the energy use at the time of the last PowerAdjustStart event and the current energy use.
+     */
+    int64_t GetEnergyUseSinceLastPowerAdjustStart() override;
+
+    /**
      * @brief Handler for PauseRequest command
      *
      *   If the ESA supports FA and the SlotIsPauseable field is true in the ActiveSlotNumber
@@ -232,6 +240,13 @@ public:
     // Returns whether the DeviceEnergyManagement is supported
     uint32_t HasFeature(Feature feature) const;
 
+    // Methods to handle when a PowerAdjustment completes
+    void HandlePowerAdjustCompletion();
+    // Methods to handle when a PauseRequest completes
+    void HandlePauseCompletion();
+    // Method to handle pause cancelled
+    CHIP_ERROR CancelPauseRequest(CauseEnum cause);
+
 private:
     /**
      * @brief Handle a PowerAdjustRequest failing
@@ -240,32 +255,12 @@ private:
      */
     void HandlePowerAdjustRequestFailure();
 
-    // Methods to handle when a PowerAdjustment completes
-    static void PowerAdjustTimerExpiry(System::Layer * systemLayer, void * delegate);
-    void HandlePowerAdjustTimerExpiry();
-
-    // Method to cancel a PowerAdjustment
-    CHIP_ERROR CancelPowerAdjustRequestAndGenerateEvent(CauseEnum cause);
-
-    // Method to generate a PowerAdjustEnd event
-    CHIP_ERROR GeneratePowerAdjustEndEvent(CauseEnum cause);
-
     /**
      * @brief Handle a PauseRequest failing
      *
      *  Cleans up the state should the PauseRequest fail
      */
     void HandlePauseRequestFailure();
-
-    // Methods to handle when a PauseRequest completes
-    static void PauseRequestTimerExpiry(System::Layer * systemLayer, void * delegate);
-    void HandlePauseRequestTimerExpiry();
-
-    // Method to cancel a PauseRequest
-    CHIP_ERROR CancelPauseRequestAndGenerateEvent(CauseEnum cause);
-
-    // Method to generate a Paused event
-    CHIP_ERROR GenerateResumedEvent(CauseEnum cause);
 
 private:
     // Have a pointer to partner instance object

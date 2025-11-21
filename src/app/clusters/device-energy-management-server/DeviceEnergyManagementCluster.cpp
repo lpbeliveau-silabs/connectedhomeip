@@ -23,6 +23,7 @@
 #include <app/server-cluster/AttributeListBuilder.h>
 #include <clusters/DeviceEnergyManagement/Attributes.h>
 #include <clusters/DeviceEnergyManagement/Commands.h>
+#include <clusters/DeviceEnergyManagement/Events.h>
 #include <clusters/DeviceEnergyManagement/Metadata.h>
 #include <clusters/DeviceEnergyManagement/Structs.h>
 #include <lib/support/logging/CHIPLogging.h>
@@ -82,6 +83,7 @@ DataModel::ActionReturnStatus ValidateESAState(const DataModel::InvokeRequest & 
 
 using namespace DeviceEnergyManagement;
 using namespace DeviceEnergyManagement::Attributes;
+using namespace DeviceEnergyManagement::Commands;
 
 DataModel::ActionReturnStatus DeviceEnergyManagementCluster::ReadAttribute(const DataModel::ReadAttributeRequest & request,
                                                                            AttributeValueEncoder & encoder)
@@ -131,8 +133,6 @@ std::optional<DataModel::ActionReturnStatus> DeviceEnergyManagementCluster::Invo
 {
     VerifyOrReturnValue(mDelegate != nullptr, Status::Failure);
 
-    using namespace Commands;
-
     switch (request.path.mCommandId)
     {
     case PowerAdjustRequest::Id:
@@ -181,8 +181,6 @@ CHIP_ERROR DeviceEnergyManagementCluster::Attributes(const ConcreteClusterPath &
 CHIP_ERROR DeviceEnergyManagementCluster::AcceptedCommands(const ConcreteClusterPath & path,
                                                            ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder)
 {
-    using namespace Commands;
-
     if (mFeatureFlags.Has(Feature::kPowerAdjustment))
     {
         ReturnErrorOnFailure(builder.AppendElements({
@@ -220,6 +218,62 @@ CHIP_ERROR DeviceEnergyManagementCluster::AcceptedCommands(const ConcreteCluster
     }
 
     return CHIP_NO_ERROR;
+}
+
+void DeviceEnergyManagementCluster::GeneratePowerAdjustStartEvent()
+{
+    Events::PowerAdjustStart::Type event;
+    mPowerAdjustStartTimestamp = mTimerDelegate.GetCurrentMonotonicTimestamp();
+    VerifyOrReturn(mContext != nullptr);
+    VerifyOrReturn(mContext->interactionContext.eventsGenerator.GenerateEvent(event, mPath.mEndpointId));
+}
+void DeviceEnergyManagementCluster::GeneratePowerAdjustEndEvent(DeviceEnergyManagement::CauseEnum cause)
+{
+    ESAStateEnum ESAState = mDelegate->GetESAState();
+    if (ESAState == ESAStateEnum::kPowerAdjustActive)
+    {
+        VerifyOrReturn(mDelegate->SetESAState(ESAStateEnum::kOnline) == CHIP_NO_ERROR);
+
+        // Generate PowerAdjustEnd event and reset the ESAState to Online
+        Events::PowerAdjustEnd::Type event;
+        event.cause    = cause;
+        event.duration = std::chrono::duration_cast<System::Clock::Seconds32>(mTimerDelegate.GetCurrentMonotonicTimestamp() -
+                                                                              mPowerAdjustStartTimestamp)
+                             .count();
+        event.energyUse = mDelegate->GetEnergyUseSinceLastPowerAdjustStart();
+
+        VerifyOrReturn(mContext != nullptr);
+        mContext->interactionContext.eventsGenerator.GenerateEvent(event, mPath.mEndpointId);
+    }
+    else if (ESAState == ESAStateEnum::kPaused)
+    {
+        GenerateResumedEvent(cause);
+        TEMPORARY_RETURN_IGNORED mDelegate->CancelPauseRequest(cause);
+    }
+}
+void DeviceEnergyManagementCluster::GeneratePausedEvent()
+{
+    Events::Paused::Type event;
+    VerifyOrReturn(mContext != nullptr);
+    VerifyOrReturn(mContext->interactionContext.eventsGenerator.GenerateEvent(event, mPath.mEndpointId));
+}
+void DeviceEnergyManagementCluster::GenerateResumedEvent(DeviceEnergyManagement::CauseEnum cause)
+{
+    Events::Resumed::Type event;
+    event.cause = cause;
+    VerifyOrReturn(mContext != nullptr);
+    VerifyOrReturn(mContext->interactionContext.eventsGenerator.GenerateEvent(event, mPath.mEndpointId));
+}
+
+void DeviceEnergyManagementCluster::PauseTimerContext::TimerFired()
+{
+    mCluster.GenerateResumedEvent(CauseEnum::kNormalCompletion);
+    mCluster.mDelegate->HandlePauseCompletion();
+}
+void DeviceEnergyManagementCluster::PowerAdjustTimerContext::TimerFired()
+{
+    mCluster.GeneratePowerAdjustEndEvent(CauseEnum::kNormalCompletion);
+    mCluster.mDelegate->HandlePowerAdjustCompletion();
 }
 
 DataModel::ActionReturnStatus
@@ -275,8 +329,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandlePowerAdjustRe
                                                                                       TLV::TLVReader & input_arguments,
                                                                                       CommandHandler * handler)
 {
-    using namespace Commands;
-
     PowerAdjustRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -297,8 +349,9 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandlePowerAdjustRe
         return AddResponseOnError(request, handler, Status::ConstraintError);
     }
 
-    ESAStateEnum ESAState = mDelegate->GetESAState();
-    VerifyOrReturnError(ESAState == ESAStateEnum::kOnline || ESAState == ESAStateEnum::kPowerAdjustActive, Status::InvalidInState);
+    ESAStateEnum oldESAState = mDelegate->GetESAState();
+    VerifyOrReturnError(oldESAState == ESAStateEnum::kOnline || oldESAState == ESAStateEnum::kPowerAdjustActive,
+                        Status::InvalidInState);
 
     // Call on delegate to start the power adjustment if the ESAState PowerAdjustActive, the delegate might refuse the adjustment
     // The delegate is responsible of updating its PowerAdjustmentCapability's cause to the new cause if the adjustment is accepted
@@ -307,23 +360,43 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandlePowerAdjustRe
                            mDelegate->PowerAdjustRequest(commandData.power, commandData.duration, commandData.cause))
             .GetUnderlyingError());
 
-    // Verify the delegate's PowerAdjustmentCapability's cause was updated to the new cause if the adjustment is accepted
-    powerAdjustmentCapability = mDelegate->GetPowerAdjustmentCapability();
-    if (powerAdjustmentCapability.IsNull())
+    // If the old ESAState was PowerAdjustActive, cancel the ongoing power adjustment timer
+    if (oldESAState == ESAStateEnum::kPowerAdjustActive)
     {
-        ChipLogError(Zcl, "DEM: PowerAdjustmentCapability is Null");
-        return AddResponseOnError(request, handler, Status::ConstraintError);
-    }
-    if (powerAdjustmentCapability.Value().cause != static_cast<DeviceEnergyManagement::PowerAdjustReasonEnum>(commandData.cause))
-    {
-        ChipLogError(Zcl,
-                     "DEM: PowerAdjustmentCapability's cause was not updated to the new cause- expected: '0x%" PRIx32
-                     "', got: '0x%" PRIx32 "'",
-                     static_cast<uint32_t>(commandData.cause), static_cast<uint32_t>(powerAdjustmentCapability.Value().cause));
-        return AddResponseOnError(request, handler, Status::ConstraintError);
+        mTimerDelegate.CancelTimer(&mPowerAdjustTimerContext);
     }
 
-    handler->AddStatus(request.path, Status::Success);
+    // If the new ESAState is PowerAdjustActive, verify the PowerAdjustmentCapability's cause was updated to the new cause if the
+    // adjustment is accepted
+    if (mDelegate->GetESAState() == ESAStateEnum::kPowerAdjustActive)
+    {
+        powerAdjustmentCapability = mDelegate->GetPowerAdjustmentCapability();
+        if (powerAdjustmentCapability.IsNull())
+        {
+            ChipLogError(Zcl, "DEM: PowerAdjustmentCapability is Null");
+            return AddResponseOnError(request, handler, Status::ConstraintError);
+        }
+        if (powerAdjustmentCapability.Value().cause !=
+            static_cast<DeviceEnergyManagement::PowerAdjustReasonEnum>(commandData.cause))
+        {
+            ChipLogError(Zcl,
+                         "DEM: PowerAdjustmentCapability's cause was not updated to the new cause- expected: '0x%" PRIx32
+                         "', got: '0x%" PRIx32 "'",
+                         static_cast<uint32_t>(commandData.cause), static_cast<uint32_t>(powerAdjustmentCapability.Value().cause));
+            return AddResponseOnError(request, handler, Status::ConstraintError);
+        }
+    }
+
+    // Start the timer for the power adjustment
+    ReturnErrorOnFailure(
+        AddResponseOnError(request, handler,
+                           mTimerDelegate.StartTimer(&mPowerAdjustTimerContext, System::Clock::Seconds32(commandData.duration)))
+            .GetUnderlyingError());
+
+    if (oldESAState != ESAStateEnum::kPowerAdjustActive)
+    {
+        GeneratePowerAdjustStartEvent();
+    }
     return DataModel::ActionReturnStatus(Status::Success);
 }
 
@@ -331,7 +404,6 @@ DataModel::ActionReturnStatus
 DeviceEnergyManagementCluster::HandleCancelPowerAdjustRequest(const DataModel::InvokeRequest & request,
                                                               TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
-    using namespace Commands;
 
     CancelPowerAdjustRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
@@ -339,6 +411,9 @@ DeviceEnergyManagementCluster::HandleCancelPowerAdjustRequest(const DataModel::I
     ReturnErrorOnFailure(ValidateESAState(request, handler, mDelegate, ESAStateEnum::kPowerAdjustActive).GetUnderlyingError());
 
     ReturnErrorOnFailure(AddResponseOnError(request, handler, mDelegate->CancelPowerAdjustRequest()).GetUnderlyingError());
+
+    // Cancel the ongoing power adjustment timer
+    mTimerDelegate.CancelTimer(&mPowerAdjustTimerContext);
 
     // Verify the delegate's PowerAdjustmentCapability's cause was updated to the new cause if the adjustment is accepted
     DataModel::Nullable<Structs::PowerAdjustCapabilityStruct::Type> powerAdjustmentCapability =
@@ -359,6 +434,10 @@ DeviceEnergyManagementCluster::HandleCancelPowerAdjustRequest(const DataModel::I
         return AddResponseOnError(request, handler, Status::ConstraintError);
     }
 
+    // Generate PowerAdjustEnd event and update the ESAState to Online
+    GeneratePowerAdjustEndEvent(CauseEnum::kCancelled);
+    ReturnErrorOnFailure(AddResponseOnError(request, handler, mDelegate->SetESAState(ESAStateEnum::kOnline)).GetUnderlyingError());
+
     handler->AddStatus(request.path, Status::Success);
     return DataModel::ActionReturnStatus(Status::Success);
 }
@@ -367,8 +446,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleStartTimeAdju
                                                                                           TLV::TLVReader & input_arguments,
                                                                                           CommandHandler * handler)
 {
-    using namespace Commands;
-
     StartTimeAdjustRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -403,7 +480,7 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleStartTimeAdju
             ChipLogError(Zcl, "DEM: Unable to get current time - err:%" CHIP_ERROR_FORMAT, err.Format());
             return AddResponseOnError(request, handler, Status::Failure);
         }
-        earliestStartTimeEpoch = matterEpoch; // Null means we can start immediately (NOW)
+        earliestStartTimeEpoch = matterEpoch;
     }
     else
     {
@@ -478,8 +555,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandlePauseRequest(
                                                                                 TLV::TLVReader & input_arguments,
                                                                                 CommandHandler * handler)
 {
-    using namespace Commands;
-
     PauseRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -540,10 +615,26 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandlePauseRequest(
         ChipLogError(Zcl, "DEM: out of range pause duration %lu", static_cast<unsigned long>(commandData.duration));
         return AddResponseOnError(request, handler, Status::ConstraintError);
     }
-
+    ESAStateEnum oldESAState = mDelegate->GetESAState();
     ReturnErrorOnFailure(AddResponseOnError(request, handler, mDelegate->PauseRequest(commandData.duration, commandData.cause))
                              .GetUnderlyingError());
+    // Cancel the ongoing pause if the previous ESA state was Paused
+    if (oldESAState == ESAStateEnum::kPaused)
+    {
+        mTimerDelegate.CancelTimer(&mPauseTimerContext);
+    }
+    // Verify the new ESA state is Paused
+    VerifyOrReturnError(mDelegate->GetESAState() == ESAStateEnum::kPaused, DataModel::ActionReturnStatus(Status::Failure));
 
+    // Start the pause timer
+    ReturnErrorOnFailure(
+        AddResponseOnError(request, handler,
+                           mTimerDelegate.StartTimer(&mPauseTimerContext, System::Clock::Seconds32(commandData.duration)))
+            .GetUnderlyingError());
+    if (oldESAState != ESAStateEnum::kPaused)
+    {
+        GeneratePausedEvent();
+    }
     handler->AddStatus(request.path, Status::Success);
     return DataModel::ActionReturnStatus(Status::Success);
 }
@@ -552,8 +643,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleResumeRequest
                                                                                  TLV::TLVReader & input_arguments,
                                                                                  CommandHandler * handler)
 {
-    using namespace Commands;
-
     ResumeRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -565,6 +654,8 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleResumeRequest
     VerifyOrReturnError(mDelegate->GetESAState() != ESAStateEnum::kPaused, Status::InvalidInState);
     VerifyOrReturnError(mDelegate->GetForecast().Value().forecastUpdateReason == ForecastUpdateReasonEnum::kInternalOptimization,
                         Status::InvalidInState);
+    mTimerDelegate.CancelTimer(&mPauseTimerContext);
+    GenerateResumedEvent(CauseEnum::kNormalCompletion);
 
     handler->AddStatus(request.path, Status::Success);
     return DataModel::ActionReturnStatus(Status::Success);
@@ -574,8 +665,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleModifyForecas
                                                                                          TLV::TLVReader & input_arguments,
                                                                                          CommandHandler * handler)
 {
-    using namespace Commands;
-
     ModifyForecastRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -649,8 +738,6 @@ DataModel::ActionReturnStatus
 DeviceEnergyManagementCluster::HandleRequestConstraintBasedForecast(const DataModel::InvokeRequest & request,
                                                                     TLV::TLVReader & input_arguments, CommandHandler * handler)
 {
-    using namespace Commands;
-
     RequestConstraintBasedForecast::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 
@@ -766,8 +853,6 @@ DataModel::ActionReturnStatus DeviceEnergyManagementCluster::HandleCancelRequest
                                                                                  TLV::TLVReader & input_arguments,
                                                                                  CommandHandler * handler)
 {
-    using namespace Commands;
-
     CancelRequest::DecodableType commandData;
     ReturnErrorOnFailure(DataModel::Decode(input_arguments, commandData));
 

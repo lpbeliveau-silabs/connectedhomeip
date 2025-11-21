@@ -25,8 +25,12 @@ namespace app {
 namespace Clusters {
 namespace DeviceEnergyManagement {
 
+namespace {
+DefaultTimerDelegate sDefaultTimerDelegate;
+}
+
 Instance::Instance(EndpointId aEndpointId, Delegate & aDelegate, Feature aFeature) :
-    mCluster(DeviceEnergyManagementCluster::Config(aEndpointId, aFeature, &aDelegate))
+    mCluster(DeviceEnergyManagementCluster::Config(aEndpointId, sDefaultTimerDelegate, aFeature, &aDelegate))
 {}
 
 CHIP_ERROR Instance::Init()
@@ -61,6 +65,3 @@ bool Instance::HasFeature(Feature aFeature) const
 } // namespace Clusters
 } // namespace app
 } // namespace chip
-
-void MatterDeviceEnergyManagementPluginServerInitCallback() {}
-void MatterDeviceEnergyManagementPluginServerShutdownCallback() {}

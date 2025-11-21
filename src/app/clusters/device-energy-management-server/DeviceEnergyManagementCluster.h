@@ -27,6 +27,8 @@
 #include <clusters/DeviceEnergyManagement/Events.h>
 #include <clusters/DeviceEnergyManagement/Structs.h>
 #include <lib/core/Optional.h>
+#include <lib/support/TimerDelegate.h>
+#include <system/SystemClock.h>
 
 namespace chip {
 namespace app {
@@ -45,13 +47,13 @@ public:
     struct Config
     {
         EndpointId endpointId;
+        TimerDelegate & timerDelegate;
         BitMask<DeviceEnergyManagement::Feature> featureFlags;
         DeviceEnergyManagement::Delegate * delegate;
 
-        Config(EndpointId aEndpointId, BitMask<DeviceEnergyManagement::Feature> aFeatures,
+        Config(EndpointId aEndpointId, TimerDelegate & aTimerDelegate, BitMask<DeviceEnergyManagement::Feature> aFeatures,
                DeviceEnergyManagement::Delegate * aDelegate) :
-            endpointId(aEndpointId),
-            featureFlags(aFeatures), delegate(aDelegate)
+            endpointId(aEndpointId), timerDelegate(aTimerDelegate), featureFlags(aFeatures), delegate(aDelegate)
         {}
     };
     // We don't want to allow the default constructor as this cluster requires a delegate to be set
@@ -59,7 +61,7 @@ public:
 
     DeviceEnergyManagementCluster(const Config & config) :
         DefaultServerCluster({ config.endpointId, DeviceEnergyManagement::Id }), mDelegate(config.delegate),
-        mFeatureFlags(config.featureFlags), mEnabledOptionalAttributes([&]() {
+        mFeatureFlags(config.featureFlags), mTimerDelegate(config.timerDelegate), mEnabledOptionalAttributes([&]() {
             OptionalAttributesSet attrs;
             attrs.Set<DeviceEnergyManagement::Attributes::PowerAdjustmentCapability::Id>(
                 config.featureFlags.Has(DeviceEnergyManagement::Feature::kPowerAdjustment));
@@ -70,7 +72,8 @@ public:
                 DeviceEnergyManagement::Feature::kPowerAdjustment, DeviceEnergyManagement::Feature::kStartTimeAdjustment,
                 DeviceEnergyManagement::Feature::kForecastAdjustment, DeviceEnergyManagement::Feature::kConstraintBasedAdjustment));
             return attrs;
-        }())
+        }()),
+        mPauseTimerContext(*this), mPowerAdjustTimerContext(*this)
     {
         VerifyOrDie(config.delegate != nullptr);
         mDelegate->SetEndpointId(config.endpointId);
@@ -88,7 +91,31 @@ public:
     CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
                                 ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override;
 
+    void GeneratePowerAdjustStartEvent();
+    void GeneratePowerAdjustEndEvent(DeviceEnergyManagement::CauseEnum cause);
+    void GeneratePausedEvent();
+    void GenerateResumedEvent(DeviceEnergyManagement::CauseEnum cause);
+
 private:
+    class PauseTimerContext : public TimerContext
+    {
+    public:
+        PauseTimerContext(DeviceEnergyManagementCluster & cluster) : mCluster(cluster) {}
+        void TimerFired() override;
+
+    private:
+        DeviceEnergyManagementCluster & mCluster;
+    };
+    class PowerAdjustTimerContext : public TimerContext
+    {
+    public:
+        PowerAdjustTimerContext(DeviceEnergyManagementCluster & cluster) : mCluster(cluster) {}
+        void TimerFired() override;
+
+    private:
+        DeviceEnergyManagementCluster & mCluster;
+    };
+
     DataModel::ActionReturnStatus CheckOptOutAllowsRequest(DeviceEnergyManagement::AdjustmentCauseEnum adjustmentCause);
     DataModel::ActionReturnStatus HandlePowerAdjustRequest(const DataModel::InvokeRequest & request,
                                                            TLV::TLVReader & input_arguments, CommandHandler * handler);
@@ -109,7 +136,12 @@ private:
 
     DeviceEnergyManagement::Delegate * mDelegate = nullptr;
     const BitFlags<DeviceEnergyManagement::Feature> mFeatureFlags;
+    TimerDelegate & mTimerDelegate;
     const OptionalAttributesSet mEnabledOptionalAttributes;
+
+    System::Clock::Timestamp mPowerAdjustStartTimestamp;
+    PauseTimerContext mPauseTimerContext;
+    PowerAdjustTimerContext mPowerAdjustTimerContext;
 };
 
 } // namespace Clusters
