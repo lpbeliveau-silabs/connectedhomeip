@@ -16,10 +16,6 @@
 
 #include <app/clusters/device-energy-management-server/tests/DeviceEnergyManagementMockDelegate.h>
 
-namespace {
-constexpr int64_t kMockEnergyUsage = 1000;
-}
-
 namespace chip {
 namespace app {
 namespace Clusters {
@@ -244,13 +240,6 @@ DeviceEnergyManagementMockDelegate::GetPowerAdjustmentCapability()
 const DataModel::Nullable<Structs::ForecastStruct::Type> & DeviceEnergyManagementMockDelegate::GetForecast()
 {
     return mForecast;
-}
-
-int64_t DeviceEnergyManagementMockDelegate::GetEnergyUseSinceLastPowerAdjustStart()
-{
-    // Simulate a constant energy usage between PowerAdjustStart and PowerAdjustEnd events
-    mEnergyUse = mEnergySnapshot + kMockEnergyUsage;
-    return mEnergyUse;
 }
 
 CHIP_ERROR DeviceEnergyManagementMockDelegate::SetESAState(ESAStateEnum state)

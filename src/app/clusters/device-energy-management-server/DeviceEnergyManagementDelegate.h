@@ -76,14 +76,6 @@ public:
                                                                        AdjustmentCauseEnum cause) = 0;
 
     /**
-     * @brief Delegate handler for GetEnergyUse
-     *
-     * @return The energy used by the ESA in milli-Watt-hours since the last PowerAdjustStart event. This can be calculated by
-     * taking a snapshot of the energy use at the time of the last PowerAdjustStart event and the current energy use.
-     */
-    virtual int64_t GetEnergyUseSinceLastPowerAdjustStart() = 0;
-
-    /**
      * @brief Delegate handler for PauseRequest command
      *
      *   If the ESA supports FA and the SlotIsPauseable field is true in the ActiveSlotNumber
