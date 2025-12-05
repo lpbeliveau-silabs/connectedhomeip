@@ -157,6 +157,7 @@ CodeDrivenClusters:
     - Device Energy Management
     - Diagnostic Logs
     - Ethernet Network Diagnostics
+    - Electrical Power Measurement
     - Fixed Label
     - General Commissioning
     - General Diagnostics

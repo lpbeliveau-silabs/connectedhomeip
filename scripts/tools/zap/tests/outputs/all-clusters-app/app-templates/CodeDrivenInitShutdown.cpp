@@ -96,11 +96,16 @@ void MatterClusterServerInitCallback(EndpointId endpoint, ClusterId clusterId)
     case app::Clusters::BooleanStateConfiguration::Id:
         MatterBooleanStateConfigurationClusterInitCallback(endpoint);
         break;
+<<<<<<< HEAD
     case app::Clusters::DeviceEnergyManagement::Id:
         MatterDeviceEnergyManagementClusterInitCallback(endpoint);
         break;
     case app::Clusters::PowerTopology::Id:
         MatterPowerTopologyClusterInitCallback(endpoint);
+=======
+    case app::Clusters::ElectricalPowerMeasurement::Id:
+        MatterElectricalPowerMeasurementClusterInitCallback(endpoint);
+>>>>>>> 3bf6ed69c2 (Implement as code driven)
         break;
     case app::Clusters::OccupancySensing::Id:
         MatterOccupancySensingClusterInitCallback(endpoint);
@@ -181,11 +186,16 @@ void MatterClusterServerShutdownCallback(EndpointId endpoint, ClusterId clusterI
     case app::Clusters::BooleanStateConfiguration::Id:
         MatterBooleanStateConfigurationClusterShutdownCallback(endpoint);
         break;
+<<<<<<< HEAD
     case app::Clusters::DeviceEnergyManagement::Id:
         MatterDeviceEnergyManagementClusterShutdownCallback(endpoint);
         break;
     case app::Clusters::PowerTopology::Id:
         MatterPowerTopologyClusterShutdownCallback(endpoint);
+=======
+    case app::Clusters::ElectricalPowerMeasurement::Id:
+        MatterElectricalPowerMeasurementClusterShutdownCallback(endpoint);
+>>>>>>> 3bf6ed69c2 (Implement as code driven)
         break;
     case app::Clusters::OccupancySensing::Id:
         MatterOccupancySensingClusterShutdownCallback(endpoint);
