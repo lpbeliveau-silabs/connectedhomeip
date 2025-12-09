@@ -19,8 +19,6 @@
 #include <ElectricalPowerMeasurementDelegate.h>
 #include <app/reporting/reporting.h>
 
-#include <app/clusters/electrical-power-measurement-server/electrical-power-measurement-server.h>
-
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::DataModel;

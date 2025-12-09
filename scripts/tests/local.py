@@ -179,9 +179,9 @@ def _get_targets(coverage: Optional[bool]) -> list[ApplicationTarget]:
     )
     targets.append(
         ApplicationTarget(
-            key="ENERGY_MANAGEMENT_APP",
-            target=f"{target_prefix}-energy-management-{suffix}",
-            binary="chip-energy-management-app",
+            key="EVSE_APP",
+            target=f"{target_prefix}-evse-{suffix}",
+            binary="chip-evse-app",
         )
     )
     targets.append(
@@ -1268,7 +1268,7 @@ def chip_tool_tests(
         ("--microwave-oven-app", "CHIP_MICROWAVE_OVEN_APP"),
         ("--rvc-app", "CHIP_RVC_APP"),
         ("--energy-gateway-app", "ENERGY_GATEWAY_APP"),
-        ("--energy-management-app", "ENERGY_MANAGEMENT_APP"),
+        ("--evse-app", "EVSE_APP"),
         ("--closure-app", "CLOSURE_APP"),
     ]
 

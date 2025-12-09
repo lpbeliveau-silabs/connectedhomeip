@@ -30,7 +30,6 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app/ConcreteAttributePath.h>
-#include <app/clusters/electrical-energy-measurement-server/electrical-energy-measurement-server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
 #include <app/server/Server.h>
 #include <lib/support/logging/CHIPLogging.h>

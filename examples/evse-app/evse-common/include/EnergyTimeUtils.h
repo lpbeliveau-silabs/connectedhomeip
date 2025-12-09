@@ -19,7 +19,6 @@
 #pragma once
 
 #include <app-common/zap-generated/cluster-enums.h>
-#include <app/util/config.h>
 #include <cstring>
 #include <lib/core/CHIPError.h>
 #include <lib/support/BitMask.h>

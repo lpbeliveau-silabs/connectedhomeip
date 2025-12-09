@@ -14,14 +14,12 @@
 
 import("//build_overrides/chip.gni")
 
-# This cannot be removed until we have code driven clusters for electrical power measurement.
-import("${chip_root}/examples/platform/silabs/args.gni")
 config("config") {
   include_dirs =
       [ "${chip_root}/examples/energy-management/electrical-sensor/include" ]
 }
 
-source_set("electrical-sensor") {
+static_library("electrical-sensor") {
   sources = [
     "${chip_root}/examples/energy-management/electrical-sensor/src/ElectricalPowerMeasurementDelegate.cpp",
     "${chip_root}/examples/energy-management/electrical-sensor/src/PowerTopologyDelegate.cpp",
@@ -38,6 +36,5 @@ source_set("electrical-sensor") {
     "${chip_root}/src/lib/core",
     "${chip_root}/src/protocols:protocols",
     "${chip_root}/src/system",
-    app_data_model,
   ]
 }

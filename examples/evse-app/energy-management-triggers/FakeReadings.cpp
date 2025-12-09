@@ -20,7 +20,6 @@
 #include <DEMManufacturerDelegate.h>
 #include <app/clusters/device-energy-management-server/DeviceEnergyManagementTestEventTriggerHandler.h>
 #include <app/clusters/electrical-energy-measurement-server/EnergyReportingTestEventTriggerHandler.h>
-#include <app/clusters/electrical-energy-measurement-server/electrical-energy-measurement-server.h>
 #include <app/clusters/power-source-server/power-source-server.h>
 #include <app/server/Server.h>
 
@@ -139,7 +138,8 @@ void FakeReadings::FakeReadingsUpdate()
     int64_t current = (static_cast<int64_t>(rand()) % (2 * mCurrentRandomness_mA)) - mCurrentRandomness_mA;
     current += mCurrent_mA; // add in the base current
 
-    TEMPORARY_RETURN_IGNORED GetDEMDelegate()->GetDEMManufacturerDelegate()->SendPowerReading(mEndpointId, power, voltage, current);
+    TEMPORARY_RETURN_IGNORED GetDEMDelegate() -> GetDEMManufacturerDelegate()->SendPowerReading(mEndpointId, power, voltage,
+                                                                                                current);
 
     // update the energy meter - we'll assume that the power has been constant during the previous interval
     if (mPower_mW > 0)
@@ -157,11 +157,11 @@ void FakeReadings::FakeReadingsUpdate()
         mTotalEnergyExported += mPeriodicEnergyExported;
     }
 
-    TEMPORARY_RETURN_IGNORED GetDEMDelegate()->GetDEMManufacturerDelegate()->SendPeriodicEnergyReading(
-        mEndpointId, mPeriodicEnergyImported, mPeriodicEnergyExported);
+    TEMPORARY_RETURN_IGNORED GetDEMDelegate() -> GetDEMManufacturerDelegate()->SendPeriodicEnergyReading(
+                                                  mEndpointId, mPeriodicEnergyImported, mPeriodicEnergyExported);
 
-    TEMPORARY_RETURN_IGNORED GetDEMDelegate()->GetDEMManufacturerDelegate()->SendCumulativeEnergyReading(
-        mEndpointId, mTotalEnergyImported, mTotalEnergyExported);
+    TEMPORARY_RETURN_IGNORED GetDEMDelegate() -> GetDEMManufacturerDelegate()->SendCumulativeEnergyReading(
+                                                  mEndpointId, mTotalEnergyImported, mTotalEnergyExported);
 
     // start/restart the timer
     TEMPORARY_RETURN_IGNORED DeviceLayer::SystemLayer().StartTimer(System::Clock::Seconds32(mInterval_s), FakeReadingsTimerExpiry,

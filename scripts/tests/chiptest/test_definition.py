@@ -226,7 +226,7 @@ class TestTarget(Enum):
     RVC = auto()
     NETWORK_MANAGER = auto()
     ENERGY_GATEWAY = auto()
-    ENERGY_MANAGEMENT = auto()
+    EVSE = auto()
     CLOSURE = auto()
 
 
@@ -247,7 +247,7 @@ class ApplicationPaths:
     rvc_app: SubprocessInfo
     network_manager_app: SubprocessInfo
     energy_gateway_app: SubprocessInfo
-    energy_management_app: SubprocessInfo
+    evse_app: SubprocessInfo
     closure_app: SubprocessInfo
 
     def items(self):
@@ -256,7 +256,7 @@ class ApplicationPaths:
                 self.tv_app, self.bridge_app, self.lit_icd_app,
                 self.microwave_oven_app, self.matter_repl_yaml_tester_cmd,
                 self.chip_tool_with_python_cmd, self.rvc_app, self.network_manager_app,
-                self.energy_gateway_app, self.energy_management_app, self.closure_app]
+                self.energy_gateway_app, self.evse_app, self.closure_app]
 
     def items_with_key(self):
         """
@@ -287,7 +287,7 @@ class ApplicationPaths:
             (self.rvc_app, "chip-rvc-app"),
             (self.network_manager_app, "matter-network-manager-app"),
             (self.energy_gateway_app, "chip-energy-gateway-app"),
-            (self.energy_management_app, "chip-energy-management-app"),
+            (self.evse_app, "chip-evse-app"),
             (self.closure_app, "closure-app"),
         ]
 
@@ -413,8 +413,8 @@ class TestDefinition:
                 target_app = apps.network_manager_app
             elif self.target == TestTarget.ENERGY_GATEWAY:
                 target_app = apps.energy_gateway_app
-            elif self.target == TestTarget.ENERGY_MANAGEMENT:
-                target_app = apps.energy_management_app
+            elif self.target == TestTarget.EVSE:
+                target_app = apps.evse_app
             elif self.target == TestTarget.CLOSURE:
                 target_app = apps.closure_app
             else:

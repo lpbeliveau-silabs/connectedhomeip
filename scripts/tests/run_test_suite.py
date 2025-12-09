@@ -280,8 +280,8 @@ def cmd_list(context):
     '--energy-gateway-app',
     help='what energy-gateway app to use')
 @click.option(
-    '--energy-management-app',
-    help='what energy-management app to use')
+    '--evse-app',
+    help='what evse app to use')
 @click.option(
     '--closure-app',
     help='what closure app to use')
@@ -323,7 +323,7 @@ def cmd_list(context):
 @click.pass_context
 def cmd_run(context, iterations, all_clusters_app, lock_app, ota_provider_app, ota_requestor_app,
             fabric_bridge_app, tv_app, bridge_app, lit_icd_app, microwave_oven_app, rvc_app, network_manager_app,
-            energy_gateway_app, energy_management_app, closure_app, matter_repl_yaml_tester,
+            energy_gateway_app, evse_app, closure_app, matter_repl_yaml_tester,
             chip_tool_with_python, pics_file, keep_going, test_timeout_seconds, expected_failures, ble_wifi):
     if expected_failures != 0 and not keep_going:
         log.error("--expected-failures '%s' used without '--keep-going'", expected_failures)
@@ -349,7 +349,7 @@ def cmd_run(context, iterations, all_clusters_app, lock_app, ota_provider_app, o
     rvc_app = build_app(rvc_app, 'app', 'chip-rvc-app')
     network_manager_app = build_app(network_manager_app, 'app', 'matter-network-manager-app')
     energy_gateway_app = build_app(energy_gateway_app, 'app', 'chip-energy-gateway-app')
-    energy_management_app = build_app(energy_management_app, 'app', 'chip-energy-management-app')
+    evse_app = build_app(evse_app, 'app', 'chip-evse-app')
     closure_app = build_app(closure_app, 'app', 'closure-app')
     matter_repl_yaml_tester = build_app(matter_repl_yaml_tester, 'tool',
                                         'yamltest_with_matter_repl_tester.py').wrap_with('python3')
