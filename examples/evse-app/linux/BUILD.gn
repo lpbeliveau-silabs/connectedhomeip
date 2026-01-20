@@ -34,11 +34,6 @@ config("includes") {
 
 executable("chip-evse-app") {
   sources = [
-    # Energy Management Triggers
-    "${chip_root}/examples/evse-app/energy-management-triggers/DEMTestEventTriggers.cpp",
-    "${chip_root}/examples/evse-app/energy-management-triggers/EnergyReportingEventTriggers.cpp",
-    "${chip_root}/examples/evse-app/energy-management-triggers/FakeReadings.cpp",
-
     # EVSE Common sources not in evse-common-lib
     "${chip_root}/examples/evse-app/evse-common/src/EVSEManufacturerImpl.cpp",
     "${chip_root}/examples/evse-app/evse-common/src/EnergyEvseDelegateImpl.cpp",
@@ -53,6 +48,7 @@ executable("chip-evse-app") {
   ]
 
   deps = [
+    "${chip_root}/examples/energy-management/energy-management-triggers:tests-event-triggers",
     "${chip_root}/examples/evse-app/evse-common",
     "${chip_root}/examples/evse-app/evse-common:evse-common-lib",
     "${chip_root}/examples/platform/linux:app-main",
@@ -63,7 +59,6 @@ executable("chip-evse-app") {
   include_dirs = [
     "include",
     "${chip_root}/examples/evse-app/evse-common/include",
-    "${chip_root}/examples/evse-app/energy-management-triggers",
   ]
 
   if (chip_enable_pw_rpc) {

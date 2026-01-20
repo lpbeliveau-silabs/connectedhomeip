@@ -119,10 +119,7 @@ if (wifi_soc) {
 }
 silabs_executable("evse-app") {
   output_name = "matter-silabs-evse-example.out"
-  include_dirs = [
-    "include",
-    "${chip_root}/examples/evse-app/energy-management-triggers/",
-  ]
+  include_dirs = [ "include" ]
   defines = []
 
   if (silabs_board == "BRD2704A") {
@@ -133,12 +130,6 @@ silabs_executable("evse-app") {
     # Actual application code
     "${examples_common_plat_dir}/main.cpp",
     "src/AppTask.cpp",
-
-    # Energy Management Triggers, should be moved to energy-management-triggers
-    "${chip_root}/examples/evse-app/energy-management-triggers/DEMTestEventTriggers.cpp",
-    "${chip_root}/examples/evse-app/energy-management-triggers/EnergyReportingEventTriggers.cpp",
-    "${chip_root}/examples/evse-app/energy-management-triggers/FakeReadings.cpp",
-    "${chip_root}/examples/evse-app/energy-management-triggers/FakeReadings.h",
 
     # EVSE Common, will be moved to evse-common when we have code driven clusters for evse
     "${chip_root}/examples/evse-app/evse-common/src/EVSEManufacturerImpl.cpp",
@@ -151,6 +142,7 @@ silabs_executable("evse-app") {
 
   deps = [
     ":sdk",
+    "${chip_root}/examples/energy-management/energy-management-triggers:tests-event-triggers",
     "${chip_root}/examples/evse-app/evse-common:evse-common-lib",
     "${chip_root}/src/app:attribute-persistence",
     app_data_model,

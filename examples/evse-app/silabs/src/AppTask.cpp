@@ -60,13 +60,6 @@
 #define APP_FUNCTION_BUTTON 0
 #define APP_CONTROL_BUTTON 1
 
-namespace {
-
-LEDWidget sEnergyManagementLED;
-constexpr chip::EndpointId kEvseEndpoint = 1;
-
-} // namespace
-
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
@@ -77,11 +70,18 @@ using namespace ::chip::DeviceLayer::Silabs;
 using namespace ::chip::DeviceLayer::Internal;
 using namespace chip::TLV;
 
+namespace {
+
+LEDWidget sEnergyManagementLED;
+constexpr chip::EndpointId kEvseEndpoint = 1;
+
 #ifdef SL_MATTER_TEST_EVENT_TRIGGER_ENABLED
-static EnergyEvseTestEventTriggerHandler sEnergyEvseTestEventTriggerHandler;
-static EnergyReportingTestEventTriggerHandler sEnergyReportingTestEventTriggerHandler;
-static DeviceEnergyManagementTestEventTriggerHandler sDeviceEnergyManagementTestEventTriggerHandler;
+EnergyEvseTestEventTriggerHandler sEnergyEvseTestEventTriggerHandler;
+EnergyReportingTestEventTriggerHandler sEnergyReportingTestEventTriggerHandler;
+DeviceEnergyManagementTestEventTriggerHandler sDeviceEnergyManagementTestEventTriggerHandler;
 #endif
+
+} // namespace
 
 namespace chip {
 namespace app {
