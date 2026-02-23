@@ -118,13 +118,17 @@ size_t FormatTimestamp(char * buffer, size_t maxSize, uint64_t timestampMillis)
 
     // Derive the hours, minutes, seconds and milliseconds since boot time millisecond counter
     uint16_t milliseconds = timestampMillis % 1000;
-    uint32_t totalSeconds = timestampMillis / 1000;
+    uint32_t totalSeconds = static_cast<uint32_t>(timestampMillis / 1000);
     uint8_t seconds       = totalSeconds % 60;
     totalSeconds /= 60;
     uint8_t minutes = totalSeconds % 60;
     uint32_t hours  = totalSeconds / 60;
 
+#if !defined(__clang__)
     return snprintf(buffer, maxSize, "[%04lu:%02u:%02u.%03u]", hours, minutes, seconds, milliseconds);
+#else
+    return snprintf(buffer, maxSize, "[%04u:%02u:%02u.%03u]", hours, minutes, seconds, milliseconds);
+#endif
 }
 
 void HandleLog(const char * module, LogCategory category, const char * aFormat, va_list v)
@@ -151,7 +155,14 @@ void HandleLog(const char * module, LogCategory category, const char * aFormat, 
         prefixLen = sizeof formattedMsg - 1; // prevent overflow
     }
 
+#if !defined(__clang__)
     size_t len = vsnprintf(formattedMsg + prefixLen, sizeof formattedMsg - prefixLen, aFormat, v);
+#else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+    size_t len = vsnprintf(formattedMsg + prefixLen, sizeof formattedMsg - prefixLen, aFormat, v);
+#pragma clang diagnostic pop
+#endif
 
     if (len >= sizeof formattedMsg - prefixLen)
     {

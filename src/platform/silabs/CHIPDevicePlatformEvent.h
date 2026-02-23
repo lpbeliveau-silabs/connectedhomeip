@@ -72,7 +72,7 @@ struct ChipDevicePlatformEvent final
             } data;
         } WFXSystemEvent;
 #endif
-    };
+    } event;
 };
 }; // namespace DeviceLayer
 } // namespace chip

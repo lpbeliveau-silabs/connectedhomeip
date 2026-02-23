@@ -132,21 +132,21 @@ extern "C" __attribute__((used)) void debugHardfault(uint32_t * sp)
     [[maybe_unused]] uint32_t psr   = sp[7];
 
     SILABS_UART_FLUSH();
-    ChipLogError(NotSpecified, "HardFault:  0x%08lx\r\n", faultId);
-    ChipLogError(NotSpecified, "SCB->CFSR   0x%08lx\r\n", cfsr);
-    ChipLogError(NotSpecified, "SCB->HFSR   0x%08lx\r\n", hfsr);
-    ChipLogError(NotSpecified, "SCB->MMFAR  0x%08lx\r\n", mmfar);
-    ChipLogError(NotSpecified, "SCB->BFAR   0x%08lx\r\n", bfar);
-    ChipLogError(NotSpecified, "SP          0x%08lx\r\n", (uint32_t) sp);
+    ChipLogError(NotSpecified, "HardFault:  0x%08x\r\n", faultId);
+    ChipLogError(NotSpecified, "SCB->CFSR   0x%08x\r\n", cfsr);
+    ChipLogError(NotSpecified, "SCB->HFSR   0x%08x\r\n", hfsr);
+    ChipLogError(NotSpecified, "SCB->MMFAR  0x%08x\r\n", mmfar);
+    ChipLogError(NotSpecified, "SCB->BFAR   0x%08x\r\n", bfar);
+    ChipLogError(NotSpecified, "SP          0x%08x\r\n", (uint32_t) sp);
     SILABS_UART_FLUSH();
-    ChipLogError(NotSpecified, "R0          0x%08lx\r\n", r0);
-    ChipLogError(NotSpecified, "R1          0x%08lx\r\n", r1);
-    ChipLogError(NotSpecified, "R2          0x%08lx\r\n", r2);
-    ChipLogError(NotSpecified, "R3          0x%08lx\r\n", r3);
-    ChipLogError(NotSpecified, "R12         0x%08lx\r\n", r12);
-    ChipLogError(NotSpecified, "LR          0x%08lx\r\n", lr);
-    ChipLogError(NotSpecified, "PC          0x%08lx\r\n", pc);
-    ChipLogError(NotSpecified, "PSR         0x%08lx\r\n", psr);
+    ChipLogError(NotSpecified, "R0          0x%08x\r\n", r0);
+    ChipLogError(NotSpecified, "R1          0x%08x\r\n", r1);
+    ChipLogError(NotSpecified, "R2          0x%08x\r\n", r2);
+    ChipLogError(NotSpecified, "R3          0x%08x\r\n", r3);
+    ChipLogError(NotSpecified, "R12         0x%08x\r\n", r12);
+    ChipLogError(NotSpecified, "LR          0x%08x\r\n", lr);
+    ChipLogError(NotSpecified, "PC          0x%08x\r\n", pc);
+    ChipLogError(NotSpecified, "PSR         0x%08x\r\n", psr);
     SILABS_UART_FLUSH();
 #endif // SILABS_LOG_ENABLED
 
@@ -325,7 +325,7 @@ extern "C" void vApplicationGetTimerTaskMemory(StaticTask_t ** ppxTimerTaskTCBBu
 extern "C" void RAILCb_AssertFailed(RAIL_Handle_t railHandle, uint32_t errorCode)
 {
     char faultMessage[kMaxFaultStringLen] = { 0 };
-    snprintf(faultMessage, sizeof faultMessage, "RAIL Assert:%ld", errorCode);
+    snprintf(faultMessage, sizeof faultMessage, "RAIL Assert:%u", errorCode);
 #if SILABS_LOG_ENABLED
 #ifdef RAIL_ASSERT_DEBUG_STRING
     static const char * railErrorMessages[] = RAIL_ASSERT_ERROR_MESSAGES;
