@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <EvseTargetsConfig.h>
+#include <EnergyEvseDelegateImpl.h>
 #include <credentials/FabricTable.h>
 #include <lib/core/CHIPError.h>
 #include <lib/core/CHIPPersistentStorageDelegate.h>

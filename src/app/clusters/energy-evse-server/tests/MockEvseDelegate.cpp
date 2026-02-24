@@ -18,8 +18,6 @@
 
 #include <app/clusters/energy-evse-server/tests/MockEvseDelegate.h>
 
-#include <app/clusters/energy-evse-server/Constants.h>
-
 namespace chip {
 namespace app {
 namespace Clusters {

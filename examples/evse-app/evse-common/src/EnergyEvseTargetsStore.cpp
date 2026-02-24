@@ -19,7 +19,7 @@
 #include <EnergyEvseTargetsStore.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app-common/zap-generated/cluster-objects.h>
-#include <app/clusters/energy-evse-server/Constants.h>
+#include <app/clusters/energy-evse-server/EnergyEvseCluster.h>
 #include <app/server/Server.h>
 #include <lib/support/DefaultStorageKeyAllocator.h>
 #include <lib/support/SafeInt.h>

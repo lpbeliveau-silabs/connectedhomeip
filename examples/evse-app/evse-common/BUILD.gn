@@ -28,6 +28,8 @@ chip_data_model("evse-common") {
 source_set("evse-common-lib") {
   sources = [
     "src/ChargingTargetsMemMgr.cpp",
+    "src/EnergyEvseManager.cpp",
+    "src/EnergyEvseTargetsStore.cpp",
     "src/energy-evse-mode.cpp",
   ]
 

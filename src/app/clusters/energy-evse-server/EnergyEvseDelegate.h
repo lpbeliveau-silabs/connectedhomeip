@@ -24,6 +24,8 @@
 #include <lib/core/DataModelTypes.h>
 #include <protocols/interaction_model/StatusCode.h>
 
+class EnergyEvseCluster;
+
 namespace chip {
 namespace app {
 namespace Clusters {
@@ -40,6 +42,9 @@ public:
 
     void SetEndpointId(EndpointId aEndpoint) { mEndpointId = aEndpoint; }
     EndpointId GetEndpointId() { return mEndpointId; }
+
+    void SetCluster(EnergyEvseCluster * aCluster) { mCluster = aCluster; }
+    EnergyEvseCluster * GetCluster() { return mCluster; }
 
     /**
      * @brief Delegate should implement a handler to disable the EVSE.
@@ -130,7 +135,8 @@ public:
     virtual void OnSessionEnergyDischargedChanged(DataModel::Nullable<int64_t> newValue)  = 0;
 
 protected:
-    EndpointId mEndpointId = 0;
+    EndpointId mEndpointId       = 0;
+    EnergyEvseCluster * mCluster = nullptr;
 };
 
 } // namespace EnergyEvse

@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include <EvseTargetsConfig.h>
-#include <app/clusters/energy-evse-server/Constants.h>
+#include <EnergyEvseDelegateImpl.h>
+#include <app/clusters/energy-evse-server/EnergyEvseCluster.h>
 #include <lib/core/CHIPError.h>
 
 #include <app-common/zap-generated/cluster-objects.h>

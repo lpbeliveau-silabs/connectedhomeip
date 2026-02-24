@@ -18,7 +18,6 @@
 
 #include "clusters/EnergyEvse/Enums.h"
 #include "pw_unit_test/framework.h"
-#include <app/clusters/energy-evse-server/Constants.h>
 #include <app/clusters/energy-evse-server/EnergyEvseCluster.h>
 #include <app/clusters/energy-evse-server/tests/MockEvseDelegate.h>
 #include <app/server-cluster/testing/ClusterTester.h>

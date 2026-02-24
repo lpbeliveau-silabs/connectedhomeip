@@ -19,8 +19,8 @@
 #pragma once
 
 #include <EVSECallbacks.h>
+#include <EnergyEvseDelegateImpl.h>
 #include <EnergyEvseTargetsStore.h>
-#include <EvseTargetsConfig.h>
 #include <app/clusters/energy-evse-server/CodegenIntegration.h>
 #include <app/clusters/energy-evse-server/EnergyEvseCluster.h>
 
@@ -33,6 +33,12 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace EnergyEvse {
+
+// Bitmask for all days of the week (union of TargetDayOfWeekBitmap values)
+constexpr uint8_t kAllTargetDaysMask = 0x7f;
+// A sensible minimum limit for mains voltage (100V) to avoid accidental use
+// of 100mV instead of 100000mV
+constexpr int64_t kMinimumMainsVoltage_mV = 100000;
 
 /* Local state machine Events to allow simpler handling of state transitions */
 enum EVSEStateMachineEvent
