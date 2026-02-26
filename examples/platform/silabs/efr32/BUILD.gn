@@ -115,12 +115,16 @@ if (!is_clang) {
     "-Wl,--no-warn-rwx-segment",
     "-fno-lto",
   ]
-} else {
+} else { 
   ldflags = [
     "-Wl",
     "-fno-lto",
+    "-lc",
+    "-lstdc++",
+    "-Wl,--allow-multiple-definition",
+    "-lgcc",
   ]
-}
+  }
 }
 
 source_set("efr32-common") {
