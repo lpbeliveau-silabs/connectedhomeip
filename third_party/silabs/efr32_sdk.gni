@@ -690,6 +690,8 @@ template("efr32_sdk") {
     }
 
     if (is_clang) {
+      # these are needed since clang will try to use TLS, which is not supported by the EFR32
+      # thus resulting on linking failing on undefined __aeabi_read_tp symbol
       cflags += [
         "-fno-threadsafe-statics",
         "-femulated-tls",
