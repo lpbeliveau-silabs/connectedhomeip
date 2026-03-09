@@ -874,8 +874,8 @@ CHIP_ERROR DeviceCommissioner::EstablishPASEConnection(NodeId remoteDeviceId, Re
             mRendezvousParametersForDeviceDiscoveredOverBle = params;
             VerifyOrExit(params.GetSetupDiscriminator().has_value(), err = CHIP_ERROR_INVALID_ARGUMENT);
             ExitNow(err = mSystemState->BleLayer()->NewBleConnectionByDiscriminator(
-                params.GetSetupDiscriminator().value(), this, // NOLINT(bugprone-unchecked-optional-access)
-                OnDiscoveredDeviceOverBleSuccess, OnDiscoveredDeviceOverBleError));
+                        params.GetSetupDiscriminator().value(), this, // NOLINT(bugprone-unchecked-optional-access)
+                        OnDiscoveredDeviceOverBleSuccess, OnDiscoveredDeviceOverBleError));
         }
         else
         {
