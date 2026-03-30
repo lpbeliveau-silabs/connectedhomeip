@@ -95,6 +95,23 @@ def validate_test_order(ctx: click.Context, param: click.Parameter, value: Any) 
     raise click.BadParameter("Wrong format of test order. Should be: 'alphabetic' or 'random[:seed]'.")
 
 
+def parse_test_config_override_items(items: tuple[str, ...], *, ctx: click.Context | None = None,
+                                     param: click.Parameter | None = None) -> dict[str, str]:
+    """Parse repeatable --test-arg KEY=VALUE into a dict for chiptool.py / YAML test runner."""
+    if not items:
+        return {}
+    out: dict[str, str] = {}
+    for raw in items:
+        if '=' not in raw:
+            raise click.BadParameter(f"Expected KEY=VALUE, got {raw!r}", ctx=ctx, param=param)
+        key, _, val = raw.partition('=')
+        key = key.strip()
+        if not key:
+            raise click.BadParameter(f"Empty key in {raw!r}", ctx=ctx, param=param)
+        out[key] = val
+    return out
+
+
 ExistingFilePath = click.Path(exists=True, dir_okay=False, path_type=Path)
 
 
@@ -372,6 +389,13 @@ class CommissioningMethod(enum.StrEnum):
     type=click.Path(dir_okay=False, path_type=Path),
     default=None,
     help='If provided, write a JSON test-run summary to this file at the end of the run.')
+@click.option(
+    '--test-arg',
+    'test_config_arg',
+    multiple=True,
+    metavar='KEY=VALUE',
+    help=('Override YAML test config keys (same as runner.py test options, e.g. nodeId, discriminator, payload). '
+          'Repeatable: --test-arg discriminator=3841 --test-arg nodeId=305414945'))
 # Deprecated flags:
 @click.option(
     '--all-clusters-app', type=ExistingFilePath, cls=DeprecatedOption, replacement='--app-path all-clusters:<path>',
@@ -427,7 +451,7 @@ class CommissioningMethod(enum.StrEnum):
 @click.pass_context
 def cmd_run(context: click.Context, dry_run: bool, iterations: int, app_path: list[str], tool_path: list[str], discover_paths: bool,
             help_paths: bool, pics_file: Path, keep_going: bool, test_timeout_seconds: int | None, expected_failures: int,
-            commissioning_method: CommissioningMethod, summary_file: Path | None,
+            commissioning_method: CommissioningMethod, summary_file: Path | None, test_config_arg: tuple[str, ...],
             # Deprecated CLI flags
             all_clusters_app: Path | None, lock_app: Path | None, ota_provider_app: Path | None, ota_requestor_app: Path | None,
             fabric_bridge_app: Path | None, tv_app: Path | None, bridge_app: Path | None, lit_icd_app: Path | None,
@@ -435,6 +459,8 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int, app_path: li
             energy_gateway_app: Path | None, water_heater_app: Path | None, evse_app: Path | None, closure_app: Path | None,
             matter_repl_yaml_tester: Path | None, chip_tool_with_python: Path | None) -> None:
     assert isinstance(context.obj, RunContext)
+
+    test_config_overrides = parse_test_config_override_items(test_config_arg, ctx=context)
 
     if expected_failures != 0 and not keep_going:
         raise click.BadOptionUsage("--expected-failures",
@@ -584,7 +610,8 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int, app_path: li
                             op_network='Thread' if thread_required else 'WiFi',
                             thread_ba_host=thread_ba_host,
                             thread_ba_port=thread_ba_port,
-                            wifipaf_wifi=commissioning_method == CommissioningMethod.WIFIPAF_WIFI
+                            wifipaf_wifi=commissioning_method == CommissioningMethod.WIFIPAF_WIFI,
+                            test_config_overrides=test_config_overrides if test_config_overrides else None,
                         )))
                     if result.exception is not None:
                         if isinstance(result.exception, BaseException):

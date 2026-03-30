@@ -1491,6 +1491,8 @@ class TestParser:
                     value = int(value)
                 elif is_node_id and value.startswith('0x'):
                     value = int(value, 16)
+                elif value.startswith('0x'):
+                    value = int(value, 16)
                 elif is_node_id:
                     value = int(value)
 

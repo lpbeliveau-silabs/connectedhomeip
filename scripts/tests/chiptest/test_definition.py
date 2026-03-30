@@ -468,7 +468,8 @@ class TestDefinition:
             op_network: str = 'WiFi',
             thread_ba_host: str | None = None,
             thread_ba_port: int | None = None,
-            wifipaf_wifi: bool = False
+            wifipaf_wifi: bool = False,
+            test_config_overrides: dict[str, str] | None = None,
             ):
         """
         Executes the given test case using the provided runner for execution.
@@ -478,7 +479,7 @@ class TestDefinition:
             log.info('Executing %s::%s', self.name, target.name)
             self._RunImpl(target, runner, apps_register, subproc_info_repo, pics_file, timeout_seconds, dry_run,
                           test_runtime, ble_controller_app, ble_controller_tool, op_network, thread_ba_host, thread_ba_port,
-                          wifipaf_wifi)
+                          wifipaf_wifi, test_config_overrides)
 
     def _RunImpl(self, target: TestTarget, runner: Runner, apps_register: AppsRegister, subproc_info_repo: SubprocessInfoRepo,
                  pics_file: Path, timeout_seconds: int | None, dry_run: bool = False,
@@ -488,12 +489,19 @@ class TestDefinition:
                  op_network: str = 'WiFi',
                  thread_ba_host: str | None = None,
                  thread_ba_port: int | None = None,
-                 wifipaf_wifi: bool = False):
+                 wifipaf_wifi: bool = False,
+                 test_config_overrides: dict[str, str] | None = None):
         runner.capture_delegate = ExecutionCapture()
 
         tool_storage_dir = None
 
         loggedCapturedLogs = False
+
+        def app_start_options_from_overrides() -> dict[str, str] | None:
+            if not test_config_overrides or 'discriminator' not in test_config_overrides:
+                return None
+            return {'--discriminator': test_config_overrides['discriminator']}
+
         try:
             if target.command not in subproc_info_repo:
                 log.warning("Path to default target '%s' for test '%s' is not known, test will likely fail",
@@ -548,11 +556,13 @@ class TestDefinition:
                 setupCode = '${SETUP_PAYLOAD}'
             else:
                 app = apps_register.get('default')
-                app.start()
+                app.start(app_start_options_from_overrides())
                 assert app.setupCode is not None, "Setup code should have been set in app.start()"
                 setupCode = app.setupCode
 
             if test_runtime == TestRunTime.MATTER_REPL_PYTHON:
+                if test_config_overrides:
+                    log.warning('--test-arg overrides are ignored for matter-repl runtime; use chip_tool_python')
                 assert 'matter-repl-yaml-tester' in subproc_info_repo, \
                     "Matter REPL YAML tester should have been set for selected test runtime"
                 python_cmd = subproc_info_repo['matter-repl-yaml-tester'].with_args(
@@ -594,6 +604,9 @@ class TestDefinition:
                     pairing_cmd = pairing_cmd.with_args('--icd-registration', 'true')
 
                 test_cmd = subproc_info_repo['chip-tool-with-python'].with_args('tests', self.run_name, '--PICS', str(pics_file))
+                if test_config_overrides:
+                    for opt_key, opt_val in test_config_overrides.items():
+                        test_cmd = test_cmd.with_args(f'--{opt_key}', opt_val)
 
                 interactive_server_args = ['interactive server'] + tool_storage_args + pairing_server_args
 
