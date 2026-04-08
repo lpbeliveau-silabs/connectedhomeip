@@ -690,8 +690,18 @@ template("efr32_sdk") {
     }
 
     if (is_clang) {
-      # these are needed since clang will try to use TLS, which is not supported by the EFR32
+      # -fno-threadsafe-statics and -femulated-tls are needed since clang will try to use TLS, 
+      # which is not supported by the EFR32 thus resulting on linking failing on undefined __aeabi_read_tp symbol
       # thus resulting on linking failing on undefined __aeabi_read_tp symbol
+
+      # -fno-builtin-memcpy is needed since clang will try to use newlib's optimized memcpy, which uses LDR.W (word load) even
+      # for misaligned addresses, which will result in a hardfault in NVM3 read on since NVM3 flash region is marked as Device  
+      # memory by sl_mpu_disable_execute, where unaligned word loads fault. 
+      # Changing:
+      # ARM_MPU_SetMemAttr(MPU_MEMORY_ATTRIBUTE_IX_1, ARM_MPU_ATTR_DEVICE_nGnRE)
+      # To:
+      # ARM_MPU_SetMemAttr(MPU_MEMORY_ATTRIBUTE_IX_1,ARM_MPU_ATTR(ARM_MPU_ATTR_NON_CACHEABLE, ARM_MPU_ATTR_NON_CACHEABLE));
+      # To avoid the hardfault on NVM3 read.
       cflags += [
         "-fno-threadsafe-statics",
         "-femulated-tls",
