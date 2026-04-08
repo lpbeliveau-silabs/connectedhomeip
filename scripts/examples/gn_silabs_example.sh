@@ -40,6 +40,8 @@ else
     PW_PATH="$PW_ENVIRONMENT_ROOT/cipd/packages/pigweed"
 fi
 
+SILABS_SDK_PATH="/Users/lobelive/.silabs/slt/installs/conan/p/simplff6fa667d9941/p"
+
 USE_WIFI=false
 USE_DOCKER=false
 USE_GIT_SHA_FOR_VERSION=false
@@ -190,14 +192,14 @@ else
                 ;;
             --wifi)
                 if [ -z "$2" ]; then
-                    echo "--wifi requires SiWx917"
+                    echo "--wifi requires SiWx917 or wf200"
                     return 1
                 fi
 
                 if [ "$2" = "SiWx917" ]; then
                     optArgs+="use_SiWx917=true "
                 else
-                    echo "Wifi usage: --wifi SiWx917"
+                    echo "Wifi usage: --wifi SiWx917|wf200"
                     return 1
                 fi
 
@@ -292,7 +294,7 @@ else
                 shift
                 ;;
             *)
-                if [[ "$1" == *"use_SiWx917=true"* ]] then
+                if [[ "$1" == *"use_SiWx917=true"* ]] || [[ "$1" == *"use_wf200=true"* ]]; then
                     USE_WIFI=true
                     # NCP Mode so base MCU is an EFR32
                     optArgs+="chip_device_platform =\"efr32\" "
@@ -387,7 +389,8 @@ EOF
     if [ "$VERBOSE_MODE" = false ]; then
         optArgs+="chip_detail_logging=false "
     fi
-
+    optArgs+="efr32_sdk_root=\"$SILABS_SDK_PATH\" "
+    optArgs+="openthread_root=\"$SILABS_SDK_PATH/openthread_stack/util/third_party/openthread\" "
     "$GN_PATH" gen --root="$CHIP_ROOT" --dotfile="$DOTFILE" --args="silabs_board=\"$SILABS_BOARD\" $optArgs" "$BUILD_DIR"
     ninja -C "$BUILD_DIR"/ "${APP_ROOT}:silabs"
 
