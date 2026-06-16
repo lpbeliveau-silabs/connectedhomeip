@@ -44,3 +44,6 @@ sl_transport_active_interval_ms = 1000  # 1000ms Active Intervals
 sl_idle_mode_duration_s = 1800  # 30min Idle Mode Duration
 sl_active_mode_duration_ms = 0  # 0s Active Mode Duration
 sl_active_mode_threshold_ms = 5000  # 5s Active Mode Threshold
+
+# VELUX POC SECTION
+chip_address_resolve_strategy = "custom"

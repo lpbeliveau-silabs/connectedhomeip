@@ -27,6 +27,12 @@ import("${matter_support_root}/provision/args.gni")  # Seperate import since the
                                                      # matter_support_root is
                                                      # defined in the
                                                      # ef32_sdk.gni
+
+# Velux POC section begin
+import("${chip_root}/src/lib/address_resolve/address_resolve.gni")
+
+# Velux POC section end
+
 declare_args() {
   enable_heap_monitoring = false
 
@@ -238,4 +244,13 @@ source_set("efr32-common") {
   if (app_data_model != "") {
     public_deps += [ app_data_model ]
   }
+
+  # Velux POC section begin
+  if (chip_address_resolve_strategy == "custom") {
+    deps += [
+      "${chip_root}/src/platform/silabs/address_resolve:address_resolve_impl",
+    ]
+  }
+
+  # Velux POC section end
 }
