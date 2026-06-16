@@ -15,8 +15,6 @@
  *    limitations under the License.
  */
 
-#include <lib/address_resolve/AddressResolve_DefaultImpl.h>
-
 #include <lib/address_resolve/TracingStructs.h>
 #include <platform/silabs/SilabsConfig.h>
 #include <tracing/macros.h>
@@ -27,9 +25,42 @@ namespace AddressResolve {
 namespace Impl {
 namespace {
 
+const char kHardCodedNodeLookupResultsAddress[] = "192.168.1.100";
+
+static ResolveResult BuildHardCodedResult()
+{
+    ResolveResult result;
+
+    chip::Inet::IPAddress addr;
+    if (!chip::Inet::IPAddress::FromString(kHardCodedNodeLookupResultsAddress, addr))
+    {
+        ChipLogError(Discovery, "Failed to parse hardcoded address");
+    }
+
+    result.address             = Transport::PeerAddress::UDP(addr, 5540, chip::Inet::InterfaceId::Null());
+    result.mrpRemoteConfig     = GetDefaultMRPConfig();
+    result.supportsTcpServer   = false;
+    result.supportsTcpClient   = false;
+    result.isICDOperatingAsLIT = false;
+
+    return result;
+}
+
+PeerId kHardCodedPeerId = PeerId(0x1234, 0x5678);
+
+volatile bool useHardCodedNodeLookupResults = false;
+
 static constexpr System::Clock::Timeout kInvalidTimeout{ System::Clock::Timeout::max() };
 
 } // namespace
+
+struct ResolveData
+{
+    Resolver * resolver;
+    PeerId peerId;
+    ResolveResult result;
+    NodeListener * listener;
+};
 
 void NodeLookupHandle::ResetForLookup(System::Clock::Timestamp now, const NodeLookupRequest & request)
 {
@@ -199,6 +230,29 @@ bool NodeLookupResults::UpdateResults(const ResolveResult & result, const Dnssd:
     return true;
 }
 
+void Resolver::OnHardCodedNodeLookupResults(System::Layer * layer, void * context)
+{
+    auto * data = static_cast<ResolveData *>(context);
+    auto * self = data->resolver;
+
+    // Remove from active list
+    auto it = self->mActiveLookups.begin();
+    while (it != self->mActiveLookups.end())
+    {
+        if (it->GetRequest().GetPeerId() == data->peerId)
+        {
+            self->mActiveLookups.Erase(it);
+            break;
+        }
+        it++;
+    }
+
+    // Directly notify listener
+    data->listener->OnNodeAddressResolved(data->peerId, data->result);
+
+    Platform::Delete(data);
+}
+
 CHIP_ERROR Resolver::LookupNode(const NodeLookupRequest & request, Impl::NodeLookupHandle & handle)
 {
     MATTER_LOG_NODE_LOOKUP(&request);
@@ -206,7 +260,43 @@ CHIP_ERROR Resolver::LookupNode(const NodeLookupRequest & request, Impl::NodeLoo
     VerifyOrReturnError(mSystemLayer != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
     handle.ResetForLookup(mTimeSource.GetMonotonicTimestamp(), request);
+
     auto & peerId = request.GetPeerId();
+    if (useHardCodedNodeLookupResults)
+    {
+        // First check if we have a stored node id, and if it corresponds to the requested peer id.
+        // if peerID is the one stored, schedule an async call to call OnNodeAddressResolved within an async callback.
+        // handle.LookupResult(kHardCodedNodeLookupResults);
+        mActiveLookups.PushBack(&handle);
+
+        // Capture everything needed for the callback
+        auto * data    = Platform::New<ResolveData>();
+        data->resolver = this;
+        data->peerId   = request.GetPeerId();
+        data->result   = BuildHardCodedResult();
+        data->listener = handle.GetListener();
+
+        CHIP_ERROR err = mSystemLayer->ScheduleWork(OnHardCodedNodeLookupResults, static_cast<void *>(data));
+        if (err != CHIP_NO_ERROR)
+        {
+            // Remove by matching peerId
+            auto it = mActiveLookups.begin();
+            while (it != mActiveLookups.end())
+            {
+                if (it->GetRequest().GetPeerId() == data->peerId)
+                {
+                    mActiveLookups.Erase(it);
+                    break;
+                }
+                it++;
+            }
+            Platform::Delete(data);
+            return err;
+        }
+
+        return CHIP_NO_ERROR;
+    }
+
     ReturnErrorOnFailure(Dnssd::Resolver::Instance().ResolveNodeId(peerId));
     mActiveLookups.PushBack(&handle);
     ReArmTimer();

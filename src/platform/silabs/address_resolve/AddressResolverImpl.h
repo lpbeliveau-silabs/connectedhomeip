@@ -183,6 +183,7 @@ public:
     void OnOperationalNodeResolutionFailed(const PeerId & peerId, CHIP_ERROR error) override;
 
 private:
+    static void OnHardCodedNodeLookupResults(System::Layer * layer, void * context);
     static void OnResolveTimer(System::Layer * layer, void * context) { static_cast<Resolver *>(context)->HandleTimer(); }
 
     /// Timer on lookup node events: min and max search times.
