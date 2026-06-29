@@ -302,7 +302,7 @@ CHIP_ERROR SilabsMatterConfig::InitMatter(const char * appName)
     static chip::CommonCaseDeviceServerInitParams initParams;
 
 #if CHIP_ENABLE_OPENTHREAD
-    ReturnErrorOnFailure(Internal::PreCommissioning::GetInstance().Init());
+    LogErrorOnFailure(Internal::PreCommissioning::GetInstance().Init());
     ReturnErrorOnFailure(InitOpenThread());
 
     // Set up OpenThread configuration when OpenThread is included

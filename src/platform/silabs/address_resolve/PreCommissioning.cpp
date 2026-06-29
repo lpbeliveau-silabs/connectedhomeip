@@ -363,10 +363,10 @@ CHIP_ERROR PreCommissioning::LoadFabric()
     uint8_t serialized[kSerializedLen];
     size_t outLen = 0;
     CHIP_ERROR error = SilabsConfig::ReadConfigValueBin(kOperationalKeypair, serialized, kSerializedLen, outLen);
-    if (error == CHIP_ERROR_NOT_FOUND)
+    if (error == CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND)
     {
         // Verify if it is already in the PSA storage
-        VerifyOrReturnError(ValidateKeyPresence() == CHIP_NO_ERROR, CHIP_ERROR_NOT_FOUND);
+        VerifyOrReturnError(ValidateKeyPresence() == CHIP_NO_ERROR, CHIP_DEVICE_ERROR_CONFIG_NOT_FOUND);
         return CHIP_NO_ERROR;
     }
     VerifyOrReturnError(outLen == kSerializedLen, CHIP_ERROR_INVALID_ARGUMENT);
