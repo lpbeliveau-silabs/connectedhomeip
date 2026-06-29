@@ -26,6 +26,8 @@ source_set("address_resolve_impl") {
 
   sources = [
     "${chip_root}/src/platform/silabs/address_resolve/AddressResolverImpl.cpp",
+    "${chip_root}/src/platform/silabs/address_resolve/DirectConfig.h",
+    "${chip_root}/src/platform/silabs/address_resolve/PreCommissioning.cpp",
   ]
 
   deps = [

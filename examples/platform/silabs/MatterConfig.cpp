@@ -107,6 +107,8 @@ static chip::DeviceLayer::Internal::Efr32PsaOperationalKeystore gOperationalKeys
 #if !SL_MATTER_USE_CODE_DRIVEN_DATA_MODEL
 #include <app/clusters/network-commissioning/network-commissioning.h>
 #endif
+
+#include <platform/silabs/address_resolve/PreCommissioning.h>
 /**********************************************************
  * Defines
  *********************************************************/
@@ -300,6 +302,7 @@ CHIP_ERROR SilabsMatterConfig::InitMatter(const char * appName)
     static chip::CommonCaseDeviceServerInitParams initParams;
 
 #if CHIP_ENABLE_OPENTHREAD
+    ReturnErrorOnFailure(Internal::PreCommissioning::GetInstance().Init());
     ReturnErrorOnFailure(InitOpenThread());
 
     // Set up OpenThread configuration when OpenThread is included
