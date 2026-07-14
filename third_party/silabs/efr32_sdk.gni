@@ -690,9 +690,7 @@ template("efr32_sdk") {
       # -femulated-tls is needed since clang will try to use TLS,
       # which is not supported by the EFR32 thus resulting on linking failing on
       # undefined __aeabi_read_tp symbol
-      cflags += [
-        "-femulated-tls",
-      ]
+      cflags += [ "-femulated-tls" ]
     }
 
     if (defined(invoker.defines)) {
@@ -880,6 +878,7 @@ template("efr32_sdk") {
       "${silabs_gen_folder}/autogen/gatt_db.c",
       "${silabs_gen_folder}/autogen/sl_bluetooth.c",
       "${silabs_gen_folder}/autogen/sl_board_default_init.c",
+      "${silabs_gen_folder}/autogen/sl_dma_manager_instances.c",
       "${silabs_gen_folder}/autogen/sl_event_handler.c",
       "${silabs_gen_folder}/autogen/sl_iostream_handles.c",
       "${silabs_gen_folder}/main.c",
@@ -970,10 +969,10 @@ template("efr32_sdk") {
 
     if (sl_config_watchdog_manager_enable) {
       sources += [
-        "${efr32_sdk_root}/platform_core/service/watchdog_manager/src/sl_watchdog_manager.c",
         "${efr32_sdk_root}/platform_core/platform/service/watchdog_manager/src/sl_watchdog_manager_hal_wdog.c",
         "${efr32_sdk_root}/platform_core/platform/service/watchdog_manager/src/sl_watchdog_manager_platform.c",
         "${efr32_sdk_root}/platform_core/platform/service/watchdog_manager/src/sl_watchdog_manager_power.c",
+        "${efr32_sdk_root}/platform_core/service/watchdog_manager/src/sl_watchdog_manager.c",
       ]
     }
 

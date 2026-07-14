@@ -38,6 +38,12 @@ declare_args() {
 
   # OTA timeout in seconds
   ota_periodic_query_timeout_sec = 86400
+
+  # TODO: REMOVE BEFORE RELEASE. Thread Direct wake roles. Emitted as compile
+  # definitions so OT's thread_direct.h #ifndef defaults are overridden before
+  # any header is parsed (the only order-safe way to enable the feature).
+  chip_openthread_thread_direct_wake_initiator_enable = true
+  chip_openthread_thread_direct_wake_listener_enable = false
 }
 
 import("${silabs_common_plat_dir}/args.gni")
@@ -45,6 +51,20 @@ import("${silabs_common_plat_dir}/args.gni")
 # Sanity check
 assert(!(chip_enable_wifi && chip_enable_thread))
 assert(!(use_SiWx917 && chip_enable_thread))
+
+config("openthread_thread_direct_config") {
+  defines = []
+  if (chip_openthread_thread_direct_wake_initiator_enable) {
+    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE=1" ]
+  } else {
+    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE=0" ]
+  }
+  if (chip_openthread_thread_direct_wake_listener_enable) {
+    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE=1" ]
+  } else {
+    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE=0" ]
+  }
+}
 
 config("chip_examples_project_config") {
   include_dirs = [ "project_include" ]
@@ -76,7 +96,10 @@ source_set("openthread_core_config_efr32_chip_examples") {
       public_deps += [ "${chip_root}/third_party/openthread/platforms/efr32:openthread_core_config_efr32" ]
     }
 
-    public_configs = [ ":chip_examples_project_config" ]
+    public_configs = [
+      ":chip_examples_project_config",
+      ":openthread_thread_direct_config",
+    ]
   }
 }
 

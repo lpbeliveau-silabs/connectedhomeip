@@ -58,6 +58,13 @@
 #include <setup_payload/QRCodeSetupPayloadGenerator.h>
 #include <setup_payload/SetupPayload.h>
 
+// TODO: Move this in a build script generated config
+#define SL_USE_THREAD_DIRECT 1
+
+#if SL_USE_THREAD_DIRECT
+#include <platform/ThreadStackManager.h>
+#endif // SL_USE_THREAD_DIRECT
+
 /**********************************************************
  * Defines and Constants
  *********************************************************/
@@ -202,6 +209,10 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
     {
     case AppEvent::kEventType_FunctionButtonPressed:
         sFunctionButtonPressed = true;
+#if SL_USE_THREAD_DIRECT
+        ThreadStackMgrImpl().ThreadDirectSendWakeup();
+#endif // SL_USE_THREAD_DIRECT
+
         if (sActionButtonPressed)
         {
             sActionButtonSuppressed = true;

@@ -32,6 +32,9 @@
 
 #include "cmsis_os2.h"
 
+// TODO: Move this in a build script generated config
+#define SL_USE_THREAD_DIRECT 1
+
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD_SRP_CLIENT
 static constexpr uint32_t threadSrpClearAllFlags = 0x0001U;
 #endif
@@ -67,23 +70,28 @@ class ThreadStackManagerImpl final : public ThreadStackManager,
     // Allow glue functions called by OpenThread to call helper methods on this
     // class.
     friend void ::otTaskletsSignalPending(otInstance * otInst);
-    friend void ::otSysEventSignalPending(void);
+    friend void ::otSysEventSignalPending();
 
 public:
     // ===== Platform-specific members that may be accessed directly by the application.
 
     using ThreadStackManager::InitThreadStack;
     CHIP_ERROR InitThreadStack(otInstance * otInst);
-    void FactoryResetThreadStack(void);
+    void FactoryResetThreadStack();
+
+#if SL_USE_THREAD_DIRECT
+    CHIP_ERROR ThreadDirectInit();
+    void ThreadDirectSendWakeup();
+#endif // SL_USE_THREAD_DIRECT
 
 private:
     // ===== Methods that implement the ThreadStackManager abstract interface.
 
-    CHIP_ERROR _InitThreadStack(void);
-    CHIP_ERROR _StartThreadTask(void);
-    void _LockThreadStack(void);
-    bool _TryLockThreadStack(void);
-    void _UnlockThreadStack(void);
+    CHIP_ERROR _InitThreadStack();
+    CHIP_ERROR _StartThreadTask();
+    void _LockThreadStack();
+    bool _TryLockThreadStack();
+    void _UnlockThreadStack();
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD_SRP_CLIENT
     void _WaitOnSrpClearAllComplete();
@@ -91,8 +99,8 @@ private:
 #endif // CHIP_DEVICE_CONFIG_ENABLE_THREAD_SRP_CLIENT
     // ===== Members for internal use by the following friends.
 
-    friend ThreadStackManager & ::chip::DeviceLayer::ThreadStackMgr(void);
-    friend ThreadStackManagerImpl & ::chip::DeviceLayer::ThreadStackMgrImpl(void);
+    friend ThreadStackManager & ::chip::DeviceLayer::ThreadStackMgr();
+    friend ThreadStackManagerImpl & ::chip::DeviceLayer::ThreadStackMgrImpl();
     friend int Internal::GetEntropy_EFR32(uint8_t * buf, size_t bufSize);
 
     static ThreadStackManagerImpl sInstance;
@@ -114,7 +122,7 @@ private:
  * Chip applications should use this to access features of the ThreadStackManager object
  * that are common to all platforms.
  */
-inline ThreadStackManager & ThreadStackMgr(void)
+inline ThreadStackManager & ThreadStackMgr()
 {
     return ThreadStackManagerImpl::sInstance;
 }
@@ -125,7 +133,7 @@ inline ThreadStackManager & ThreadStackMgr(void)
  * Chip applications can use this to gain access to features of the ThreadStackManager
  * that are specific to EFR32 platforms.
  */
-inline ThreadStackManagerImpl & ThreadStackMgrImpl(void)
+inline ThreadStackManagerImpl & ThreadStackMgrImpl()
 {
     return ThreadStackManagerImpl::sInstance;
 }

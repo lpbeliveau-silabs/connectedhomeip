@@ -147,6 +147,9 @@ Clusters::NetworkCommissioning::InstanceAndDriver<NetworkCommissioning::GenericT
 // ================================================================================
 // Matter Networking Callbacks
 // ================================================================================
+
+namespace {
+
 void LockOpenThreadTask(void)
 {
     chip::DeviceLayer::ThreadStackMgr().LockThreadStack();
@@ -156,6 +159,8 @@ void UnlockOpenThreadTask(void)
 {
     chip::DeviceLayer::ThreadStackMgr().UnlockThreadStack();
 }
+
+} // namespace
 
 // ================================================================================
 // SilabsMatterConfig Methods
@@ -178,11 +183,15 @@ CHIP_ERROR SilabsMatterConfig::InitOpenThread(void)
 #endif // CHIP_CONFIG_ENABLE_ICD_SERVER
 #endif // CHIP_DEVICE_CONFIG_THREAD_FTD
 
+#if SL_USE_THREAD_DIRECT
+    ReturnErrorOnFailure(ThreadStackMgrImpl().ThreadDirectInit());
+#endif // SL_USE_THREAD_DIRECT
+
 #if !SL_MATTER_USE_CODE_DRIVEN_DATA_MODEL
-    TEMPORARY_RETURN_IGNORED sThreadNetworkDriver.Init();
+    ReturnErrorOnFailure(sThreadNetworkDriver.Init()); // calls otDatasetGetActiveTlvs(mOTInst, &datasetTlv);
 #endif
 
-    return ThreadStackMgrImpl().StartThreadTask();
+    return CHIP_NO_ERROR;
 }
 #endif // CHIP_ENABLE_OPENTHREAD
 
