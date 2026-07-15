@@ -47,3 +47,6 @@ sl_active_mode_threshold_ms = 5000  # 5s Active Mode Threshold
 
 # TODO: VELUX POC SECTION, remove before PR
 chip_address_resolve_strategy = "custom"
+chip_openthread_thread_direct_wake_initiator_enable = true
+chip_openthread_thread_direct_wake_listener_enable = false
+sl_use_thread_direct = true
