@@ -24,6 +24,7 @@
 #include <lib/support/DefaultStorageKeyAllocator.h>
 #include <lib/support/Span.h>
 #include <platform/KeyValueStoreManager.h>
+#include <platform/OpenThread/OpenThreadUtils.h>
 
 #include <nvm3_default.h>
 #include <psa/crypto.h>
@@ -32,6 +33,10 @@
 #include <cinttypes>
 #include <cstring>
 
+extern "C" {
+    #include "platform-efr32.h"
+    otInstance * otGetInstance(void);
+}
 namespace chip {
 namespace DeviceLayer {
 namespace Internal {
@@ -294,6 +299,12 @@ CHIP_ERROR PreCommissioning::GetTargetPeerId(PeerId & peerId) const
     return CHIP_NO_ERROR;
 }
 
+CHIP_ERROR PreCommissioning::GetTargetExtAddress(otExtAddress & extAddress) const
+{
+    extAddress = mTargetExtAddress;
+    return CHIP_NO_ERROR;
+}
+
 CHIP_ERROR PreCommissioning::SetupThread()
 {
 #ifdef USE_HARDCODED_VALUES
@@ -351,8 +362,11 @@ CHIP_ERROR PreCommissioning::SetupTarget()
 
 CHIP_ERROR PreCommissioning::LoadThread()
 {
-    // This is already currently performed by the ThreadStackManagerImpl::InitThreadStack()
-    // We might need this for thread direct, otherwise this will be removed.  
+    // This is already currently performed at boot time in sl_ot_init(), here we just need to retrieve the ext address.
+    // TODO: We need to add a config value to store the target ext address, not the current one.
+    VerifyOrReturnError(otGetInstance(), CHIP_ERROR_INCORRECT_STATE);
+    const otExtAddress * extendedAddr = otLinkGetExtendedAddress(otGetInstance());
+    memcpy(mTargetExtAddress.m8, extendedAddr->m8, sizeof(otExtAddress));
     return CHIP_NO_ERROR;
 }
 

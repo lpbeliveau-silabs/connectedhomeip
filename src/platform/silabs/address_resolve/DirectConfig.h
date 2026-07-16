@@ -35,18 +35,18 @@ constexpr inline uint32_t UserConfigKey(uint8_t keyBaseOffset, uint8_t id)
 
     // Resolve result config: IPV6 address, IPV6 address length, port
     static constexpr uint32_t kPairedIPV6Address             = UserConfigKey(kMatterDirectConfig_KeyBase, 0x01);
-    static constexpr uint32_t kPairedPort                    = UserConfigKey(kMatterDirectConfig_KeyBase, 0x03);
+    static constexpr uint32_t kPairedPort                    = UserConfigKey(kMatterDirectConfig_KeyBase, 0x02);
     // MRP remote config: idle interval, active interval, active threshold time
-    static constexpr uint32_t kMRPRemoteIdleInterval          = UserConfigKey(kMatterDirectConfig_KeyBase, 0x04);
-    static constexpr uint32_t kMRPRemoteActiveInterval        = UserConfigKey(kMatterDirectConfig_KeyBase, 0x05);
-    static constexpr uint32_t kMRPRemoteActiveThresholdTime   = UserConfigKey(kMatterDirectConfig_KeyBase, 0x06);
+    static constexpr uint32_t kMRPRemoteIdleInterval          = UserConfigKey(kMatterDirectConfig_KeyBase, 0x03);
+    static constexpr uint32_t kMRPRemoteActiveInterval        = UserConfigKey(kMatterDirectConfig_KeyBase, 0x04);
+    static constexpr uint32_t kMRPRemoteActiveThresholdTime   = UserConfigKey(kMatterDirectConfig_KeyBase, 0x05);
 
     // Peer id config: compressed fabric id, node id
-    static constexpr uint32_t kPairedCompressedFabricId      = UserConfigKey(kMatterDirectConfig_KeyBase, 0x07);
-    static constexpr uint32_t kPairedNodeId                  = UserConfigKey(kMatterDirectConfig_KeyBase, 0x08);
+    static constexpr uint32_t kPairedCompressedFabricId      = UserConfigKey(kMatterDirectConfig_KeyBase, 0x06);
+    static constexpr uint32_t kPairedNodeId                  = UserConfigKey(kMatterDirectConfig_KeyBase, 0x07);
 
     // Operational keypair config: public key, private key
-    static constexpr uint32_t kOperationalKeypair            = UserConfigKey(kMatterDirectConfig_KeyBase, 0x09);
+    static constexpr uint32_t kOperationalKeypair            = UserConfigKey(kMatterDirectConfig_KeyBase, 0x08);
 
 } // namespace Internal
 } // namespace DeviceLayer

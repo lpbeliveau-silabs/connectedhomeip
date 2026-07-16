@@ -31,9 +31,10 @@
 #include <platform/internal/CHIPDeviceLayerInternal.h>
 
 #include <openthread/platform/entropy.h>
-#include <openthread/thread_direct.h>
 
 #if SL_USE_THREAD_DIRECT
+#include <platform/silabs/address_resolve/PreCommissioning.h>
+#include <openthread/thread_direct.h>
 #define TD_SLW_PERIOD_SLOT 800 // 500000 us (unit of slot duration 625 us).
 
 #endif
@@ -108,7 +109,7 @@ static void handleDirectEvent(otThreadDirectEvent aEvent, const otThreadDirectPe
 namespace chip {
 namespace DeviceLayer {
 namespace {
-otInstance * sOTInstance = NULL;
+otInstance * sOTInstance = nullptr;
 
 }; // namespace
 
@@ -116,30 +117,30 @@ using namespace ::chip::DeviceLayer::Internal;
 
 ThreadStackManagerImpl ThreadStackManagerImpl::sInstance;
 
-CHIP_ERROR ThreadStackManagerImpl::_InitThreadStack(void)
+CHIP_ERROR ThreadStackManagerImpl::_InitThreadStack()
 {
     return InitThreadStack(sOTInstance);
 }
 
-CHIP_ERROR ThreadStackManagerImpl::_StartThreadTask(void)
+CHIP_ERROR ThreadStackManagerImpl::_StartThreadTask()
 {
     // Stubbed since our thread task is created in the InitThreadStack function and it will start once the scheduler starts.
     return CHIP_NO_ERROR;
 }
 
-void ThreadStackManagerImpl::_LockThreadStack(void)
+void ThreadStackManagerImpl::_LockThreadStack()
 {
     sl_ot_rtos_acquire_stack_mutex();
 }
 
-bool ThreadStackManagerImpl::_TryLockThreadStack(void)
+bool ThreadStackManagerImpl::_TryLockThreadStack()
 {
     // TODO: Implement a non-blocking version of the mutex lock
     sl_ot_rtos_acquire_stack_mutex();
     return true;
 }
 
-void ThreadStackManagerImpl::_UnlockThreadStack(void)
+void ThreadStackManagerImpl::_UnlockThreadStack()
 {
     sl_ot_rtos_release_stack_mutex();
 }
@@ -148,14 +149,14 @@ void ThreadStackManagerImpl::_UnlockThreadStack(void)
 void ThreadStackManagerImpl::_WaitOnSrpClearAllComplete()
 {
     // Only 1 task can be blocked on a srpClearAll request
-    if (mSrpClearAllRequester == NULL)
+    if (mSrpClearAllRequester == nullptr)
     {
         mSrpClearAllRequester = osThreadGetId();
         // Wait on OnSrpClientNotification which confirms the clearing is done.
         // It will notify this current task with NotifySrpClearAllComplete.
         // However, we won't wait more than 2s.
         osThreadFlagsWait(threadSrpClearAllFlags, osFlagsWaitAny, pdMS_TO_TICKS(2000));
-        mSrpClearAllRequester = NULL;
+        mSrpClearAllRequester = nullptr;
     }
 }
 
@@ -181,32 +182,39 @@ CHIP_ERROR ThreadStackManagerImpl::InitThreadStack(otInstance * otInst)
     return err;
 }
 
-void ThreadStackManagerImpl::FactoryResetThreadStack(void)
+void ThreadStackManagerImpl::FactoryResetThreadStack()
 {
-    VerifyOrReturn(sOTInstance != NULL);
+    VerifyOrReturn(sOTInstance);
     otInstanceFactoryReset(sOTInstance);
 }
 
 bool ThreadStackManagerImpl::IsInitialized()
 {
-    return otGetInstance() != NULL;
+    return otGetInstance() != nullptr;
 }
 
 #if SL_USE_THREAD_DIRECT
-CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit(void)
+CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
 {
-    VerifyOrReturnError(sOTInstance != NULL, CHIP_ERROR_INTERNAL);
 
+    
+#if SL_THREAD_WL
+    VerifyOrReturnError(sOTInstance, CHIP_ERROR_INTERNAL);
+    otExtAddress     extAddress;
+    // TODO: This needs to be the target ext address, not the current one.
+    ReturnErrorOnFailure(Internal::PreCommissioning::GetInstance().GetTargetExtAddress(extAddress));
+    VerifyOrReturnError(otLinkSetExtendedAddress(sOTInstance, &extAddress) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
+#endif
     otLinkModeConfig config;
     VerifyOrReturnError(otThreadDirectSetSlwSchedule(sOTInstance, TD_SLW_PERIOD_SLOT) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
 
     // Set link mode: rx-off-when-idle sleepy end device.
-    config.mRxOnWhenIdle = 0;
-    config.mDeviceType   = 0;
-    config.mNetworkData  = 0;
+    config.mRxOnWhenIdle = false;
+    config.mDeviceType   = false;
+    config.mNetworkData  = false;
     VerifyOrReturnError(otThreadSetLinkMode(sOTInstance, config) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
 
-    otThreadDirectSetEventCallback(sOTInstance, handleDirectEvent, NULL);
+    otThreadDirectSetEventCallback(sOTInstance, handleDirectEvent, nullptr);
 
     return CHIP_NO_ERROR;
 }
@@ -279,7 +287,7 @@ extern "C" void sl_ot_create_instance(void)
 extern "C" void sl_ot_cli_init(void)
 {
 #if !defined(PW_RPC_ENABLED) && CHIP_DEVICE_CONFIG_THREAD_ENABLE_CLI
-    VerifyOrDie(sOTInstance != NULL);
+    VerifyOrDie(sOTInstance);
     otAppCliInit(sOTInstance);
 #endif
 }

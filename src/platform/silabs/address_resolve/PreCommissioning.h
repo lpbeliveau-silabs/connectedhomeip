@@ -51,6 +51,7 @@ public:
     CHIP_ERROR GetTargetAddress(Transport::PeerAddress & address) const;
     CHIP_ERROR GetTargetMrpConfig(ReliableMessageProtocolConfig & mrpConfig) const;
     CHIP_ERROR GetTargetPeerId(PeerId & peerId) const;
+    CHIP_ERROR GetTargetExtAddress(otExtAddress & extAddress) const;
 private:
     // All Load or Setup functions must be called before Server::Init() to ensure the fabric is loaded before the server is started.
     // These methods will perform the writes to the NVM3, they can be recycled for OOB commissioning.
@@ -68,6 +69,8 @@ private:
                                                     System::Clock::Milliseconds32(2000),
                                                     System::Clock::Milliseconds16(4000) };
     PeerId mTargetPeerId{};
+
+    otExtAddress mTargetExtAddress{};
 };
 } // namespace Internal
 } // namespace DeviceLayer

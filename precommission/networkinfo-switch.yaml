@@ -1,0 +1,10 @@
+role: 2
+device_mode: 4
+rloc16: '0x0401'
+key_sequence: 0
+mle_frame_counter: 1008
+mac_frame_counter: 1171
+previous_partition_id: '0x4b79f249'
+ext_address: 1e806b6588a24908
+ml_eid_iid: 6ef19dd8d3540cf5
+version: 5

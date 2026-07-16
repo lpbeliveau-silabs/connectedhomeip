@@ -29,22 +29,63 @@ configs:
         value: "152401012402012403062404012405022407ff18"
       - key: "f/1/ac/0/0"
         value: "1524010524020236030669b6010018340418"
+  
   ThreadNetworkInfo:
     entries:
-      - key: "0x20300"
-        value: "0204010400000000f00300009304000049f2794b1e806b6588a249086ef19dd8d3540cf50500"
+      role: 2
+      device_mode: 4
+      rloc16: '0x0401'
+      key_sequence: 0
+      mle_frame_counter: 1008
+      mac_frame_counter: 1171
+      previous_partition_id: '0x4b79f249'
+      ext_address: 1e806b6588a24908
+      ml_eid_iid: 6ef19dd8d3540cf5
+      version: 5
+
+    # - key: "0x20300"
+    #   value: "0204010400000000f00300009304000049f2794b1e806b6588a249086ef19dd8d3540cf50500"
 
   ThreadActiveDataset:
     entries:
-      - key: "0x20100"
-        value: "0e080000000000010000000300000e4a0300001935060004001fffe00208a17707fd5dd11c060708fdf65d1c8822640405107cb5407c07fdbfaa8bbecbe1d71cbcb6030f4f70656e5468726561642d3566316601025f1f0410b8dda77828d365d5207a5a0144d37b310c0402a0f7f8"
+      - type: active_timestamp
+        seconds: 1
+        ticks: 0
+        authoritative: false
+      - type: channel
+        page: 0
+        channel: 14
+      - type: wakeup_channel
+        page: 0
+        channel: 20
+      - type: channel_mask
+        entries:
+        - page: 0
+          mask: 001fffe0
+      - type: ext_pan_id
+        value: a17707fd5dd11c06
+      - type: mesh_local_prefix
+        value: fdf65d1c88226404
+      - type: network_key
+        value: 7cb5407c07fdbfaa8bbecbe1d71cbcb6
+      - type: network_name
+        value: OpenThread-5f1f
+      - type: pan_id
+        value: '0x5f1f'
+      - type: pskc
+        value: b8dda77828d365d5207a5a0144d37b31
+      - type: security_policy
+        rotation_time: 672
+        flags: f7f8
+
+    #   - key: "0x20100"
+    #     value: "0e080000000000010000000300000e4a0300001435060004001fffe00208a17707fd5dd11c060708fdf65d1c8822640405107cb5407c07fdbfaa8bbecbe1d71cbcb6030f4f70656e5468726561642d3566316601025f1f0410b8dda77828d365d5207a5a0144d37b310c0402a0f7f8"
   
   PreCommissioning:
     entries:
-      - key: "0x709"
+      - key: "0x708"
+        description: "Operational key"
         value: "04b37192af92eac82a29329b99c1f953fb1916f82698af67f3ab086be10448d24f73c913f33b683bdd1f1500f90ba27409a7b77b5e5cfc435157d11dc49f87c99d2fc78c6b2fb04bebe220286dbbbd412639a702ed9e2765427571be70291b258d"
-      - key: "0x70A"
-        value: "61000000"
       
   TargetConnectionParameters:
     entries:
@@ -52,23 +93,20 @@ configs:
         description: "Target address: Light here"
         value: "fdf6:5d1c:8822:6404:0:ff:fe00:ec00"
       - key: "0x702"
-        description: "Target address length in bytes"
-        value: "1200" # 18
-      - key: "0x703"
         description: "Target port"
         value: "a415" # 5540
-      - key: "0x704"
+      - key: "0x703"
         description: "MRP Remote Idle Interval"
         value: "d0070000" # 2000
-      - key: "0x705"
+      - key: "0x704"
         description: "MRP Remote Active Interval"
         value: "d0070000" # 2000
-      - key: "0x706"
+      - key: "0x705"
         description: "MRP Remote Active Threshold Time"
         value: "a00f0000" # 4000
-      - key: "0x707"
+      - key: "0x706"
         description: "Compressed Fabric ID"
         value: "d66725f89b82e913" # 13E9829BF82567D6
-      - key: "0x708"
+      - key: "0x707"
         description: "Node ID"
         value: "0200000000000000" # 2

@@ -4,17 +4,18 @@ import sys
 import subprocess
 import hashlib
 import struct
+import active_dataset_codec
+import network_info_codec
 
 KVS_NVM3_KEYMAP = 0x087500
 KVS_NVM3_FIRSTSLOT = 0x087501
 KVS_MAX_ENTRIES = 511
-DRY_RUN = False
 
 
-def commander_write_all(objects: list[tuple[str, str]], serialno: str = ""):
+def commander_write_all(objects: list[tuple[str, str]], serialno: str = "", dryrun: bool = False):
     for key, value in objects:
         print(f"Writing {key} = {value}")
-    if DRY_RUN:
+    if dryrun:
         for key, value in objects:
             print(f"  --object {key}:{value}")
         return
@@ -42,13 +43,13 @@ def kvs_to_hash(key: str) -> int:
     return hash16
 
 
-def main(data: dict, serialno: str = ""):
+def main(data: dict, serialno: str = "", dryrun: bool = False):
     keymap = [0] * KVS_MAX_ENTRIES
     slot = 0
     has_kvs = False
     pending: list[tuple[str, str]] = []
 
-    for section in data.get("configs", {}).values():
+    for section_name, section in data.get("configs", {}).items():
         for fields in section.get("kvs_entries", []):
             key = fields["key"]
             value = fields["value"]
@@ -58,26 +59,38 @@ def main(data: dict, serialno: str = ""):
             slot += 1
             has_kvs = True
 
+        if section_name == "ThreadActiveDataset":
+            active_dataset_blob = active_dataset_codec.dataset_to_hex(section.get("entries", []))
+            pending.append((f"0x20100", active_dataset_blob))
+            continue
+
+        if section_name == "ThreadNetworkInfo":
+            network_info_blob = network_info_codec.network_info_to_hex(section.get("entries", {}))
+            pending.append((f"0x20300", network_info_blob))
+            continue
+
         for fields in section.get("entries", []):
+            key = fields["key"]
             value = fields["value"]
             try:
                 bytes.fromhex(value)
             except ValueError:
                 value = value.encode("ascii").hex()
-            pending.append((fields["key"], value))
+            pending.append((key, value))
 
     if has_kvs:
         keymap_blob = b"".join(struct.pack("<H", h) for h in keymap)
         pending.append((f"0x{KVS_NVM3_KEYMAP:05X}", keymap_blob.hex()))
 
     if pending:
-        commander_write_all(pending, serialno)
+        commander_write_all(pending, serialno, dryrun)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--filePath", type=str, required=True, default="precommission.yaml")
     parser.add_argument("--serialno", type=str, required=False, default=None)
+    parser.add_argument("--dryrun", action="store_true", required=False, default=False)
     args = parser.parse_args()
     with open(args.filePath, "r") as file:
         data = yaml.safe_load(file)
@@ -85,4 +98,4 @@ if __name__ == "__main__":
     if data is None:
         print("Error: No data found in the file")
         sys.exit(1)
-    main(data, args.serialno)
+    main(data, args.serialno, args.dryrun)
