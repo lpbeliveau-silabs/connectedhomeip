@@ -30,6 +30,7 @@ import("${matter_support_root}/provision/args.gni")  # Seperate import since the
 
 # Velux POC section begin
 import("${chip_root}/src/lib/address_resolve/address_resolve.gni")
+import("${chip_root}/src/platform/silabs/efr32/thread_direct.gni")
 
 # Velux POC section end
 
@@ -38,14 +39,6 @@ declare_args() {
 
   # OTA timeout in seconds
   ota_periodic_query_timeout_sec = 86400
-
-  # TODO: REMOVE BEFORE RELEASE. Thread Direct wake roles. Emitted as compile
-  # definitions so OT's thread_direct.h #ifndef defaults are overridden before
-  # any header is parsed (the only order-safe way to enable the feature).
-  chip_openthread_thread_direct_wake_initiator_enable = false
-  chip_openthread_thread_direct_wake_listener_enable = false
-
-  sl_use_thread_direct = false
 }
 
 import("${silabs_common_plat_dir}/args.gni")
@@ -54,18 +47,8 @@ import("${silabs_common_plat_dir}/args.gni")
 assert(!(chip_enable_wifi && chip_enable_thread))
 assert(!(use_SiWx917 && chip_enable_thread))
 
-config("openthread_thread_direct_config") {
-  defines = [ "SL_USE_THREAD_DIRECT=1" ]
-  if (chip_openthread_thread_direct_wake_initiator_enable) {
-    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE=1" ]
-  } else {
-    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE=0" ]
-  }
-  if (chip_openthread_thread_direct_wake_listener_enable) {
-    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE=1" ]
-  } else {
-    defines += [ "OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE=0" ]
-  }
+config("thread_direct_config") {
+  defines = thread_direct_defines
 }
 
 config("chip_examples_project_config") {
@@ -101,7 +84,7 @@ source_set("openthread_core_config_efr32_chip_examples") {
     public_configs = [ ":chip_examples_project_config" ]
 
     if (sl_use_thread_direct) {
-      public_configs += [ ":openthread_thread_direct_config" ]
+      public_configs += [ ":thread_direct_config" ]
     }
   }
 }
@@ -176,6 +159,10 @@ source_set("efr32-common") {
     "${silabs_sdk_build_root}:silabs_config",
     ":chip_examples_project_config",
   ]
+
+  if (sl_use_thread_direct) {
+    public_configs += [ ":thread_direct_config" ]
+  }
 
   # MATTER_AWS
   if (enable_matter_aws) {

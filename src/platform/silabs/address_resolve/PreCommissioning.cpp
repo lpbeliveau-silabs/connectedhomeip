@@ -363,10 +363,9 @@ CHIP_ERROR PreCommissioning::SetupTarget()
 CHIP_ERROR PreCommissioning::LoadThread()
 {
     // This is already currently performed at boot time in sl_ot_init(), here we just need to retrieve the ext address.
-    // TODO: We need to add a config value to store the target ext address, not the current one.
-    VerifyOrReturnError(otGetInstance(), CHIP_ERROR_INCORRECT_STATE);
-    const otExtAddress * extendedAddr = otLinkGetExtendedAddress(otGetInstance());
-    memcpy(mTargetExtAddress.m8, extendedAddr->m8, sizeof(otExtAddress));
+    size_t outLen = 0;
+    ReturnErrorOnFailure(SilabsConfig::ReadConfigValueBin(kTargetExtendedAddress, mTargetExtAddress.m8, sizeof(otExtAddress), outLen));
+    VerifyOrReturnError(outLen == sizeof(otExtAddress), CHIP_ERROR_INVALID_ARGUMENT);
     return CHIP_NO_ERROR;
 }
 

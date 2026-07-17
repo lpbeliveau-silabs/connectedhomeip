@@ -32,8 +32,9 @@
 
 #include "cmsis_os2.h"
 
-// TODO: Move this in a build script generated config
-#define SL_USE_THREAD_DIRECT 1
+#if SL_USE_THREAD_DIRECT
+#include <openthread/thread_direct.h>
+#endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD_SRP_CLIENT
 static constexpr uint32_t threadSrpClearAllFlags = 0x0001U;
@@ -49,6 +50,29 @@ class ThreadStackManagerImpl;
 namespace Internal {
 extern int GetEntropy_EFR32(uint8_t * buf, size_t bufSize);
 }
+
+
+#if SL_USE_THREAD_DIRECT
+/**
+ * Notifies application code of the outcome of a Thread Direct wakeup, without
+ * exposing OpenThread types (otThreadDirectEvent, otThreadDirectPeerInfo) outside
+ * the platform layer.
+ */
+class ThreadDirectDelegate
+{
+public:
+    virtual ~ThreadDirectDelegate() = default;
+
+    /// Called when a wakeup command is received from the target.
+    virtual void OnThreadDirectWakeupReceived() {}
+    /// Called when a link with the target of a prior ThreadDirectSendWakeup() is established.
+    virtual void OnThreadDirectLinked() {}
+    /// Called when a wakeup attempt fails to establish a link (e.g. no response from target).
+    virtual void OnThreadDirectLinkFailed() {}
+    /// Called when a link with the target is terminated.
+    virtual void OnThreadDirectUnlinked() {}
+};
+#endif // SL_USE_THREAD_DIRECT
 
 /**
  * Concrete implementation of the ThreadStackManager singleton object for EFR32 platforms
@@ -82,6 +106,10 @@ public:
 #if SL_USE_THREAD_DIRECT
     CHIP_ERROR ThreadDirectInit();
     void ThreadDirectSendWakeup();
+    void SetThreadDirectDelegate(ThreadDirectDelegate * delegate) { mThreadDirectDelegate = delegate; }
+
+    // TODO: Confirm needed before merging
+    ThreadDirectDelegate * GetThreadDirectDelegate() const { return mThreadDirectDelegate; }
 #endif // SL_USE_THREAD_DIRECT
 
 private:
@@ -114,6 +142,12 @@ private:
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD_SRP_CLIENT
     osThreadId_t mSrpClearAllRequester = NULL;
 #endif
+
+#if SL_USE_THREAD_DIRECT
+    static void HandleDirectEvent(otThreadDirectEvent aEvent, const otThreadDirectPeerInfo * aPeerInfo, void * aContext);
+
+    ThreadDirectDelegate * mThreadDirectDelegate = nullptr;
+#endif // SL_USE_THREAD_DIRECT
 };
 
 /**

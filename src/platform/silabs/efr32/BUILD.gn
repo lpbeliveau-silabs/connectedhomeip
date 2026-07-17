@@ -21,6 +21,7 @@ import("${chip_root}/src/platform/silabs/multi-ota/args.gni")
 import("${chip_root}/third_party/silabs/efr32_sdk.gni")
 import("${chip_root}/third_party/silabs/silabs_board.gni")
 import("${matter_support_root}/provision/args.gni")
+import("thread_direct.gni")
 
 assert(chip_device_platform == "efr32")
 
@@ -30,6 +31,10 @@ if (chip_enable_thread) {
 
 if (chip_crypto == "platform") {
   import("//build_overrides/mbedtls.gni")
+}
+
+config("thread_direct_config") {
+  defines = thread_direct_defines
 }
 
 source_set("logging") {
@@ -124,6 +129,10 @@ static_library("efr32") {
       "ConnectivityManagerImpl.cpp",
       "ThreadStackManagerImpl.cpp",
     ]
+
+    if (sl_use_thread_direct) {
+      public_configs = [ ":thread_direct_config" ]
+    }
 
     if (chip_mdns == "platform") {
       sources += [

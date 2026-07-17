@@ -33,6 +33,8 @@ constexpr inline uint32_t UserConfigKey(uint8_t keyBaseOffset, uint8_t id)
     // Persistent config values set at manufacturing time. Retained during factory reset.
     static constexpr uint8_t kMatterDirectConfig_KeyBase = 0x7;
 
+    // Target Extended Address
+    static constexpr uint32_t kTargetExtendedAddress         = UserConfigKey(kMatterDirectConfig_KeyBase, 0x00);
     // Resolve result config: IPV6 address, IPV6 address length, port
     static constexpr uint32_t kPairedIPV6Address             = UserConfigKey(kMatterDirectConfig_KeyBase, 0x01);
     static constexpr uint32_t kPairedPort                    = UserConfigKey(kMatterDirectConfig_KeyBase, 0x02);

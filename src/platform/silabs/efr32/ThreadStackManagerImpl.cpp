@@ -34,10 +34,9 @@
 
 #if SL_USE_THREAD_DIRECT
 #include <platform/silabs/address_resolve/PreCommissioning.h>
-#include <openthread/thread_direct.h>
 #define TD_SLW_PERIOD_SLOT 800 // 500000 us (unit of slot duration 625 us).
-
 #endif
+
 #include <lib/support/CHIPPlatformMemory.h>
 
 #include <openthread-core-config.h>
@@ -58,54 +57,6 @@ void otAppCliInit(otInstance * aInstance);
 #define SL_MATTER_OPENTHREAD_NCP_ENABLE 0
 #endif
 
-#if SL_USE_THREAD_DIRECT
-namespace {
-
-// TODO: Update the address to one obtained from DirectConfig
-otExtAddress extAddress = { .m8 = { 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01, 0xCD, 0xEF } };
-
-static void handleDirectEvent(otThreadDirectEvent aEvent, const otThreadDirectPeerInfo * aPeerInfo, void * aContext)
-{
-    (void) aContext;
-
-    switch (aEvent)
-    {
-    case OT_THREAD_DIRECT_EVENT_WAKE_RECEIVED: {
-        static const char * const kWakeTypeNames[] = { "link", "power-outage", "connectionless" };
-        const char * wakeTypeName                  = (aPeerInfo->mWakeType < 3) ? kWakeTypeNames[aPeerInfo->mWakeType] : "unknown";
-
-        ChipLogProgress(DeviceLayer,
-                        "TD Wake Command received\r\n"
-                        "  from:     %02X%02X%02X%02X%02X%02X%02X%02X\r\n"
-                        "  type:     %s (%u)\r\n"
-                        "  rv-time:  %lu us\r\n"
-                        "  retries:  %u x %u intervals\r\n",
-                        aPeerInfo->mExtAddress.m8[0], aPeerInfo->mExtAddress.m8[1], aPeerInfo->mExtAddress.m8[2],
-                        aPeerInfo->mExtAddress.m8[3], aPeerInfo->mExtAddress.m8[4], aPeerInfo->mExtAddress.m8[5],
-                        aPeerInfo->mExtAddress.m8[6], aPeerInfo->mExtAddress.m8[7], wakeTypeName, aPeerInfo->mWakeType,
-                        (unsigned long) aPeerInfo->mWakeRvTimeUs, aPeerInfo->mWakeRetryCount, aPeerInfo->mWakeRetryInterval);
-        break;
-    }
-    case OT_THREAD_DIRECT_EVENT_LINKED:
-        ChipLogProgress(DeviceLayer, "TD link established with %02X%02X%02X%02X%02X%02X%02X%02X\r\n", aPeerInfo->mExtAddress.m8[0],
-                        aPeerInfo->mExtAddress.m8[1], aPeerInfo->mExtAddress.m8[2], aPeerInfo->mExtAddress.m8[3],
-                        aPeerInfo->mExtAddress.m8[4], aPeerInfo->mExtAddress.m8[5], aPeerInfo->mExtAddress.m8[6],
-                        aPeerInfo->mExtAddress.m8[7]);
-        break;
-
-    case OT_THREAD_DIRECT_EVENT_UNLINKED:
-        ChipLogProgress(DeviceLayer, "TD link unlinked\r\n");
-        break;
-    case OT_THREAD_DIRECT_EVENT_LINK_FAILED:
-        ChipLogProgress(DeviceLayer, "TD link failed\r\n");
-        break;
-    default:
-        break;
-    }
-}
-
-} // namespace
-#endif
 namespace chip {
 namespace DeviceLayer {
 namespace {
@@ -196,9 +147,7 @@ bool ThreadStackManagerImpl::IsInitialized()
 #if SL_USE_THREAD_DIRECT
 CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
 {
-
-    
-#if SL_THREAD_WL
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE
     VerifyOrReturnError(sOTInstance, CHIP_ERROR_INTERNAL);
     otExtAddress     extAddress;
     // TODO: This needs to be the target ext address, not the current one.
@@ -214,7 +163,7 @@ CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
     config.mNetworkData  = false;
     VerifyOrReturnError(otThreadSetLinkMode(sOTInstance, config) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
 
-    otThreadDirectSetEventCallback(sOTInstance, handleDirectEvent, nullptr);
+    otThreadDirectSetEventCallback(sOTInstance, HandleDirectEvent, nullptr);
 
     return CHIP_NO_ERROR;
 }
@@ -222,6 +171,8 @@ CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
 void ThreadStackManagerImpl::ThreadDirectSendWakeup()
 {
     otError error;
+    otExtAddress     extAddress;
+    ReturnOnFailure(Internal::PreCommissioning::GetInstance().GetTargetExtAddress(extAddress));
 
     _LockThreadStack();
     error = otThreadDirectWakeup(sOTInstance, &extAddress, OT_THREAD_DIRECT_WAKE_TYPE_LINK,
@@ -229,9 +180,65 @@ void ThreadStackManagerImpl::ThreadDirectSendWakeup()
                                  0,  // duration: use configured default
                                  0); // key index: use default wake key (129)
     _UnlockThreadStack();
+
     if (error != OT_ERROR_NONE)
     {
         ChipLogError(DeviceLayer, "direct wake failed: %s\r\n", otThreadErrorToString(error));
+    }
+}
+
+void ThreadStackManagerImpl::HandleDirectEvent(otThreadDirectEvent aEvent, const otThreadDirectPeerInfo * aPeerInfo, void * aContext)
+{
+    switch (aEvent)
+    {
+        case OT_THREAD_DIRECT_EVENT_WAKE_RECEIVED: {
+        static const char * const kWakeTypeNames[] = { "link", "power-outage", "connectionless" };
+        const char * wakeTypeName                  = (aPeerInfo->mWakeType < 3) ? kWakeTypeNames[aPeerInfo->mWakeType] : "unknown";
+            ChipLogProgress(DeviceLayer, "TD Wake Command received\r\n"
+                        "  from:     %02X%02X%02X%02X%02X%02X%02X%02X\r\n"
+                        "  type:     %s (%u)\r\n"
+                        "  rv-time:  %lu us\r\n"
+                        "  retries:  %u x %u intervals\r\n",
+                        aPeerInfo->mExtAddress.m8[0], aPeerInfo->mExtAddress.m8[1], aPeerInfo->mExtAddress.m8[2],
+                        aPeerInfo->mExtAddress.m8[3], aPeerInfo->mExtAddress.m8[4], aPeerInfo->mExtAddress.m8[5],
+                        aPeerInfo->mExtAddress.m8[6], aPeerInfo->mExtAddress.m8[7], wakeTypeName, aPeerInfo->mWakeType,
+                        (unsigned long) aPeerInfo->mWakeRvTimeUs, aPeerInfo->mWakeRetryCount, aPeerInfo->mWakeRetryInterval);
+            if (sInstance.mThreadDirectDelegate != nullptr)
+            {
+                sInstance.mThreadDirectDelegate->OnThreadDirectWakeupReceived();
+            }
+            break;
+        }
+
+    case OT_THREAD_DIRECT_EVENT_LINKED:
+        ChipLogProgress(DeviceLayer, "TD link established with %02X%02X%02X%02X%02X%02X%02X%02X\r\n", aPeerInfo->mExtAddress.m8[0],
+        aPeerInfo->mExtAddress.m8[1], aPeerInfo->mExtAddress.m8[2], aPeerInfo->mExtAddress.m8[3],
+        aPeerInfo->mExtAddress.m8[4], aPeerInfo->mExtAddress.m8[5], aPeerInfo->mExtAddress.m8[6],
+        aPeerInfo->mExtAddress.m8[7]);
+        if (sInstance.mThreadDirectDelegate != nullptr)
+        {
+            sInstance.mThreadDirectDelegate->OnThreadDirectLinked();
+        }
+        break;
+
+    case OT_THREAD_DIRECT_EVENT_LINK_FAILED:
+        ChipLogProgress(DeviceLayer, "TD link failed\r\n");
+        if (sInstance.mThreadDirectDelegate != nullptr)
+        {
+            sInstance.mThreadDirectDelegate->OnThreadDirectLinkFailed();
+        }
+        break;
+
+    case OT_THREAD_DIRECT_EVENT_UNLINKED:
+        ChipLogProgress(DeviceLayer, "TD link unlinked\r\n");
+        if (sInstance.mThreadDirectDelegate != nullptr)
+        {
+            sInstance.mThreadDirectDelegate->OnThreadDirectUnlinked();
+        }
+        break;
+
+    default:
+        break;
     }
 }
 

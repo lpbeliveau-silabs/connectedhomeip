@@ -89,6 +89,9 @@ configs:
       
   TargetConnectionParameters:
     entries:
+      - key: "0x700"
+        description: "Target extended address"
+        value: "3a2e40e0a05448f5"
       - key: "0x701"
         description: "Target address: Light here"
         value: "fdf6:5d1c:8822:6404:0:ff:fe00:ec00"

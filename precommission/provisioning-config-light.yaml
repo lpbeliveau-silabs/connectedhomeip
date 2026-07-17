@@ -88,6 +88,9 @@ configs:
       
   TargetConnectionParameters:
     entries:
+      - key: "0x700"
+        description: "Target extended address"
+        value: "1e806b6588a24908"
       - key: "0x701"
         description: "Target address: Switch here"
         value: "fdf6:5d1c:8822:6404:0:ff:fe00:401"

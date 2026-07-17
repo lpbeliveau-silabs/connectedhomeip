@@ -58,13 +58,6 @@
 #include <setup_payload/QRCodeSetupPayloadGenerator.h>
 #include <setup_payload/SetupPayload.h>
 
-// TODO: Move this in a build script generated config
-#define SL_USE_THREAD_DIRECT 1
-
-#if SL_USE_THREAD_DIRECT
-#include <platform/ThreadStackManager.h>
-#endif // SL_USE_THREAD_DIRECT
-
 /**********************************************************
  * Defines and Constants
  *********************************************************/
@@ -179,19 +172,18 @@ void AppTask::AppTaskMain(void * pvParameter)
     SILABS_LOG("App Task started");
     while (true)
     {
-        osStatus_t eventReceived = osMessageQueueGet(sAppEventQueue, &event, NULL, osWaitForever);
+        osStatus_t eventReceived = osMessageQueueGet(sAppEventQueue, &event, nullptr, osWaitForever);
         while (eventReceived == osOK)
         {
             appInstance().DispatchEvent(&event);
-            eventReceived = osMessageQueueGet(sAppEventQueue, &event, NULL, 0);
+            eventReceived = osMessageQueueGet(sAppEventQueue, &event, nullptr, 0);
         }
     }
 }
 
 void AppTask::ButtonEventHandler(uint8_t button, uint8_t btnAction)
 {
-    AppEvent event = {};
-    event.Handler  = &CustomerAppTask::AppEventHandler;
+    AppEvent event;
     if (btnAction == to_underlying(SilabsPlatform::ButtonAction::ButtonPressed))
     {
         event.Type = (button ? AppEvent::kEventType_ActionButtonPressed : AppEvent::kEventType_FunctionButtonPressed);
@@ -200,6 +192,7 @@ void AppTask::ButtonEventHandler(uint8_t button, uint8_t btnAction)
     {
         event.Type = (button ? AppEvent::kEventType_ActionButtonReleased : AppEvent::kEventType_FunctionButtonReleased);
     }
+    event.Handler = &CustomerAppTask::AppEventHandler;
     appInstance().PostEvent(&event);
 }
 
@@ -209,10 +202,6 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
     {
     case AppEvent::kEventType_FunctionButtonPressed:
         sFunctionButtonPressed = true;
-#if SL_USE_THREAD_DIRECT
-        ThreadStackMgrImpl().ThreadDirectSendWakeup();
-#endif // SL_USE_THREAD_DIRECT
-
         if (sActionButtonPressed)
         {
             sActionButtonSuppressed = true;
@@ -308,8 +297,8 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
                 toggleData->clusterId       = Clusters::OnOff::Id;
                 toggleData->isGroup         = false;
                 toggleData->commandId       = OnOff::Commands::Toggle::Id;
-                if (DeviceLayer::PlatformMgr().ScheduleWork(AppTask::SwitchWorkerFunction,
-                                                            reinterpret_cast<intptr_t>(toggleData)) != CHIP_NO_ERROR)
+                if (BaseApplication::ScheduleWorkGatedOnThreadDirectLink(AppTask::SwitchWorkerFunction,
+                                                                         reinterpret_cast<intptr_t>(toggleData)) != CHIP_NO_ERROR)
                 {
                     ChipLogError(AppServer, "Failed to schedule switch worker");
                     Platform::Delete(toggleData);
@@ -353,7 +342,7 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
         stepData.optionsMask.Set(kStepCommand.optionsMask);
         stepData.optionsOverride.Set(kStepCommand.optionsOverride);
         data->commandData = stepData;
-        if (DeviceLayer::PlatformMgr().ScheduleWork(AppTask::SwitchWorkerFunction, reinterpret_cast<intptr_t>(data)) !=
+        if (BaseApplication::ScheduleWorkGatedOnThreadDirectLink(AppTask::SwitchWorkerFunction, reinterpret_cast<intptr_t>(data)) !=
             CHIP_NO_ERROR)
         {
             ChipLogError(AppServer, "Failed to schedule switch worker");
