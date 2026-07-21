@@ -950,7 +950,7 @@ void BaseApplication::DispatchEvent(AppEvent * aEvent)
 
 CHIP_ERROR BaseApplication::ScheduleWorkGatedOnThreadDirectLink(chip::DeviceLayer::AsyncWorkFunct work, intptr_t arg)
 {
-#if SL_USE_THREAD_DIRECT
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
     if (sThreadDirectLinked.load(std::memory_order_relaxed))
     {
         return PlatformMgr().ScheduleWork(work, arg);

@@ -35,6 +35,7 @@
 #if SL_USE_THREAD_DIRECT
 #include <platform/silabs/address_resolve/PreCommissioning.h>
 #define TD_SLW_PERIOD_SLOT 800 // 500000 us (unit of slot duration 625 us).
+// Should work at 64 (40 ms)
 #endif
 
 #include <lib/support/CHIPPlatformMemory.h>
@@ -147,21 +148,22 @@ bool ThreadStackManagerImpl::IsInitialized()
 #if SL_USE_THREAD_DIRECT
 CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
 {
-#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE
     VerifyOrReturnError(sOTInstance, CHIP_ERROR_INTERNAL);
-    otExtAddress     extAddress;
+// #if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_LISTENER_ENABLE
+    //otExtAddress     extAddress;
     // TODO: This needs to be the target ext address, not the current one.
-    ReturnErrorOnFailure(Internal::PreCommissioning::GetInstance().GetTargetExtAddress(extAddress));
-    VerifyOrReturnError(otLinkSetExtendedAddress(sOTInstance, &extAddress) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
-#endif
-    otLinkModeConfig config;
+    // ReturnErrorOnFailure(Internal::PreCommissioning::GetInstance().GetTargetExtAddress(extAddress));
+    // VerifyOrReturnError(otLinkSetExtendedAddress(sOTInstance, &extAddress) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
+// #endif
     VerifyOrReturnError(otThreadDirectSetSlwSchedule(sOTInstance, TD_SLW_PERIOD_SLOT) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
 
+    // TODO: Asses if necessary since this is done by ConnectivityMgr().SetThreadDeviceType
+    //otLinkModeConfig config;
     // Set link mode: rx-off-when-idle sleepy end device.
-    config.mRxOnWhenIdle = false;
-    config.mDeviceType   = false;
-    config.mNetworkData  = false;
-    VerifyOrReturnError(otThreadSetLinkMode(sOTInstance, config) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
+    // config.mRxOnWhenIdle = false;
+    // config.mDeviceType   = false;
+    // config.mNetworkData  = false;
+    // VerifyOrReturnError(otThreadSetLinkMode(sOTInstance, config) == OT_ERROR_NONE, CHIP_ERROR_INTERNAL);
 
     otThreadDirectSetEventCallback(sOTInstance, HandleDirectEvent, nullptr);
 

@@ -167,6 +167,11 @@ void UnlockOpenThreadTask(void)
 // ================================================================================
 CHIP_ERROR SilabsMatterConfig::InitOpenThread(void)
 {
+
+#if SL_USE_THREAD_DIRECT
+    ReturnErrorOnFailure(ThreadStackMgrImpl().ThreadDirectInit());
+#endif // SL_USE_THREAD_DIRECT
+
     ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
 
 #if CHIP_DEVICE_CONFIG_THREAD_FTD
@@ -182,10 +187,6 @@ CHIP_ERROR SilabsMatterConfig::InitOpenThread(void)
     ReturnErrorOnFailure(ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_MinimalEndDevice));
 #endif // CHIP_CONFIG_ENABLE_ICD_SERVER
 #endif // CHIP_DEVICE_CONFIG_THREAD_FTD
-
-#if SL_USE_THREAD_DIRECT
-    ReturnErrorOnFailure(ThreadStackMgrImpl().ThreadDirectInit());
-#endif // SL_USE_THREAD_DIRECT
 
 #if !SL_MATTER_USE_CODE_DRIVEN_DATA_MODEL
     ReturnErrorOnFailure(sThreadNetworkDriver.Init()); // calls otDatasetGetActiveTlvs(mOTInst, &datasetTlv);

@@ -239,6 +239,12 @@ CHIP_ERROR Resolver::LookupNode(const NodeLookupRequest & request, Impl::NodeLoo
         // data->resolver = this;
         data->peerId   = peerId;
         ReturnErrorOnFailure(chip::DeviceLayer::Internal::PreCommissioning::GetInstance().GetTargetAddress(data->result.address));
+        // Log address to look like
+        // matterCli> otcli ipaddr
+        // fe80:0:0:0:382e:40e0:a054:48f5
+        char addr_string[Inet::IPAddress::kMaxStringLength];
+        data->result.address.ToString(addr_string);
+        ChipLogProgress(Discovery, "Address: %s", addr_string);
         ReturnErrorOnFailure(chip::DeviceLayer::Internal::PreCommissioning::GetInstance().GetTargetMrpConfig(data->result.mrpRemoteConfig));
         data->result.supportsTcpServer = false;
         data->result.supportsTcpClient = false;

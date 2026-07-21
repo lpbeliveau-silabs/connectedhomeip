@@ -81,7 +81,7 @@ configs:
   
   PreCommissioning:
     entries:
-      - key: "0x709"
+      - key: "0x708"
         value: "044ad0a1451a688901668eff54a27823f945cf68d6b1ef941d95029e46c632f884a5fbab6b15ebcfe1ad40e840eafb5f8f707cf8d60f2ddfbfd0cd14bc6042b35611423473ab058e67e2ceb4612da334835a8fdbf8054879fd63038e9f0d0f240e"
       - key: "0x70A"
         value: "61000000"
@@ -95,23 +95,20 @@ configs:
         description: "Target address: Switch here"
         value: "fdf6:5d1c:8822:6404:0:ff:fe00:401"
       - key: "0x702"
-        description: "Target address length in bytes"
-        value: "1200" # 18
-      - key: "0x703"
         description: "Target port"
         value: "a415" # 5540
-      - key: "0x704"
+      - key: "0x703"
         description: "MRP Remote Idle Interval"
         value: "d0070000" # 2000
-      - key: "0x705"
+      - key: "0x704"
         description: "MRP Remote Active Interval"
         value: "d0070000" # 2000
-      - key: "0x706"
+      - key: "0x705"
         description: "MRP Remote Active Threshold Time"
         value: "a00f0000" # 4000
-      - key: "0x707"
+      - key: "0x706"
         description: "Compressed Fabric ID"
         value: "d66725f89b82e913" # 13E9829BF82567D6
-      - key: "0x708"
+      - key: "0x707"
         description: "Node ID"
-        value: "0100000000000000" # 1
+        value: "0200000000000000" # 2
