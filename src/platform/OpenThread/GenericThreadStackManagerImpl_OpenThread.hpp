@@ -656,7 +656,7 @@ GenericThreadStackManagerImpl_OpenThread<ImplClass>::_SetThreadDeviceType(Connec
 #endif
     case ConnectivityManager::kThreadDeviceType_MinimalEndDevice:
         linkMode.mDeviceType   = false;
-        linkMode.mRxOnWhenIdle = true;
+        linkMode.mRxOnWhenIdle = false;
         linkMode.mNetworkData  = false; // TODO: NETWORK DATA?
         break;
     case ConnectivityManager::kThreadDeviceType_SleepyEndDevice:

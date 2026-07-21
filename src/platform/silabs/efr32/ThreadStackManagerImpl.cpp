@@ -34,7 +34,7 @@
 
 #if SL_USE_THREAD_DIRECT
 #include <platform/silabs/address_resolve/PreCommissioning.h>
-#define TD_SLW_PERIOD_SLOT 800 // 500000 us (unit of slot duration 625 us).
+#define TD_SLW_PERIOD_SLOT 64 // 500000 us (unit of slot duration 625 us).
 // Should work at 64 (40 ms)
 #endif
 

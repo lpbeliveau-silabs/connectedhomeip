@@ -11,18 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 declare_args() {
   sl_use_thread_direct = false
 
   chip_openthread_thread_direct_wake_initiator_enable = false
   chip_openthread_thread_direct_wake_listener_enable = false
 }
+
 thread_direct_defines = []
 
 if (sl_use_thread_direct) {
   thread_direct_defines += [
     "SL_USE_THREAD_DIRECT=1",
     "OPENTHREAD_CONFIG_PLATFORM_USEC_TIMER_ENABLE=1",
+    "OPENTHREAD_CONFIG_THREAD_DIRECT_SLW_TIMEOUT=1",
   ]
 
   if (chip_openthread_thread_direct_wake_initiator_enable) {

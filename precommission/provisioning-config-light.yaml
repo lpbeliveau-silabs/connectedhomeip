@@ -31,8 +31,8 @@ configs:
         value: "152401032402023603040118340418"
   ThreadNetworkInfo:
     entries:
-      role: 3
-      device_mode: 15
+      role: 2
+      device_mode: 4
       rloc16: '0xec00'
       key_sequence: 0
       mle_frame_counter: 1003
@@ -42,7 +42,7 @@ configs:
       ml_eid_iid: 9ff05afc0498bb58
       version: 5
       # - key: "0x20300"
-      #   value: "030f00ec00000000eb030000330400000b99a3003a2e40e0a05448f59ff05afc0498bb580500"
+      #   value: "020400ec00000000eb030000330400000b99a3003a2e40e0a05448f59ff05afc0498bb580500"
 
   ThreadActiveDataset:
     entries:
