@@ -19,6 +19,8 @@
 #include "SoftwareFaultReports.h"
 #include "FreeRTOSConfig.h"
 #include "silabs_utils.h"
+#include <FreeRTOS.h>
+#include <task.h>
 #ifdef MATTER_DM_PLUGIN_SOFTWARE_DIAGNOSTICS_SERVER
 #include <app/clusters/software-diagnostics-server/software-fault-listener.h>
 #endif // MATTER_DM_PLUGIN_SOFTWARE_DIAGNOSTICS_SERVER

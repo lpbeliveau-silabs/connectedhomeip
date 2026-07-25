@@ -60,13 +60,6 @@
 #define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_ID 0x8004
 
 /**
- * CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
- *
- * Enable support for Chip-over-BLE (CHIPoBLE).
- */
-#define CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE 1
-
-/**
  * CHIP_DEVICE_CONFIG_TEST_SERIAL_NUMBER
  *
  * Enables the use of a hard-coded default serial number if none
