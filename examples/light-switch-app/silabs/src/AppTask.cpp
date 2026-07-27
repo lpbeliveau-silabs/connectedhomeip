@@ -48,6 +48,11 @@
 #include <app/clusters/switch-server/switch-server.h>
 #include <app/server/Server.h>
 #include <app/util/attribute-storage.h>
+
+#if 1 //SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#include <clusters/ClosureControl/Commands.h>
+#include <clusters/ClosureControl/Enums.h>
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 #include <assert.h>
 #include <controller/InvokeInteraction.h>
 #include <lib/support/CodeUtils.h>
@@ -94,6 +99,22 @@ using StepModeEnum = chip::app::Clusters::LevelControl::StepModeEnum;
 chip::EndpointId gLightSwitchEndpoint   = chip::kInvalidEndpointId;
 chip::EndpointId gGenericSwitchEndpoint = chip::kInvalidEndpointId;
 StepModeEnum gStepDirection             = StepModeEnum::kUp;
+
+#if 1 //SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+using TargetPositionEnum = chip::app::Clusters::ClosureControl::TargetPositionEnum;
+
+constexpr TargetPositionEnum kTargetPositionCycle[] = {
+    TargetPositionEnum::kMoveToFullyClosed,
+    TargetPositionEnum::kMoveToFullyOpen,
+    TargetPositionEnum::kMoveToPedestrianPosition,
+    TargetPositionEnum::kMoveToVentilationPosition,
+    TargetPositionEnum::kMoveToSignaturePosition,
+};
+constexpr uint8_t kTargetPositionCycleSize = static_cast<uint8_t>(sizeof(kTargetPositionCycle) / sizeof(kTargetPositionCycle[0]));
+uint8_t gClosureTargetIndex                = 0;
+
+constexpr uint16_t kClosureTimedInvokeTimeoutMs = 5000;
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 
 bool sFunctionButtonPressed  = false;
 bool sActionButtonPressed    = false;
@@ -289,6 +310,29 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
         }
         else
         {
+#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+            gClosureTargetIndex = (gClosureTargetIndex + 1) % kTargetPositionCycleSize;
+            ChipLogProgress(AppServer, "Closure target position cycled to index %u", gClosureTargetIndex);
+
+            BindingCommandData * closureData = Platform::New<BindingCommandData>();
+            if (closureData != nullptr)
+            {
+                closureData->localEndpointId = gLightSwitchEndpoint;
+                closureData->clusterId       = Clusters::ClosureControl::Id;
+                closureData->isGroup         = false;
+                closureData->commandId       = Clusters::ClosureControl::Commands::MoveTo::Id;
+                if (BaseApplication::ScheduleWorkGatedOnThreadDirectLink(AppTask::SwitchWorkerFunction,
+                                                                         reinterpret_cast<intptr_t>(closureData)) != CHIP_NO_ERROR)
+                {
+                    ChipLogError(AppServer, "Failed to schedule closure switch worker");
+                    Platform::Delete(closureData);
+                }
+            }
+            else
+            {
+                ChipLogError(AppServer, "BindingCommandData allocation failed");
+            }
+#else
             BindingCommandData * toggleData = Platform::New<BindingCommandData>();
             // Toggle allocation failure cannot skip ShortRelease handling
             if (toggleData != nullptr)
@@ -308,6 +352,7 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
             {
                 ChipLogError(AppServer, "BindingCommandData allocation failed");
             }
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
         }
         {
             auto * switchData = Platform::New<GenericSwitchEventData>();
@@ -730,6 +775,66 @@ void AppTask::ProcessLevelControlBindingCommand(BindingCommandData * data, const
     }
 }
 
+#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+void AppTask::ProcessClosureControlBindingCommand(CommandId commandId, const Binding::TableEntry & binding,
+                                                  OperationalDeviceProxy * peer_device)
+{
+    auto onSuccess = [](const ConcreteCommandPath & commandPath, const StatusIB & status, const auto & dataResponse) {
+        ChipLogProgress(NotSpecified, "ClosureControl command succeeds");
+    };
+
+    auto onFailure = [](CHIP_ERROR error) {
+        ChipLogError(NotSpecified, "ClosureControl command failed: %" CHIP_ERROR_FORMAT, error.Format());
+    };
+
+    if (peer_device != nullptr)
+    {
+        VerifyOrDie(peer_device->ConnectionReady());
+        Messaging::ExchangeManager * exchangeMgr = peer_device->GetExchangeManager();
+        const SessionHandle & sessionHandle      = peer_device->GetSecureSession().Value();
+
+        switch (commandId)
+        {
+        case Clusters::ClosureControl::Commands::MoveTo::Id: {
+            Clusters::ClosureControl::Commands::MoveTo::Type moveToCommand;
+            moveToCommand.position.SetValue(kTargetPositionCycle[gClosureTargetIndex]);
+            moveToCommand.latch.SetValue(false);
+            RETURN_SAFELY_IGNORED Controller::InvokeCommandRequest(exchangeMgr, sessionHandle, binding.remote, moveToCommand,
+                                                                   onSuccess, onFailure, kClosureTimedInvokeTimeoutMs);
+            break;
+        }
+        case Clusters::ClosureControl::Commands::Stop::Id: {
+            Clusters::ClosureControl::Commands::Stop::Type stopCommand;
+            RETURN_SAFELY_IGNORED Controller::InvokeCommandRequest(exchangeMgr, sessionHandle, binding.remote, stopCommand,
+                                                                   onSuccess, onFailure);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    else
+    {
+        Messaging::ExchangeManager & exchangeMgr = Server::GetInstance().GetExchangeManager();
+
+        switch (commandId)
+        {
+        case Clusters::ClosureControl::Commands::MoveTo::Id:
+            ChipLogError(NotSpecified, "ClosureControl MoveTo requires timed invoke; group cast not supported");
+            break;
+        case Clusters::ClosureControl::Commands::Stop::Id: {
+            Clusters::ClosureControl::Commands::Stop::Type stopCommand;
+            RETURN_SAFELY_IGNORED Controller::InvokeGroupCommandRequest(&exchangeMgr, binding.fabricIndex, binding.groupId,
+                                                                        stopCommand);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+
 void AppTask::LightSwitchChangedHandler(const Binding::TableEntry & binding, OperationalDeviceProxy * peer_device, void * context)
 {
     VerifyOrReturn(context != nullptr, ChipLogError(NotSpecified, "OnDeviceConnectedFn: context is null"));
@@ -755,6 +860,11 @@ void AppTask::LightSwitchChangedHandler(const Binding::TableEntry & binding, Ope
     case Clusters::LevelControl::Id:
         ProcessLevelControlBindingCommand(data, binding, device);
         break;
+#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+    case Clusters::ClosureControl::Id:
+        ProcessClosureControlBindingCommand(data->commandId, binding, device);
+        break;
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
     default:
         break;
     }
