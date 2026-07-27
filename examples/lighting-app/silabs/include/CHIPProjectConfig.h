@@ -102,3 +102,7 @@
 
 // This is a temporary setting to use the CustomerAppTask for the apps which are not upgraded to the new architecture.
 #define CHIP_SILABS_APP_USE_CUSTOMER_APP_TASK
+
+// Disable BLE advertising for Thread Direct pre-commissioned demo.
+// TODO: Revisit for full scope use cases.
+#define CHIP_DEVICE_CONFIG_CHIPOBLE_ENABLE_ADVERTISING_AUTOSTART 0

@@ -664,30 +664,30 @@ void BaseApplication::ButtonHandler(AppEvent * aEvent)
             // - Cycle LCD screen
             CancelFunctionTimer();
 
-#ifdef SL_WIFI
-            if (!ConnectivityMgr().IsWiFiStationProvisioned())
-#else
-            if (!BaseApplication::sIsProvisioned)
-#endif /* !SL_WIFI */
-            {
-                // Open Basic CommissioningWindow. Will start BLE advertisements
-                chip::DeviceLayer::PlatformMgr().LockChipStack();
-                CHIP_ERROR err = chip::Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
-                chip::DeviceLayer::PlatformMgr().UnlockChipStack();
-                if (err != CHIP_NO_ERROR)
-                {
-                    ChipLogError(AppServer, "Failed to open the Basic Commissioning Window");
-                }
-            }
-            else
-            {
-                ChipLogProgress(AppServer, "Network is already provisioned, Ble advertisement not enabled");
-#if CHIP_CONFIG_ENABLE_ICD_SERVER
-                // Temporarily claim network activity, until we implement a "user trigger" reason for ICD wakeups.
-                TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(
-                    [](intptr_t) { ICDNotifier::GetInstance().NotifyNetworkActivityNotification(); });
-#endif // CHIP_CONFIG_ENABLE_ICD_SERVER
-            }
+// #ifdef SL_WIFI
+//             if (!ConnectivityMgr().IsWiFiStationProvisioned())
+// #else
+//             if (!BaseApplication::sIsProvisioned)
+// #endif /* !SL_WIFI */
+//             {
+//                 // Open Basic CommissioningWindow. Will start BLE advertisements
+//                 chip::DeviceLayer::PlatformMgr().LockChipStack();
+//                 CHIP_ERROR err = chip::Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
+//                 chip::DeviceLayer::PlatformMgr().UnlockChipStack();
+//                 if (err != CHIP_NO_ERROR)
+//                 {
+//                     ChipLogError(AppServer, "Failed to open the Basic Commissioning Window");
+//                 }
+//             }
+//             else
+//             {
+//                 ChipLogProgress(AppServer, "Network is already provisioned, Ble advertisement not enabled");
+// #if CHIP_CONFIG_ENABLE_ICD_SERVER
+//                 // Temporarily claim network activity, until we implement a "user trigger" reason for ICD wakeups.
+//                 TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(
+//                     [](intptr_t) { ICDNotifier::GetInstance().NotifyNetworkActivityNotification(); });
+// #endif // CHIP_CONFIG_ENABLE_ICD_SERVER
+//             }
             // Print the QR Code
             OutputQrCode(false);
 #ifdef DISPLAY_ENABLED
@@ -1004,11 +1004,11 @@ void BaseApplication::DoProvisioningReset()
         chip::DeviceLayer::ConnectivityMgr().ClearWiFiStationProvision();
 #endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
 
-        CHIP_ERROR err = Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
-        if (err != CHIP_NO_ERROR)
-        {
-            ChipLogError(AppServer, "Failed to open the Basic Commissioning Window");
-        }
+//         CHIP_ERROR err = Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
+//         if (err != CHIP_NO_ERROR)
+//         {
+//             ChipLogError(AppServer, "Failed to open the Basic Commissioning Window");
+//         }
     });
 }
 
