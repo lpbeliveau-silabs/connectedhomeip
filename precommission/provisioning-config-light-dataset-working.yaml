@@ -1,0 +1,62 @@
+# Unified provisioning configuration.
+# All sections share the same key/value schema. Thread sections use NVM3 object
+# keys (hex integers); MatterFabric uses KVS string keys. Values are hex strings.
+configs:
+  ThreadActiveDataset:
+    entries:
+      - type: active_timestamp
+        seconds: 1
+        ticks: 0
+        authoritative: false
+      - type: channel
+        page: 0
+        channel: 25
+      - type: wakeup_channel
+        page: 0
+        channel: 20
+      - type: channel_mask
+        entries:
+        - page: 0
+          mask: 001fffe0
+      - type: ext_pan_id
+        value: deadbeefcafe0001
+      - type: network_key
+        value: deadbeefcafebabe0011223344556677
+      - type: network_name
+        value: ThreadDirect
+      - type: pan_id
+        value: '0xd001'
+        
+  PreCommissioning:
+    entries:
+      - key: "0x708"
+        value: "044ad0a1451a688901668eff54a27823f945cf68d6b1ef941d95029e46c632f884a5fbab6b15ebcfe1ad40e840eafb5f8f707cf8d60f2ddfbfd0cd14bc6042b35611423473ab058e67e2ceb4612da334835a8fdbf8054879fd63038e9f0d0f240e"
+      - key: "0x70A"
+        value: "61000000"
+      
+  TargetConnectionParameters:
+    entries:
+      - key: "0x700"
+        description: "Target extended address"
+        value: "1e806b6588a24908"
+      - key: "0x701"
+        description: "Target address: Switch here"
+        value: "fdf6:5d1c:8822:6404:0:ff:fe00:401"
+      - key: "0x702"
+        description: "Target port"
+        value: "a415" # 5540
+      - key: "0x703"
+        description: "MRP Remote Idle Interval"
+        value: "d0070000" # 2000
+      - key: "0x704"
+        description: "MRP Remote Active Interval"
+        value: "d0070000" # 2000
+      - key: "0x705"
+        description: "MRP Remote Active Threshold Time"
+        value: "a00f0000" # 4000
+      - key: "0x706"
+        description: "Compressed Fabric ID"
+        value: "d66725f89b82e913" # 13E9829BF82567D6
+      - key: "0x707"
+        description: "Node ID"
+        value: "0200000000000000" # 2

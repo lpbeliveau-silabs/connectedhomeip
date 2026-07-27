@@ -560,10 +560,10 @@ CHIP_ERROR Server::Init(const ServerInitParams & initParams)
         TEMPORARY_RETURN_IGNORED DeviceLayer::ConnectivityMgr().SetBLEAdvertisingEnabled(false);
 #endif
     }
-    else if (initParams.advertiseCommissionableIfNoFabrics)
-    {
-        SuccessOrExit(err = mCommissioningWindowManager.OpenBasicCommissioningWindow(initParams.discoveryTimeout));
-    }
+//     else if (initParams.advertiseCommissionableIfNoFabrics)
+//     {
+//         SuccessOrExit(err = mCommissioningWindowManager.OpenBasicCommissioningWindow(initParams.discoveryTimeout));
+//     }
 
     // TODO @bzbarsky-apple @cecille Move to examples
     // ESP32 examples have a custom logic for enabling DNS-SD

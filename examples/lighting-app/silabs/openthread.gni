@@ -37,3 +37,5 @@ chip_address_resolve_strategy = "custom"
 chip_openthread_thread_direct_wake_initiator_enable = false
 chip_openthread_thread_direct_wake_listener_enable = true
 sl_use_thread_direct = true
+
+chip_config_network_layer_ble = true

@@ -749,6 +749,20 @@ CHIP_ERROR GenericThreadStackManagerImpl_OpenThread<ImplClass>::ConfigureThreadS
     // If the Thread stack has been provisioned, but is not currently enabled, enable it now.
     if (otThreadGetDeviceRole(mOTInst) == OT_DEVICE_ROLE_DISABLED && otDatasetIsCommissioned(otInst))
     {
+        #if SL_USE_THREAD_DIRECT
+        // Set rx-off-when-idle directly here.
+        // The link mode default is rx-on-when-idle, and `otIp6SetEnabled()` below latches that
+        // default in OpenThread stack (`Mac::mRxOnWhenIdle` / `MeshForwarder::Start()`) before
+        // the device type is ever set.
+        {
+            otLinkModeConfig linkMode = otThreadGetLinkMode(otInst);
+
+            linkMode.mRxOnWhenIdle = false;
+            otErr                  = otThreadSetLinkMode(otInst, linkMode);
+            VerifyOrExit(otErr == OT_ERROR_NONE, err = MapOpenThreadError(otErr));
+        }
+        #endif // SL_USE_THREAD_DIRECT
+
         // Enable the Thread IPv6 interface.
         otErr = otIp6SetEnabled(otInst, true);
         VerifyOrExit(otErr == OT_ERROR_NONE, err = MapOpenThreadError(otErr));

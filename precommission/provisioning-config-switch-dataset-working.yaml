@@ -1,0 +1,61 @@
+# Unified provisioning configuration.
+# All sections share the same key/value schema. Thread sections use NVM3 object
+# keys (hex integers); MatterFabric uses KVS string keys. Values are hex strings.
+configs:
+  ThreadActiveDataset:
+    entries:
+      - type: active_timestamp
+        seconds: 1
+        ticks: 0
+        authoritative: false
+      - type: channel
+        page: 0
+        channel: 25
+      - type: wakeup_channel
+        page: 0
+        channel: 20
+      - type: channel_mask
+        entries:
+        - page: 0
+          mask: 001fffe0
+      - type: ext_pan_id
+        value: deadbeefcafe0001
+      - type: network_key
+        value: deadbeefcafebabe0011223344556677
+      - type: network_name
+        value: ThreadDirect
+      - type: pan_id
+        value: '0xd001'
+
+  PreCommissioning:
+    entries:
+      - key: "0x708"
+        description: "Operational key"
+        value: "04b37192af92eac82a29329b99c1f953fb1916f82698af67f3ab086be10448d24f73c913f33b683bdd1f1500f90ba27409a7b77b5e5cfc435157d11dc49f87c99d2fc78c6b2fb04bebe220286dbbbd412639a702ed9e2765427571be70291b258d"
+      
+  TargetConnectionParameters:
+    entries:
+      - key: "0x700"
+        description: "Target extended address"
+        value: "3a2e40e0a05448f5"
+      - key: "0x701"
+        description: "Target address: Light here"
+        value: "fdf6:5d1c:8822:6404:0:ff:fe00:ec00"
+      - key: "0x702"
+        description: "Target port"
+        value: "a415" # 5540
+      - key: "0x703"
+        description: "MRP Remote Idle Interval"
+        value: "d0070000" # 2000
+      - key: "0x704"
+        description: "MRP Remote Active Interval"
+        value: "d0070000" # 2000
+      - key: "0x705"
+        description: "MRP Remote Active Threshold Time"
+        value: "a00f0000" # 4000
+      - key: "0x706"
+        description: "Compressed Fabric ID"
+        value: "d66725f89b82e913" # 13E9829BF82567D6
+      - key: "0x707"
+        description: "Node ID"
+        value: "0200000000000000" # 2
