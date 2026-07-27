@@ -49,7 +49,7 @@
 #include <app/server/Server.h>
 #include <app/util/attribute-storage.h>
 
-#if 1 //SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 #include <clusters/ClosureControl/Commands.h>
 #include <clusters/ClosureControl/Enums.h>
 #endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
@@ -100,7 +100,7 @@ chip::EndpointId gLightSwitchEndpoint   = chip::kInvalidEndpointId;
 chip::EndpointId gGenericSwitchEndpoint = chip::kInvalidEndpointId;
 StepModeEnum gStepDirection             = StepModeEnum::kUp;
 
-#if 1 //SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 using TargetPositionEnum = chip::app::Clusters::ClosureControl::TargetPositionEnum;
 
 constexpr TargetPositionEnum kTargetPositionCycle[] = {
@@ -310,7 +310,7 @@ void AppTask::AppEventHandler(AppEvent * aEvent)
         }
         else
         {
-#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
             gClosureTargetIndex = (gClosureTargetIndex + 1) % kTargetPositionCycleSize;
             ChipLogProgress(AppServer, "Closure target position cycled to index %u", gClosureTargetIndex);
 
@@ -775,7 +775,7 @@ void AppTask::ProcessLevelControlBindingCommand(BindingCommandData * data, const
     }
 }
 
-#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 void AppTask::ProcessClosureControlBindingCommand(CommandId commandId, const Binding::TableEntry & binding,
                                                   OperationalDeviceProxy * peer_device)
 {
@@ -860,7 +860,7 @@ void AppTask::LightSwitchChangedHandler(const Binding::TableEntry & binding, Ope
     case Clusters::LevelControl::Id:
         ProcessLevelControlBindingCommand(data, binding, device);
         break;
-#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
     case Clusters::ClosureControl::Id:
         ProcessClosureControlBindingCommand(data->commandId, binding, device);
         break;

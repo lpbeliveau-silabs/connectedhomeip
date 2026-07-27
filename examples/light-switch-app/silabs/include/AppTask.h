@@ -122,7 +122,7 @@ public:
                                                   const chip::app::Clusters::Binding::TableEntry & binding,
                                                   chip::OperationalDeviceProxy * peer_device);
 
-#if 1 // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
     static void ProcessClosureControlBindingCommand(chip::CommandId commandId,
                                                     const chip::app::Clusters::Binding::TableEntry & binding,
                                                     chip::OperationalDeviceProxy * peer_device);

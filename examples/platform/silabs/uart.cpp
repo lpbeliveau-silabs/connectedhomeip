@@ -22,6 +22,8 @@
 #include <cmsis_os2.h>
 #include <platform/CHIPDeviceLayer.h>
 #include <sl_cmsis_os2_common.h>
+#include <FreeRTOS.h>
+#include <task.h>
 
 #include <platform/silabs/Logging.h>
 

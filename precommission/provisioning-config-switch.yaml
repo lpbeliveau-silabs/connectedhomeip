@@ -26,7 +26,7 @@ configs:
       - key: "g/bt"
         value: "1524010124020018"
       - key: "g/bt/0"
-        value: "152401012402012403062404012405022407ff18"
+        value: "152401012402012404012405022407ff18"
       - key: "f/1/ac/0/0"
         value: "1524010524020236030669b6010018340418"
   
@@ -54,7 +54,7 @@ configs:
         authoritative: false
       - type: channel
         page: 0
-        channel: 14
+        channel: 25
       - type: wakeup_channel
         page: 0
         channel: 20
@@ -93,8 +93,8 @@ configs:
         description: "Target extended address"
         value: "3a2e40e0a05448f5"
       - key: "0x701"
-        description: "Target address: Light here"
-        value: "fdf6:5d1c:8822:6404:0:ff:fe00:ec00"
+        description: "Target address: Closure here"
+        value: "fe80::382e:40e0:a054:48f5" # link local derived from ext_address
       - key: "0x702"
         description: "Target port"
         value: "a415" # 5540

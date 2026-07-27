@@ -27,6 +27,8 @@ namespace chip {
 namespace AddressResolve {
 namespace Impl {
 
+struct ResolveData;
+
 inline constexpr uint8_t kNodeLookupResultsLen = CHIP_CONFIG_MDNS_RESOLVE_LOOKUP_RESULTS;
 
 enum class NodeLookupResult
@@ -182,6 +184,21 @@ public:
     void OnOperationalNodeResolved(const Dnssd::ResolvedNodeData & nodeData) override;
     void OnOperationalNodeResolutionFailed(const PeerId & peerId, CHIP_ERROR error) override;
 
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+    enum class TDState : uint8_t
+    {
+        kIdle,
+        kLinking,
+        kLinked,
+    };
+
+    void OnThreadDirectLinked();
+    void OnThreadDirectUnlinked();
+    void OnThreadDirectLinkFailed();
+
+    TDState GetTDState() const { return mTDState; }
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+
 private:
     static void OnHardCodedNodeLookupResults(System::Layer * layer, void * context);
     static void OnResolveTimer(System::Layer * layer, void * context) { static_cast<Resolver *>(context)->HandleTimer(); }
@@ -205,6 +222,11 @@ private:
     System::Layer * mSystemLayer = nullptr;
     Time::TimeSource<Time::Source::kSystem> mTimeSource;
     IntrusiveList<NodeLookupHandle> mActiveLookups;
+
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+    TDState mTDState             = TDState::kIdle;
+    ResolveData * mPendingResolve = nullptr;
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 };
 
 } // namespace Impl

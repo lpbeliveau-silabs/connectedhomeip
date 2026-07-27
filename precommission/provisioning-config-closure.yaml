@@ -31,8 +31,8 @@ configs:
         value: "152401032402023603040118340418"
   ThreadNetworkInfo:
     entries:
-      role: 3
-      device_mode: 15
+      role: 2
+      device_mode: 4
       rloc16: '0xec00'
       key_sequence: 0
       mle_frame_counter: 1003
@@ -93,7 +93,7 @@ configs:
         value: "1e806b6588a24908"
       - key: "0x701"
         description: "Target address: Switch here"
-        value: "fdf6:5d1c:8822:6404:6ef1:9dd8:d354:0cf5"
+        value: "fe80::1c80:6b65:88a2:4908" # link local derived from ext_address
       - key: "0x702"
         description: "Target port"
         value: "a415" # 5540

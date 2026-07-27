@@ -70,6 +70,9 @@
 
 #if SL_USE_THREAD_DIRECT
 #include <atomic>
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#include <platform/silabs/address_resolve/AddressResolverImpl.h>
+#endif // OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 #endif // SL_USE_THREAD_DIRECT
 
 #include <platform/silabs/platformAbstraction/SilabsPlatform.h>
@@ -209,17 +212,51 @@ void DrainPendingThreadDirectWork(AppEvent *)
     }
 }
 
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+void NotifyResolverThreadDirectLinked(intptr_t)
+{
+    static_cast<chip::AddressResolve::Impl::Resolver &>(chip::AddressResolve::Resolver::Instance()).OnThreadDirectLinked();
+}
+
+void NotifyResolverThreadDirectUnlinked(intptr_t)
+{
+    static_cast<chip::AddressResolve::Impl::Resolver &>(chip::AddressResolve::Resolver::Instance()).OnThreadDirectUnlinked();
+}
+
+void NotifyResolverThreadDirectLinkFailed(intptr_t)
+{
+    static_cast<chip::AddressResolve::Impl::Resolver &>(chip::AddressResolve::Resolver::Instance()).OnThreadDirectLinkFailed();
+}
+#endif // OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+
 class ThreadDirectLinkDelegate : public chip::DeviceLayer::ThreadDirectDelegate
 {
 public:
     void OnThreadDirectLinked() override
     {
         sThreadDirectLinked.store(true, std::memory_order_relaxed);
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+        // OT callbacks run off the Matter stack; hop before touching AddressResolve / SystemLayer.
+        TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(NotifyResolverThreadDirectLinked);
+#endif // OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
         AppEvent event = {};
         event.Handler  = DrainPendingThreadDirectWork;
         BaseApplication::PostEvent(&event);
     }
-    void OnThreadDirectUnlinked() override { sThreadDirectLinked.store(false, std::memory_order_relaxed); }
+    void OnThreadDirectUnlinked() override
+    {
+        sThreadDirectLinked.store(false, std::memory_order_relaxed);
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+        TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(NotifyResolverThreadDirectUnlinked);
+#endif // OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+    }
+    void OnThreadDirectLinkFailed() override
+    {
+        sThreadDirectLinked.store(false, std::memory_order_relaxed);
+#if OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+        TEMPORARY_RETURN_IGNORED PlatformMgr().ScheduleWork(NotifyResolverThreadDirectLinkFailed);
+#endif // OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+    }
 };
 
 ThreadDirectLinkDelegate sThreadDirectLinkDelegate;

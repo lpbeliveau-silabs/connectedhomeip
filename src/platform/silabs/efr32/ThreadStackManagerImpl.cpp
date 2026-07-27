@@ -173,8 +173,12 @@ CHIP_ERROR ThreadStackManagerImpl::ThreadDirectInit()
 void ThreadStackManagerImpl::ThreadDirectSendWakeup()
 {
     otError error;
-    otExtAddress     extAddress;
+    otExtAddress extAddress;
     ReturnOnFailure(Internal::PreCommissioning::GetInstance().GetTargetExtAddress(extAddress));
+
+    ChipLogProgress(DeviceLayer,
+                    "TD sending wakeup to %02X%02X%02X%02X%02X%02X%02X%02X (type=link)", extAddress.m8[0], extAddress.m8[1],
+                    extAddress.m8[2], extAddress.m8[3], extAddress.m8[4], extAddress.m8[5], extAddress.m8[6], extAddress.m8[7]);
 
     _LockThreadStack();
     error = otThreadDirectWakeup(sOTInstance, &extAddress, OT_THREAD_DIRECT_WAKE_TYPE_LINK,
@@ -185,7 +189,7 @@ void ThreadStackManagerImpl::ThreadDirectSendWakeup()
 
     if (error != OT_ERROR_NONE)
     {
-        ChipLogError(DeviceLayer, "direct wake failed: %s\r\n", otThreadErrorToString(error));
+        ChipLogError(DeviceLayer, "TD wakeup command rejected by OpenThread: %s", otThreadErrorToString(error));
     }
 }
 
@@ -224,7 +228,18 @@ void ThreadStackManagerImpl::HandleDirectEvent(otThreadDirectEvent aEvent, const
         break;
 
     case OT_THREAD_DIRECT_EVENT_LINK_FAILED:
-        ChipLogProgress(DeviceLayer, "TD link failed\r\n");
+        if (aPeerInfo != nullptr)
+        {
+            ChipLogError(DeviceLayer,
+                         "TD link failed with %02X%02X%02X%02X%02X%02X%02X%02X (no response / link setup failed)",
+                         aPeerInfo->mExtAddress.m8[0], aPeerInfo->mExtAddress.m8[1], aPeerInfo->mExtAddress.m8[2],
+                         aPeerInfo->mExtAddress.m8[3], aPeerInfo->mExtAddress.m8[4], aPeerInfo->mExtAddress.m8[5],
+                         aPeerInfo->mExtAddress.m8[6], aPeerInfo->mExtAddress.m8[7]);
+        }
+        else
+        {
+            ChipLogError(DeviceLayer, "TD link failed (no peer info; wake retries exhausted or radio reject)");
+        }
         if (sInstance.mThreadDirectDelegate != nullptr)
         {
             sInstance.mThreadDirectDelegate->OnThreadDirectLinkFailed();

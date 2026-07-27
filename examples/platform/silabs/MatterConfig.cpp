@@ -294,10 +294,11 @@ CHIP_ERROR SilabsMatterConfig::InitMatter(const char * appName)
     err = PlatformMgr().InitChipStack();
     VerifyOrReturnError(err == CHIP_NO_ERROR, err,
                         ChipLogError(DeviceLayer, "Failed to Init Chip Stack: %" CHIP_ERROR_FORMAT, err.Format()));
-
+#if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE  
     err = chip::DeviceLayer::ConnectivityMgr().SetBLEDeviceName(appName);
     VerifyOrReturnError(err == CHIP_NO_ERROR, err,
                         ChipLogError(DeviceLayer, "Failed to Set BLE Device Name: %" CHIP_ERROR_FORMAT, err.Format()));
+#endif // CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
 
     // Provision Manager
     Provision::Manager & provision = Provision::Manager::GetInstance();

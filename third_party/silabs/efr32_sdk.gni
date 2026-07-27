@@ -335,11 +335,9 @@ template("efr32_sdk") {
       if (sl_use_thread_direct) {
         if (chip_openthread_thread_direct_wake_listener_enable) {
           libs += [ "${efr32_sdk_root}/openthread/libs/listener/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]
-          libs += [ "${efr32_sdk_root}/openthread/libs/listener/libsl_ot_stack_mtd_efr32mg24_${compiler}.a" ]
         } else {
           # chip_openthread_thread_direct_wake_initiator_enable
           libs += [ "${efr32_sdk_root}/openthread/libs/initiator/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]
-          libs += [ "${efr32_sdk_root}/openthread/libs/initiator/libsl_ot_stack_mtd_efr32mg24_${compiler}.a" ]
         }
       } else {
         libs += [ "${efr32_sdk_root}/openthread/libs/initiator/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]
@@ -385,11 +383,9 @@ template("efr32_sdk") {
       if (sl_use_thread_direct) {
         if (chip_openthread_thread_direct_wake_listener_enable) {
           libs += [ "${efr32_sdk_root}/openthread/libs/listener/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]
-          libs += [ "${efr32_sdk_root}/openthread/libs/listener/libsl_ot_stack_mtd_efr32mg26_${compiler}.a" ]
         } else {
           # chip_openthread_thread_direct_wake_initiator_enable
           libs += [ "${efr32_sdk_root}/openthread/libs/initiator/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]
-          libs += [ "${efr32_sdk_root}/openthread/libs/initiator/libsl_ot_stack_mtd_efr32mg26_${compiler}.a" ]
         }
       } else {
         libs += [ "${efr32_sdk_root}/openthread/libs/listener/build/${compiler}/cortex-m33/sl-openthread-library/Release/libsl_openthread.a" ]

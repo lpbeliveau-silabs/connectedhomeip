@@ -23,6 +23,10 @@
 #include <system/SystemClock.h>
 #include <platform/silabs/address_resolve/PreCommissioning.h>
 
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+#include <platform/CHIPDeviceLayer.h>
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+
 namespace chip {
 namespace AddressResolve {
 namespace Impl {
@@ -232,26 +236,49 @@ CHIP_ERROR Resolver::LookupNode(const NodeLookupRequest & request, Impl::NodeLoo
     auto & peerId = request.GetPeerId();
     if (cachedPeerId == peerId)
     {
-        // Capture everything needed for the callback
         auto * data    = Platform::New<ResolveData>();
+        VerifyOrReturnError(data != nullptr, CHIP_ERROR_NO_MEMORY);
 
-
-        // data->resolver = this;
         data->peerId   = peerId;
         ReturnErrorOnFailure(chip::DeviceLayer::Internal::PreCommissioning::GetInstance().GetTargetAddress(data->result.address));
-        // Log address to look like
-        // matterCli> otcli ipaddr
-        // fe80:0:0:0:382e:40e0:a054:48f5
+
         char addr_string[Inet::IPAddress::kMaxStringLength];
         data->result.address.ToString(addr_string);
         ChipLogProgress(Discovery, "Address: %s", addr_string);
+
         ReturnErrorOnFailure(chip::DeviceLayer::Internal::PreCommissioning::GetInstance().GetTargetMrpConfig(data->result.mrpRemoteConfig));
         data->result.supportsTcpServer = false;
         data->result.supportsTcpClient = false;
         data->result.isICDOperatingAsLIT = false;
         data->listener = handle.GetListener();
 
-        // We use an async callback due to the way OperationalSessionSetup handles the retries.
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+        switch (mTDState)
+        {
+        case TDState::kLinked:
+            ChipLogProgress(Discovery, "TD already linked, delivering address immediately");
+            break;
+
+        case TDState::kLinking:
+            ChipLogProgress(Discovery, "TD link in progress, holding resolve");
+            if (mPendingResolve != nullptr)
+            {
+                Platform::Delete(mPendingResolve);
+            }
+            mPendingResolve = data;
+            return CHIP_NO_ERROR;
+
+        case TDState::kIdle:
+            ChipLogProgress(Discovery,
+                            "TD idle: holding resolve for " ChipLogFormatPeerId " at %s until link is up",
+                            ChipLogValuePeerId(peerId), addr_string);
+            mTDState        = TDState::kLinking;
+            mPendingResolve = data;
+            chip::DeviceLayer::ThreadStackMgrImpl().ThreadDirectSendWakeup();
+            return CHIP_NO_ERROR;
+        }
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+
         CHIP_ERROR err = mSystemLayer->ScheduleWork(OnHardCodedNodeLookupResults, static_cast<void *>(data));
         if (err != CHIP_NO_ERROR)
         {
@@ -516,6 +543,55 @@ void Resolver::ReArmTimer()
 }
 
 } // namespace Impl
+
+#if SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
+void Impl::Resolver::OnThreadDirectLinked()
+{
+    mTDState = TDState::kLinked;
+    ChipLogProgress(Discovery, "TD linked, state -> kLinked");
+
+    if (mPendingResolve != nullptr)
+    {
+        ChipLogProgress(Discovery, "Delivering held resolve");
+        ResolveData * data = mPendingResolve;
+        mPendingResolve    = nullptr;
+
+        CHIP_ERROR err = mSystemLayer->ScheduleWork(OnHardCodedNodeLookupResults, static_cast<void *>(data));
+        if (err != CHIP_NO_ERROR)
+        {
+            ChipLogError(Discovery, "Failed to schedule held resolve: %" CHIP_ERROR_FORMAT, err.Format());
+            Platform::Delete(data);
+        }
+    }
+}
+
+void Impl::Resolver::OnThreadDirectUnlinked()
+{
+    mTDState = TDState::kIdle;
+    ChipLogProgress(Discovery, "TD unlinked, state -> kIdle");
+}
+
+void Impl::Resolver::OnThreadDirectLinkFailed()
+{
+    mTDState = TDState::kIdle;
+    ChipLogError(Discovery, "TD link failed (wake unanswered or link setup failed), state -> kIdle");
+
+    if (mPendingResolve != nullptr)
+    {
+        ResolveData * data = mPendingResolve;
+        mPendingResolve    = nullptr;
+
+        char addr_string[Transport::PeerAddress::kMaxToStringSize];
+        data->result.address.ToString(addr_string);
+        ChipLogError(Discovery,
+                     "Failing held resolve for " ChipLogFormatPeerId " at %s: CHIP_ERROR_TIMEOUT",
+                     ChipLogValuePeerId(data->peerId), addr_string);
+
+        data->listener->OnNodeAddressResolutionFailed(data->peerId, CHIP_ERROR_TIMEOUT);
+        Platform::Delete(data);
+    }
+}
+#endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 
 Resolver & Resolver::Instance()
 {
