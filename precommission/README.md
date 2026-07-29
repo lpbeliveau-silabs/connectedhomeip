@@ -1,5 +1,35 @@
 # Pre-Commissioning Script
 
+## Quick Start
+
+To quickly get the demo up and running, you can run the following commands to
+put 2 devices into a pre-commissioned state that can communicate over thread
+direct.
+
+_note:_ The following command assume an MG26 closure app and an MG24 switch app,
+but they are interchangeable with the provided images. A double mg26 or double
+mg24 setup can also be achieved.
+
+```bash
+# Clear both devices prior to flashing (optional).
+commander device masserase --serialno <target-device>
+commander device masserase --serialno <target-device>
+
+# Flash bootloader for both devices.
+commander flash bootloader-mg24.s37 --serialno <target-device>
+commander flash bootloader-mg26.s37 --serialno <target-device>
+
+# Flash the apps of each device.
+commander flash matter-silabs-closure-example-mg26.s37 --serialno <target-device>
+commander flash matter-silabs-switch-example-mg24.s37 --serialno <target-device>
+
+# Run the precommissioning script to have each device reachable on the same fabric through thread direct.
+python precommission/precommission.py --filePath precommission/provisioning-config-closure.yaml --serialno <target-device>
+python precommission/precommission.py --filePath precommission/provisioning-config-switch.yaml --serialno <target-device>
+```
+
+## Description
+
 `precommission.py` reads a provisioning YAML and writes the corresponding
 objects into the device NVM3 via Silicon Labs `commander nvm3 writedevice`, so
 the device can boot already commissioned from factory.
@@ -18,7 +48,7 @@ It walks each section under `configs` and builds a single write batch:
 ### Usage
 
 ```bash
-python3 precommission.py --filePath provisioning-config-switch.yaml [--serialno <target-device>] [--dryrun]
+python3 precommission/precommission.py --filePath precommission/provisioning-config-switch.yaml [--serialno <target-device>] [--dryrun]
 ```
 
 | Flag         | Required | Description                                              |
