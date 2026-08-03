@@ -313,7 +313,7 @@ CHIP_ERROR SilabsMatterConfig::InitMatter(const char * appName)
     static chip::CommonCaseDeviceServerInitParams initParams;
 
 #if CHIP_ENABLE_OPENTHREAD
-#if 1 // SL_USE_THREAD_DIRECT
+#if SL_USE_THREAD_DIRECT
     LogErrorOnFailure(Internal::PreCommissioning::GetInstance().Init());
 #endif // SL_USE_THREAD_DIRECT
     ReturnErrorOnFailure(InitOpenThread());

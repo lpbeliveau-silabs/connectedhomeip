@@ -279,6 +279,7 @@ CHIP_ERROR Resolver::LookupNode(const NodeLookupRequest & request, Impl::NodeLoo
         }
 #endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 
+        // We use an async callback due to the way OperationalSessionSetup handles the retries.
         CHIP_ERROR err = mSystemLayer->ScheduleWork(OnHardCodedNodeLookupResults, static_cast<void *>(data));
         if (err != CHIP_NO_ERROR)
         {

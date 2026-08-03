@@ -112,7 +112,6 @@ constexpr TargetPositionEnum kTargetPositionCycle[] = {
 };
 constexpr uint8_t kTargetPositionCycleSize = static_cast<uint8_t>(sizeof(kTargetPositionCycle) / sizeof(kTargetPositionCycle[0]));
 uint8_t gClosureTargetIndex                = 0;
-
 constexpr uint16_t kClosureTimedInvokeTimeoutMs = 5000;
 #endif // SL_USE_THREAD_DIRECT && OPENTHREAD_CONFIG_THREAD_DIRECT_WAKE_INITIATOR_ENABLE
 
@@ -803,31 +802,17 @@ void AppTask::ProcessClosureControlBindingCommand(CommandId commandId, const Bin
                                                                    onSuccess, onFailure, kClosureTimedInvokeTimeoutMs);
             break;
         }
-        case Clusters::ClosureControl::Commands::Stop::Id: {
-            Clusters::ClosureControl::Commands::Stop::Type stopCommand;
-            RETURN_SAFELY_IGNORED Controller::InvokeCommandRequest(exchangeMgr, sessionHandle, binding.remote, stopCommand,
-                                                                   onSuccess, onFailure);
-            break;
-        }
         default:
             break;
         }
     }
     else
     {
-        Messaging::ExchangeManager & exchangeMgr = Server::GetInstance().GetExchangeManager();
-
         switch (commandId)
         {
         case Clusters::ClosureControl::Commands::MoveTo::Id:
             ChipLogError(NotSpecified, "ClosureControl MoveTo requires timed invoke; group cast not supported");
             break;
-        case Clusters::ClosureControl::Commands::Stop::Id: {
-            Clusters::ClosureControl::Commands::Stop::Type stopCommand;
-            RETURN_SAFELY_IGNORED Controller::InvokeGroupCommandRequest(&exchangeMgr, binding.fabricIndex, binding.groupId,
-                                                                        stopCommand);
-            break;
-        }
         default:
             break;
         }
